@@ -1,3 +1,4 @@
+from modules.module_ann import Ann
 from memory_profiler import profile
 from gensim import matutils
 import numpy as np
@@ -19,6 +20,9 @@ class Embedding:
         # All Words embedding List[List[float]]
         self.embedding = None
 
+        # Estimate AproximateNearestNeighbors
+        self.ann = None
+
         # Load embedding and pca dataset
         self.__load()
 
@@ -33,6 +37,15 @@ class Embedding:
 
         # --- Get embedding from string
         self.embedding = self.ds['embedding'].to_list()
+
+        # --- Get forest tree to estimate Nearest Neighbors ---
+        self.ann = Ann(
+            words=self.ds['word'], 
+            vectors=self.ds['embedding'], 
+            coord=self.ds['pca']
+        )
+        self.ann.init(n_trees=20, metric='dot', n_jobs=-1)
+
 
     def __getValue(self, word, feature):
         word_id, value = None, None

@@ -1,0 +1,13 @@
+# sesgo en palabras - exploraion de palabras
+sklearn
+gensim==3.7.3
+transformers
+matplotlib
+numpy
+seaborn
+
+# All
+uuid
+python-dotenv
+memory_profiler
+annoy

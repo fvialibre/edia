@@ -251,17 +251,12 @@ class BiasExplorer():
 
         return out_msj
 
-    def parse_words(self, string):
-        words = string.strip()
-        if words:
-            words = [word.strip() for word in words.split(',') if word != ""]
-        return words
-
-    def check_oov(self, wordlist):
-        for word in wordlist:
-            msg = self.__errorChecking(word)
-            if msg:
-                return msg
+    def check_oov(self, wordlists):
+        for wordlist in wordlists:
+            for word in wordlist:
+                msg = self.__errorChecking(word)
+                if msg:
+                    return msg
         return None
 
 
@@ -269,19 +264,15 @@ class WEBiasExplorer2d(BiasExplorer):
     def __init__(self, word_embedding) -> None:
         super().__init__(word_embedding)
 
-    def calculate_bias(
-        self,
-        palabras_extremo_1,
-        palabras_extremo_2,
-        palabras_para_situar
-    ):
-
-        palabras_extremo_1 = self.parse_words(palabras_extremo_1)
-        palabras_extremo_2 = self.parse_words(palabras_extremo_2)
-        palabras_para_situar = self.parse_words(palabras_para_situar)
-
-        err = self.check_oov(palabras_extremo_1 + palabras_extremo_2 + palabras_para_situar)
-        for wordlist in [palabras_extremo_1,palabras_extremo_2,palabras_para_situar]:
+    def calculate_bias( self,
+                        palabras_extremo_1,
+                        palabras_extremo_2,
+                        palabras_para_situar
+                        ):
+        wordlists = [palabras_extremo_1, palabras_extremo_2, palabras_para_situar] 
+        
+        err = self.check_oov(wordlists)
+        for wordlist in wordlists:
             if not wordlist:
                 err = "<center><h3>" + 'Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2' + "<center><h3>"
         if err:
@@ -378,14 +369,13 @@ class WEBiasExplorer4d(BiasExplorer):
     def __init__(self, word_embedding) -> None:
         super().__init__(word_embedding)
 
-    def calculate_bias(
-        self,
-        palabras_extremo_1,
-        palabras_extremo_2,
-        palabras_extremo_3,
-        palabras_extremo_4,
-        palabras_para_situar
-    ):
+    def calculate_bias( self,
+                        palabras_extremo_1,
+                        palabras_extremo_2,
+                        palabras_extremo_3,
+                        palabras_extremo_4,
+                        palabras_para_situar
+                        ):
         wordlists = [
             palabras_extremo_1,
             palabras_extremo_2,
@@ -398,14 +388,7 @@ class WEBiasExplorer4d(BiasExplorer):
                 err = "<center><h3>" + \
                     '¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!' + "<center><h3>"
 
-        palabras_extremo_1 = self.parse_words(palabras_extremo_1)
-        palabras_extremo_2 = self.parse_words(palabras_extremo_2)
-        palabras_extremo_3 = self.parse_words(palabras_extremo_3)
-        palabras_extremo_4 = self.parse_words(palabras_extremo_4)
-        palabras_para_situar = self.parse_words(palabras_para_situar)
-
-        err = self.check_oov(palabras_extremo_1 + palabras_extremo_2 + 
-        palabras_extremo_3 + palabras_extremo_4 + palabras_para_situar)
+        err = self.check_oov(wordlist)
 
         if err:
             return None, err

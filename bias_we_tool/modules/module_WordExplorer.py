@@ -1,10 +1,13 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import pandas as pd
 
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+
 class WordExplorer:
-    def __init__(self,vocabulary) -> None:
+    def __init__(self, vocabulary) -> None:
         self.vocabulary = vocabulary
 
     def __errorChecking(self, word):
@@ -30,12 +33,42 @@ class WordExplorer:
 
     def check_oov(self, wordlists):
         for wordlist in wordlists:
-            parsed_words = self.parse_words(wordlist)
-            for word in parsed_words:
+            for word in wordlist:
                 msg = self.__errorChecking(word)
                 if msg:
                     return msg
         return None
+
+    def process_word_to_plot(self, 
+                            word,
+                            word_list, 
+                            color, 
+                            word_bias_space, 
+                            words_colors, 
+                            color_dict, 
+                            alpha, 
+                            alpha_value = 1,
+                            n_value=0.2,
+                            n_neighbors = 0
+                            ):
+        word_bias_space[word] = color
+        words_colors[word] = color_dict[color]
+        alpha[word] = alpha_value
+
+        if n_neighbors > 0:
+            neighbors = self.vocabulary.ann.get(word, n_neighbors=n_neighbors)
+            for n in neighbors:
+                if n not in alpha:
+                    self.process_word_to_plot(n, word_list, color, word_bias_space, words_colors, color_dict, alpha, alpha_value=n_value)
+            word_list += neighbors
+
+    def get_df(self, words_embedded, word_list, words_colors, alpha, word_bias_space):
+        df = pd.DataFrame(words_embedded)
+        df['word'] = word_list
+        df['color'] = [words_colors[word] for word in word_list]
+        df['alpha'] = [alpha[word] for word in word_list]
+        df['word_bias_space'] = [word_bias_space[word] for word in word_list]
+        return df
 
     def plot_projections_2d(self,
                             wordlist,
@@ -43,26 +76,29 @@ class WordExplorer:
                             wordlist_2,
                             wordlist_3,
                             wordlist_4,
-                            color_wordlist,
-                            color_wordlist_1,
-                            color_wordlist_2,
-                            color_wordlist_3,
-                            color_wordlist_4,
-                            plot_neighbors,
-                            n_alpha,
-                            fontsize,
-                            n_neighbors,
+                            color_wordlist = '#000000',
+                            color_wordlist_1 = '#1f78b4',
+                            color_wordlist_2 = '#33a02c',
+                            color_wordlist_3 = '#e31a1c',
+                            color_wordlist_4 = '#6a3d9a',
+                            n_alpha=0.3,
+                            fontsize=18,
+                            n_neighbors=0,
                             figsize=(15, 15),
                             ):
         # convertirlas a vector
-        choices = [0, 1, 2, 3, 4]
-        word_list = []
-        wordlist_choice = [wordlist, wordlist_1,
-                           wordlist_2, wordlist_3, wordlist_4]
+        wordlist_choice = [
+            wordlist, 
+            wordlist_1,
+            wordlist_2, 
+            wordlist_3, 
+            wordlist_4
+        ]
+
         err = self.check_oov(wordlist_choice)
         if err:
             return None, err
-        words_colors = {}
+
         color_dict = {
             0: color_wordlist,
             1: color_wordlist_1,
@@ -70,34 +106,26 @@ class WordExplorer:
             3: color_wordlist_3,
             4: color_wordlist_4
         }
+        choices = [0, 1, 2, 3, 4]
+        word_list = []
+        words_colors = {}
         word_bias_space = {}
         alpha = {}
 
-        for raw_word_list, color in zip(wordlist_choice, choices):
-            parsed_words = self.parse_words(raw_word_list)
-            if parsed_words:
-                for word in parsed_words:
-                    word_bias_space[word] = color
-                    words_colors[word] = color_dict[color]
-                    alpha[word] = 1
-                    if plot_neighbors:
-                        neighbors = self.vocabulary.getNearestNeighbors(word, n_neighbors=n_neighbors)
-                        for n in neighbors:
-                            if n not in alpha:
-                                word_bias_space[n] = color
-                                words_colors[n] = color_dict[color]
-                                alpha[n] = n_alpha
-                        word_list += neighbors
-            word_list += parsed_words
+        for word_list_to_process, color in zip(wordlist_choice, choices):
+            for word in word_list_to_process:
+                self.process_word_to_plot(word, word_list, color, word_bias_space, words_colors, color_dict, alpha, 1, n_alpha, n_neighbors)
+                
+            word_list += word_list_to_process
+
         if not word_list:
             return None, "<center><h3>" + "Ingresa al menos 2 palabras para continuar" + "<center><h3>"
-        words_embedded = np.array([self.vocabulary.getPCA(word)
-                                   for word in word_list])
-        data = pd.DataFrame(words_embedded)
-        data['word'] = word_list
-        data['color'] = [words_colors[word] for word in word_list]
-        data['alpha'] = [alpha[word] for word in word_list]
-        data['word_bias_space'] = [word_bias_space[word] for word in word_list]
+        
+        words_embedded = np.array([self.vocabulary.getPCA(word) for word in word_list])
+
+        data = self.get_df(words_embedded, word_list, words_colors, alpha, word_bias_space)
+        
+        # TODO: Discuss if all this plot-related code should de refactored to another method!
         fig, ax = plt.subplots(figsize=figsize)
 
         sns.scatterplot(
@@ -109,7 +137,8 @@ class WordExplorer:
             ax=ax,
             palette=color_dict
         )
-        if plot_neighbors:
+
+        if n_neighbors > 0:
             sns.scatterplot(
                 data=data[data['alpha'] != 1],
                 x=0,
