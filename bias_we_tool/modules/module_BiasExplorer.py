@@ -56,7 +56,7 @@ MAX_NON_SPECIFIC_EXAMPLES = 1000
 __all__ = ['GenderBiasWE', 'BiasWordEmbedding']
 
 
-class BiasExplorer():
+class WordBiasExplorer():
     def __init__(self, vocabulary):
         # pylint: disable=undefined-variable
 
@@ -258,9 +258,131 @@ class BiasExplorer():
                 if msg:
                     return msg
         return None
+    
+    def plot_biased_words(self,
+                       words_to_diagnose,
+                       wordlist_right,
+                       wordlist_left,
+                       wordlist_top=[],
+                       wordlist_bottom=[]
+                       ):
+        bias_2D = wordlist_top == [] and wordlist_bottom == []
 
+        err = self.check_oov([words_to_diagnose + wordlist_right + wordlist_left + wordlist_top + wordlist_bottom])
+        if bias_2D and (not wordlist_right or not wordlist_left):
+            err = ""
+        elif not bias_2D and (not wordlist_right or not wordlist_left or not wordlist_top or not wordlist_bottom):
+            err = ""
 
-class WEBiasExplorer2d(BiasExplorer):
+        if err:
+            return None, err
+
+        return self.get_bias_plot(bias_2D,
+                                  words_to_diagnose,
+                                  definitional_1=(wordlist_right, wordlist_left),
+                                  definitional_2=(wordlist_top, wordlist_bottom)
+                                  )
+
+    def get_bias_plot(self,
+                      plot_2D,
+                      words_to_diagnose,
+                      definitional_1,
+                      definitional_2=([], []),
+                      method='sum',
+                      n_extreme=10,
+                      figsize=(10, 10)
+                      ):
+        fig, ax = plt.subplots(1, figsize=figsize)
+        self.method = method
+        self.plot_projection_scores(plot_2D, words_to_diagnose, definitional_1, definitional_2, n_extreme, ax)
+        
+        if plot_2D:
+            fig.tight_layout()
+        fig.canvas.draw()
+
+        return fig
+
+    def plot_projection_scores(self,
+                                  plot_2D,
+                                  words,
+                                  definitional_1,
+                                  definitional_2=([], []),
+                                  n_extreme=10,
+                                  ax=None,
+                                  axis_projection_step=0.1):
+        name_left  = ', '.join(definitional_1[1])
+        name_right = ', '.join(definitional_1[0])
+
+        self._identify_direction(name_left, name_right, definitional=definitional_1, method='sum')
+        self._is_direction_identified()
+
+        projections_df = self._calc_projection_scores(words)
+        projections_df['projection_x'] = projections_df['projection'].round(2)
+
+        if not plot_2D:
+            name_top    = ', '.join(definitional_2[1])
+            name_bottom = ', '.join(definitional_2[0])
+            self._identify_direction(name_top, name_bottom, definitional=definitional_2, method='sum')
+            self._is_direction_identified()
+
+            projections_df['projection_y'] = self._calc_projection_scores(words)['projection'].round(2)
+
+        if n_extreme is not None:
+            projections_df = take_two_sides_extreme_sorted(projections_df, n_extreme=n_extreme)
+        
+        if ax is None:
+            _, ax = plt.subplots(1)
+        
+        cmap = plt.get_cmap('RdBu')
+        projections_df['color'] = ((projections_df['projection'] + 0.5).apply(cmap))
+        most_extream_projection = np.round(
+            projections_df['projection']
+            .abs()
+            .max(),
+            decimals=1)
+        
+        if plot_2D:
+            sns.barplot(x='projection', y='word', data=projections_df,
+                    palette=projections_df['color'])
+        else:
+            sns.scatterplot(x='projection_x', y='projection_y', data=projections_df,
+                        palette=projections_df['color'])
+        
+        plt.xticks(np.arange(-most_extream_projection,
+                             most_extream_projection + axis_projection_step,
+                             axis_projection_step))
+
+        x_label = '← {} {} {} →'.format(name_left,
+                                        ' ' * 20,
+                                        name_right)
+        if not plot_2D:
+            y_label = '← {} {} {} →'.format(name_top,
+                                        ' ' * 20,
+                                        name_bottom)
+            for _, row in (projections_df.iterrows()):
+                ax.annotate(row['word'], (row['projection_x'], row['projection_y']))
+        
+        plt.xlabel(x_label)
+        plt.ylabel('Words')
+
+        if not plot_2D:
+            ax.xaxis.set_label_position('bottom')
+            ax.xaxis.set_label_coords(.5, 0)
+
+            plt.ylabel(y_label)
+            ax.yaxis.set_label_position('left')
+            ax.yaxis.set_label_coords(0, .5)
+
+            ax.spines['left'].set_position('center')
+            ax.spines['bottom'].set_position('center')
+
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+        return ax
+        
+# Would be erased if decided to keep all info in BiasWordExplorer
+class WEBiasExplorer2d(WordBiasExplorer):
     def __init__(self, word_embedding) -> None:
         super().__init__(word_embedding)
 
@@ -365,7 +487,7 @@ class WEBiasExplorer2d(BiasExplorer):
         return ax
 
 
-class WEBiasExplorer4d(BiasExplorer):
+class WEBiasExplorer4d(WordBiasExplorer):
     def __init__(self, word_embedding) -> None:
         super().__init__(word_embedding)
 

@@ -39,6 +39,9 @@ class WordExplorer:
                     return msg
         return None
 
+    def get_neighbors(self, word, n_neighbors=5):
+        return self.vocabulary.ann.get(word, n_neighbors=n_neighbors)
+
     def process_word_to_plot(self, 
                             word,
                             word_list, 
@@ -56,7 +59,7 @@ class WordExplorer:
         alpha[word] = alpha_value
 
         if n_neighbors > 0:
-            neighbors = self.vocabulary.ann.get(word, n_neighbors=n_neighbors)
+            neighbors = self.get_neighbors(word, n_neighbors=n_neighbors)
             for n in neighbors:
                 if n not in alpha:
                     self.process_word_to_plot(n, word_list, color, word_bias_space, words_colors, color_dict, alpha, alpha_value=n_value)
@@ -70,62 +73,18 @@ class WordExplorer:
         df['word_bias_space'] = [word_bias_space[word] for word in word_list]
         return df
 
-    def plot_projections_2d(self,
-                            wordlist,
-                            wordlist_1,
-                            wordlist_2,
-                            wordlist_3,
-                            wordlist_4,
-                            color_wordlist = '#000000',
-                            color_wordlist_1 = '#1f78b4',
-                            color_wordlist_2 = '#33a02c',
-                            color_wordlist_3 = '#e31a1c',
-                            color_wordlist_4 = '#6a3d9a',
-                            n_alpha=0.3,
-                            fontsize=18,
-                            n_neighbors=0,
-                            figsize=(15, 15),
-                            ):
-        # convertirlas a vector
-        wordlist_choice = [
-            wordlist, 
-            wordlist_1,
-            wordlist_2, 
-            wordlist_3, 
-            wordlist_4
-        ]
-
-        err = self.check_oov(wordlist_choice)
-        if err:
-            return None, err
-
-        color_dict = {
-            0: color_wordlist,
-            1: color_wordlist_1,
-            2: color_wordlist_2,
-            3: color_wordlist_3,
-            4: color_wordlist_4
-        }
-        choices = [0, 1, 2, 3, 4]
-        word_list = []
-        words_colors = {}
-        word_bias_space = {}
-        alpha = {}
-
-        for word_list_to_process, color in zip(wordlist_choice, choices):
-            for word in word_list_to_process:
-                self.process_word_to_plot(word, word_list, color, word_bias_space, words_colors, color_dict, alpha, 1, n_alpha, n_neighbors)
-                
-            word_list += word_list_to_process
-
-        if not word_list:
-            return None, "<center><h3>" + "Ingresa al menos 2 palabras para continuar" + "<center><h3>"
-        
-        words_embedded = np.array([self.vocabulary.getPCA(word) for word in word_list])
-
-        data = self.get_df(words_embedded, word_list, words_colors, alpha, word_bias_space)
-        
-        # TODO: Discuss if all this plot-related code should de refactored to another method!
+    def get_plot(self,
+                 data, 
+                 word_list, 
+                 words_embedded, 
+                 words_colors, 
+                 color_dict, 
+                 alpha, 
+                 n_neighbors, 
+                 n_alpha, 
+                 fontsize=18, 
+                 figsize=(15, 15)
+                 ):
         fig, ax = plt.subplots(figsize=figsize)
 
         sns.scatterplot(
@@ -163,7 +122,61 @@ class WordExplorer:
         fig.tight_layout()
         fig.canvas.draw()
 
-        data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        w, h = fig.canvas.get_width_height()
-        im = data.reshape((int(h), int(w), -1))
-        return im, ''
+        return fig
+
+    def plot_projections_2d(self,
+                            wordlist_0,
+                            wordlist_1 = [],
+                            wordlist_2 = [],
+                            wordlist_3 = [],
+                            wordlist_4 = [],
+                            **kwargs
+                            ):
+        # convertirlas a vector
+        choices = [0, 1, 2, 3, 4]
+        wordlist_choice = [
+            wordlist_0, 
+            wordlist_1,
+            wordlist_2, 
+            wordlist_3, 
+            wordlist_4
+        ]
+
+        err = self.check_oov(wordlist_choice)
+        if err:
+            return None, err
+
+        color_dict = {
+            0: kwargs.get('color_wordlist_0', '#000000'),
+            1: kwargs.get('color_wordlist_1', '#1f78b4'),
+            2: kwargs.get('color_wordlist_2', '#33a02c'),
+            3: kwargs.get('color_wordlist_3', '#e31a1c'),
+            4: kwargs.get('color_wordlist_4', '#6a3d9a')
+        }
+        words_colors = {}
+        word_bias_space = {}
+        alpha = {}
+
+        n_neighbors = kwargs.get('n_neighbors', 0)
+        n_alpha = kwargs.get('n_alpha', 0.3)
+
+        word_list = []
+        for word_list_to_process, color in zip(wordlist_choice, choices):
+            for word in word_list_to_process:
+                self.process_word_to_plot(word, word_list, color, word_bias_space, words_colors, color_dict, alpha, 1, n_alpha, n_neighbors)
+                
+            word_list += word_list_to_process
+
+        if not word_list:
+            return None, "<center><h3>" + "Ingresa al menos 2 palabras para continuar" + "<center><h3>"
+        
+        words_embedded = np.array([self.vocabulary.getPCA(word) for word in word_list])
+
+        data = self.get_df(words_embedded, word_list, words_colors, alpha, word_bias_space)
+        fig = self.get_plot(data, word_list, words_embedded, words_colors, 
+                            color_dict, alpha, n_neighbors, n_alpha, 
+                            kwargs.get('fontsize', 18), 
+                            kwargs.get('figsize', (15, 15))
+                            )
+        plt.show()
+        return fig
