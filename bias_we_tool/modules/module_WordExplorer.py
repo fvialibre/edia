@@ -6,6 +6,13 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
+class WordToPlot:
+    def __init__(self, word, color, bias_space, alpha):
+        self.word = word
+        self.color = color
+        self.bias_space = bias_space
+        self.alpha = alpha
+
 class WordExplorer:
     def __init__(self, vocabulary) -> None:
         self.vocabulary = vocabulary
@@ -42,44 +49,20 @@ class WordExplorer:
     def get_neighbors(self, word, n_neighbors=5):
         return self.vocabulary.ann.get(word, n_neighbors=n_neighbors)
 
-    def process_word_to_plot(self, 
-                            word,
-                            word_list, 
-                            color, 
-                            word_bias_space, 
-                            words_colors, 
-                            color_dict, 
-                            alpha, 
-                            alpha_value = 1,
-                            n_value=0.2,
-                            n_neighbors = 0
-                            ):
-        word_bias_space[word] = color
-        words_colors[word] = color_dict[color]
-        alpha[word] = alpha_value
-
-        if n_neighbors > 0:
-            neighbors = self.get_neighbors(word, n_neighbors=n_neighbors)
-            for n in neighbors:
-                if n not in alpha:
-                    self.process_word_to_plot(n, word_list, color, word_bias_space, words_colors, color_dict, alpha, alpha_value=n_value)
-            word_list += neighbors
-
-    def get_df(self, words_embedded, word_list, words_colors, alpha, word_bias_space):
+    def get_df(self, words_embedded, processed_word_list):
         df = pd.DataFrame(words_embedded)
-        df['word'] = word_list
-        df['color'] = [words_colors[word] for word in word_list]
-        df['alpha'] = [alpha[word] for word in word_list]
-        df['word_bias_space'] = [word_bias_space[word] for word in word_list]
+
+        df['word'] = [wtp.word for wtp in processed_word_list]
+        df['color'] = [wtp.color for wtp in processed_word_list]
+        df['alpha'] = [wtp.alpha for wtp in processed_word_list]
+        df['word_bias_space'] = [wtp.bias_space for wtp in processed_word_list]
         return df
 
     def get_plot(self,
                  data, 
-                 word_list, 
-                 words_embedded, 
-                 words_colors, 
-                 color_dict, 
-                 alpha, 
+                 processed_word_list, 
+                 words_embedded,
+                 color_dict,
                  n_neighbors, 
                  n_alpha, 
                  fontsize=18, 
@@ -109,11 +92,11 @@ class WordExplorer:
                 legend=False,
                 palette=color_dict
             )
-        for i, label in enumerate(word_list):
+        for i, wtp in enumerate(processed_word_list):
             x, y = words_embedded[i, :]
-            ax.annotate(label, xy=(x, y), xytext=(5, 2), color=words_colors[label],
+            ax.annotate(wtp.word, xy=(x, y), xytext=(5, 2), color=wtp.color,
                         textcoords='offset points',
-                        ha='right', va='bottom', size=fontsize, alpha=alpha[label])
+                        ha='right', va='bottom', size=fontsize, alpha=wtp.alpha)
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -153,28 +136,30 @@ class WordExplorer:
             3: kwargs.get('color_wordlist_3', '#e31a1c'),
             4: kwargs.get('color_wordlist_4', '#6a3d9a')
         }
-        words_colors = {}
-        word_bias_space = {}
-        alpha = {}
 
         n_neighbors = kwargs.get('n_neighbors', 0)
         n_alpha = kwargs.get('n_alpha', 0.3)
 
-        word_list = []
+        processed_word_list = []
         for word_list_to_process, color in zip(wordlist_choice, choices):
             for word in word_list_to_process:
-                self.process_word_to_plot(word, word_list, color, word_bias_space, words_colors, color_dict, alpha, 1, n_alpha, n_neighbors)
-                
-            word_list += word_list_to_process
+                processed_word_list.append(WordToPlot(word, color_dict[color], color, 1))
 
-        if not word_list:
+                if n_neighbors > 0:
+                    neighbors = self.get_neighbors(word, n_neighbors=n_neighbors+1)
+                    for n in neighbors:
+                        if n not in [wtp.word for wtp in processed_word_list]:
+                            processed_word_list.append(WordToPlot(n, color_dict[color], color, n_alpha))
+
+        if not processed_word_list:
             return None, "<center><h3>" + "Ingresa al menos 2 palabras para continuar" + "<center><h3>"
         
-        words_embedded = np.array([self.vocabulary.getPCA(word) for word in word_list])
+        words_embedded = np.array([self.vocabulary.getPCA(wtp.word) for wtp in processed_word_list])
 
-        data = self.get_df(words_embedded, word_list, words_colors, alpha, word_bias_space)
-        fig = self.get_plot(data, word_list, words_embedded, words_colors, 
-                            color_dict, alpha, n_neighbors, n_alpha, 
+        data = self.get_df(words_embedded, processed_word_list)
+
+        fig = self.get_plot(data, processed_word_list, words_embedded, 
+                            color_dict, n_neighbors, n_alpha, 
                             kwargs.get('fontsize', 18), 
                             kwargs.get('figsize', (15, 15))
                             )
