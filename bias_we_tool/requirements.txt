@@ -1,13 +1,14 @@
-# sesgo en palabras - exploraion de palabras
+regex
+torch
 sklearn
-gensim==3.7.3
 transformers
+wordcloud
 matplotlib
 numpy
-seaborn
-
-# All
 uuid
 python-dotenv
 memory_profiler
+gensim==3.7.3
+seaborn
 annoy
+datasets

@@ -2,10 +2,9 @@ import gradio as gr
 
 from examples.examples import examples_explorar_relaciones_entre_palabras
 from modules.module_logsManager import HuggingFaceDatasetSaver
-from modules.module_WordExplorer import WordExplorer
 from tool_info import TOOL_INFO
 import matplotlib.pyplot as plt
-from modules.module_connection import Connector
+from modules.module_connection import WordExplorerConnector
 
 plt.rcParams.update({'font.size': 14})
 
@@ -21,7 +20,7 @@ def interface(embedding, available_logs):
         available_logs=available_logs
     )
     # --- Init vars ---
-    connector = Connector(embedding, to='explore')
+    connector = WordExplorerConnector().build(embedding=embedding)
 
     # --- Interface ---
     interface = gr.Blocks()

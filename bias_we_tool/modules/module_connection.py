@@ -1,23 +1,33 @@
 import numpy as np
+import pandas as pd
+import gradio as gr
+from abc import ABC, abstractmethod
 from modules.module_WordExplorer import WordExplorer
-from modules.module_BiasExplorer import  WEBiasExplorer2d, WEBiasExplorer4d, WordBiasExplorer
+from modules.module_BiasExplorer import WordBiasExplorer
+from modules.module_word2Context import Word2Context
 
-class Connector:
-    def __init__(self, vocabulary, to = 'explore'):
-        if to == 'explore':
-            self.word_explorer = WordExplorer(vocabulary)
-            self.to = 'explore'
-        else:
-            self.we_bias_2d = WEBiasExplorer2d(vocabulary)
-            self.we_bias_4d = WEBiasExplorer4d(vocabulary)
-            self.bias_word_explorer = WordBiasExplorer(vocabulary)
-            self.to = 'bias'
+class Connector(ABC):
+
+    def __init__(self) -> None:
+        self.built = False
+
+    @abstractmethod
+    def build(self, **kwargs):
+        pass
+
+    def check_was_built(self):
+        if not self.built:
+            raise Exception('Object not built correctly. Call build() method before use!')
+        return self.built
+
+    def parse_word(self, word : str):
+        return word.lower().strip()
 
     def parse_words(self, array_in_string : str):
         words = array_in_string.strip()
         if not words:
             return []
-        words = [word.lower().strip() for word in words.split(',') if word != '']
+        words = [self.parse_word(word) for word in words.split(',') if word != '']
         return words
 
     def buff_figure(self, fig):
@@ -25,6 +35,18 @@ class Connector:
         w, h = fig.canvas.get_width_height()
         im = data.reshape((int(h), int(w), -1))
         return im
+    
+
+class WordExplorerConnector(Connector):
+
+    def build(self, **kwargs):
+        if 'embedding' in kwargs:
+            embedding = kwargs.get('embedding')
+        else:
+            raise KeyError
+        self.word_explorer = WordExplorer(embedding)
+        self.built = True
+        return self
 
     def plot_proyection_2d( self,
                             wordlist_0,
@@ -41,18 +63,18 @@ class Connector:
                             fontsize,
                             n_neighbors
                             ):
-        assert self.to == 'explore', 'Inconsistency between Connector object created and its use'
+        self.check_was_built()
 
-        list_0 = self.parse_words(wordlist_0)
-        list_1 = self.parse_words(wordlist_1)
-        list_2 = self.parse_words(wordlist_2)
-        list_3 = self.parse_words(wordlist_3)
-        list_4 = self.parse_words(wordlist_4)
-        fig = self.word_explorer.plot_projections_2d(list_0,
-                                                     list_1,
-                                                     list_2,
-                                                     list_3,
-                                                     list_4,
+        wordlist_0 = self.parse_words(wordlist_0)
+        wordlist_1 = self.parse_words(wordlist_1)
+        wordlist_2 = self.parse_words(wordlist_2)
+        wordlist_3 = self.parse_words(wordlist_3)
+        wordlist_4 = self.parse_words(wordlist_4)
+        fig = self.word_explorer.plot_projections_2d(wordlist_0,
+                                                     wordlist_1,
+                                                     wordlist_2,
+                                                     wordlist_3,
+                                                     wordlist_4,
                                                      color_wordlist_0=color_wordlist_0,
                                                      color_wordlist_1=color_wordlist_1,
                                                      color_wordlist_2=color_wordlist_2,
@@ -63,19 +85,30 @@ class Connector:
                                                      n_neighbors=n_neighbors
                                                      )
         return self.buff_figure(fig), ''
-    
+
+class BiasWordExplorerConnector(Connector):
+
+    def build(self, **kwargs):
+        if 'embedding' in kwargs:
+            embedding = kwargs.get('embedding')
+        else:
+            raise KeyError
+        self.bias_word_explorer = WordBiasExplorer(embedding)
+        self.built = True
+        return self
+
     def calculate_bias_2d(self,
                          wordlist_1,
                          wordlist_2,
-                         diagnose_list
+                         to_diagnose_list
                          ):
-        assert self.to == 'bias', 'Inconsistency between Connector object created and its use'
+        self.check_was_built()
 
-        list_1 = self.parse_words(wordlist_1)
-        list_2 = self.parse_words(wordlist_2)
-        to_diagnose_list = self.parse_words(diagnose_list)
+        wordlist_1 = self.parse_words(wordlist_1)
+        wordlist_2 = self.parse_words(wordlist_2)
+        to_diagnose_list = self.parse_words(to_diagnose_list)
 
-        fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, list_2, list_1)
+        fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_2, wordlist_1)
 
         return self.buff_figure(fig), ''
 
@@ -84,15 +117,74 @@ class Connector:
                          wordlist_2,
                          wordlist_3,
                          wordlist_4,
-                         diagnose_list
+                         to_diagnose_list
                          ):
-        assert self.to == 'bias', 'Inconsistency between Connector object created and its use'
+        self.check_was_built()
         
-        list_1 = self.parse_words(wordlist_1)
-        list_2 = self.parse_words(wordlist_2)
-        list_3 = self.parse_words(wordlist_3)
-        list_4 = self.parse_words(wordlist_4)
-        to_diagnose_list = self.parse_words(diagnose_list)
+        wordlist_1 = self.parse_words(wordlist_1)
+        wordlist_2 = self.parse_words(wordlist_2)
+        wordlist_3 = self.parse_words(wordlist_3)
+        wordlist_4 = self.parse_words(wordlist_4)
+        to_diagnose_list = self.parse_words(to_diagnose_list)
 
-        fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, list_1, list_2, list_3, list_4)
+        fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_1, wordlist_2, wordlist_3, wordlist_4)
         return self.buff_figure(fig), ''
+
+class Word2ContextExplorerConnector(Connector):
+    def build(self, **kwargs):
+        vocabulary = kwargs.get('vocabulary', None)
+        context = kwargs.get('context', None)
+
+        if vocabulary is None and context is None:
+            raise KeyError
+        self.word2context_explorer = Word2Context(context, vocabulary)
+        self.built = True
+        return self
+
+    def get_word_info(self, word):
+        self.check_was_built()
+
+        errors = ""
+        contexts = pd.DataFrame([],columns=[''])
+        subsets_info = ""
+        distribution_plot = None
+        word_cloud_plot = None
+        subsets_choice = gr.CheckboxGroup.update(choices=[])
+
+        errors = self.word2context_explorer.__errorChecking(word)
+        if errors:
+            return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
+
+        word = self.parse_word(word)
+
+        subsets_info, subsets_origin_info = self.word2context_explorer.__getSubsetsInfo(word)
+
+        clean_keys = [key.split(" ")[0].strip() for key in subsets_origin_info]
+        subsets_choice = gr.CheckboxGroup.update(choices=clean_keys)
+
+        distribution_plot = self.word2context_explorer.__genDistributionPlot(word)
+        word_cloud_plot = self.word2context_explorer.__genWordCloudPlot(word)
+
+        return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
+
+    def get_word_context(self, word, n_context, subset_choice):
+        self.check_was_built()
+
+        word = self.parse_word(word)
+        n_context = int(n_context)
+        errors = ""
+        context = pd.DataFrame([], columns=[''])
+
+        if len(subset_choice) > 0:
+            ds = self.__findSplits(word, subset_choice)
+        else:
+            errors = "Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
+            errors = "<center><h3>"+errors+"</h3></center>"
+            return errors, context
+
+        list_of_contexts = self.word2context_explorer.__getContexts(word, n_context, ds)
+
+        contexts = pd.DataFrame(list_of_contexts, columns=['#','contexto','conjunto'])
+        contexts["buscar"] = contexts.contexto.apply(lambda text: self.word2context_explorer.__genWebLink(text))
+
+        return errors, context

@@ -4,7 +4,7 @@ import gradio as gr
 from modules.module_BiasExplorer import  WEBiasExplorer2d, WEBiasExplorer4d
 from examples.examples import examples1_explorar_sesgo_en_palabras, examples2_explorar_sesgo_en_palabras
 from modules.module_logsManager import HuggingFaceDatasetSaver
-from modules.module_connection import Connector
+from modules.module_connection import BiasWordExplorerConnector
 from tool_info import TOOL_INFO
 
 LABEL_WORD_LIST_1 = 'Lista de palabras 1'
@@ -29,7 +29,7 @@ def interface(embedding,available_logs):
     # --- Init vars ---
     we_bias = WEBiasExplorer2d(embedding)
     we_bias_2d = WEBiasExplorer4d(embedding)
-    connector = Connector(embedding, to='bias')
+    connector = BiasWordExplorerConnector().build(embedding=embedding)
     # saved_images = gr.State([])
 
     interface = gr.Blocks()
