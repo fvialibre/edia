@@ -4,6 +4,7 @@ from examples.examples import examples_datos
 from tool_info import TOOL_INFO
 import gradio as gr
 import pandas as pd
+from modules.module_connection import Word2ContextExplorerConnector
 
 
 
@@ -15,10 +16,7 @@ def interface(vocabulary, contexts, available_logs):
     )
 
     # --- Init Class ---
-    w2c = Word2Context(
-        context_ds_name=contexts,
-        vocabulary=vocabulary
-    )
+    connector = Word2ContextExplorerConnector().build(vocabulary=vocabulary, context=contexts)
 
     # --- Interface ---
     iface = gr.Blocks(css=".container { max-width: 90%; margin: auto;}")
@@ -70,7 +68,7 @@ def interface(vocabulary, contexts, available_logs):
             gr.Markdown(TOOL_INFO)
 
         btn_get_w_info.click( 
-            fn=w2c.getWordInfo, 
+            fn=connector.get_word_info, 
             inputs=[input_word], 
             outputs=[out_msj,
                     out_context,
@@ -81,7 +79,7 @@ def interface(vocabulary, contexts, available_logs):
         )
         
         btn_get_contexts.click(     
-            fn=w2c.getWordContext, 
+            fn=connector.get_word_context, 
             inputs=[input_word, n_context, subsets_choice], 
             outputs=[out_msj, out_context]
         )

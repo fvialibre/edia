@@ -151,19 +151,19 @@ class Word2ContextExplorerConnector(Connector):
         word_cloud_plot = None
         subsets_choice = gr.CheckboxGroup.update(choices=[])
 
-        errors = self.word2context_explorer.__errorChecking(word)
+        errors = self.word2context_explorer.errorChecking(word)
         if errors:
             return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
 
         word = self.parse_word(word)
 
-        subsets_info, subsets_origin_info = self.word2context_explorer.__getSubsetsInfo(word)
+        subsets_info, subsets_origin_info = self.word2context_explorer.getSubsetsInfo(word)
 
         clean_keys = [key.split(" ")[0].strip() for key in subsets_origin_info]
         subsets_choice = gr.CheckboxGroup.update(choices=clean_keys)
 
-        distribution_plot = self.word2context_explorer.__genDistributionPlot(word)
-        word_cloud_plot = self.word2context_explorer.__genWordCloudPlot(word)
+        distribution_plot = self.word2context_explorer.genDistributionPlot(word)
+        word_cloud_plot = self.word2context_explorer.genWordCloudPlot(word)
 
         return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
 
@@ -173,18 +173,20 @@ class Word2ContextExplorerConnector(Connector):
         word = self.parse_word(word)
         n_context = int(n_context)
         errors = ""
-        context = pd.DataFrame([], columns=[''])
+        contexts = pd.DataFrame([], columns=[''])
+
+        print('SC:', subset_choice)
 
         if len(subset_choice) > 0:
-            ds = self.__findSplits(word, subset_choice)
+            ds = self.word2context_explorer.findSplits(word, subset_choice)
         else:
             errors = "Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
             errors = "<center><h3>"+errors+"</h3></center>"
-            return errors, context
+            return errors, contexts
 
-        list_of_contexts = self.word2context_explorer.__getContexts(word, n_context, ds)
+        list_of_contexts = self.word2context_explorer.getContexts(word, n_context, ds)
 
         contexts = pd.DataFrame(list_of_contexts, columns=['#','contexto','conjunto'])
-        contexts["buscar"] = contexts.contexto.apply(lambda text: self.word2context_explorer.__genWebLink(text))
+        contexts["buscar"] = contexts.contexto.apply(lambda text: self.word2context_explorer.genWebLink(text))
 
-        return errors, context
+        return errors, contexts

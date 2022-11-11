@@ -3,8 +3,8 @@ from modules.module_segmentedWordCloud import SegmentedWordCloud
 from modules.module_customSubsetsLabel import CustomSubsetsLabel
 
 from random import sample as random_sample
-import gradio as gr
-import pandas as pd
+#import gradio as gr
+#import pandas as pd
 import re
 
 import matplotlib as mpl
@@ -22,7 +22,7 @@ class Word2Context:
         # Custom Label component
         self.Label = CustomSubsetsLabel()
 
-    def __errorChecking(self, word):
+    def errorChecking(self, word):
         out_msj = ""
 
         if not word:
@@ -36,19 +36,19 @@ class Word2Context:
         
         return out_msj
 
-    def __genWebLink(self,text):
+    def genWebLink(self,text):
         text = text.replace("\"", "'")
         text = text.replace("<u><b>", "")
         text = text.replace("</b></u>", "")
         url = "https://www.google.com.tr/search?q={}".format(text)
         return '<a href="{}" rel="noopener noreferrer" target="_blank"><center>🌐🔍</center></a>'.format(url)
 
-    def __genWordCloudPlot(self, word, figsize=(9,3)):
+    def genWordCloudPlot(self, word, figsize=(9,3)):
         freq_dic, l_group, g_group = self.vocab.getWordNeighbors(word, n_neighbors=10)
         wc = SegmentedWordCloud(freq_dic, l_group, g_group)
         return wc.plot(figsize)
 
-    def __genDistributionPlot(self, word, figsize=(6,1)):
+    def genDistributionPlot(self, word, figsize=(6,1)):
         x_values, y_values = self.vocab.distribution()
         w_percentile = self.vocab.getPercentile(word)
         w_freq = self.vocab.getFreq(word)
@@ -80,7 +80,7 @@ class Word2Context:
         plt.legend(loc='upper left', prop={'size': 7})
         return fig
     
-    def __findSplits(self, word, subsets_list):
+    def findSplits(self, word, subsets_list):
         w_splits = self.vocab.getSplits(word)
 
         splits_list = [] 
@@ -106,7 +106,7 @@ class Word2Context:
 
         return datasets
 
-    def __findContexts(self, sample, word):
+    def findContexts(self, sample, word):
         sample = sample['text'].strip()
         context = ""
         m = re.search(r'\b{}\b'.format(word), sample)
@@ -116,7 +116,7 @@ class Word2Context:
             context = sample[:init]+"<u><b>"+word+"</b></u>"+sample[end:]
         return {'context':context}
 
-    def __getSubsetsInfo(self, word):
+    def getSubsetsInfo(self, word):
         total_freq = self.vocab.getFreq(word)
         subsets_name_list = list(self.vocab.getSubsets(word).keys())
         subsets_freq_list = list(self.vocab.getSubsets(word).values())
@@ -131,8 +131,8 @@ class Word2Context:
         subsets_info = self.Label.compute(subsets_origin_info)
         return subsets_info, subsets_origin_info
 
-    def __getContexts(self, word, n_context, ds):
-        ds_w_contexts = ds.map(lambda sample: self.__findContexts(sample, word))
+    def getContexts(self, word, n_context, ds):
+        ds_w_contexts = ds.map(lambda sample: self.findContexts(sample, word))
         only_contexts = ds_w_contexts.filter(lambda sample: sample['context'] != "")
         shuffle_contexts = only_contexts.shuffle(buffer_size=10)
         
@@ -142,6 +142,7 @@ class Word2Context:
         return list_of_contexts
 
     # TODO: The next methods can be removed, or keep them as a wrapper method of several ones
+    '''
     def getWordInfo(self, word):
         errors = ""
         contexts = pd.DataFrame([],columns=[''])
@@ -150,7 +151,7 @@ class Word2Context:
         word_cloud_plot = None
         subsets_choice = gr.CheckboxGroup.update(choices=[])
     
-        errors = self.__errorChecking(word)
+        errors = self.errorChecking(word)
         if errors:
             return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
 
@@ -171,8 +172,8 @@ class Word2Context:
         subsets_choice = gr.CheckboxGroup.update(choices=clean_keys)
 
         # Get word distribution, and wordcloud graph
-        distribution_plot = self.__genDistributionPlot(word)
-        word_cloud_plot = self.__genWordCloudPlot(word)
+        distribution_plot = self.genDistributionPlot(word)
+        word_cloud_plot = self.genWordCloudPlot(word)
 
         return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
     
@@ -181,14 +182,14 @@ class Word2Context:
         errors = ""
         
         if len(subset_choice) > 0:
-            ds = self.__findSplits(word, subset_choice)
+            ds = self.findSplits(word, subset_choice)
 
         else:
             errors = "Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
             errors = "<center><h3>"+errors+"</h3></center>"
             return errors, pd.DataFrame([], columns=[''])
         
-        ds_w_contexts = ds.map(lambda sample: self.__findContexts(sample, word))
+        ds_w_contexts = ds.map(lambda sample: self.findContexts(sample, word))
         only_contexts = ds_w_contexts.filter(lambda sample: sample['context'] != "")
         shuffle_contexts = only_contexts.shuffle(buffer_size=10)
         
@@ -196,6 +197,7 @@ class Word2Context:
         list_of_contexts = [(i,dic['context'],dic['subset']) for i,dic in enumerate(list_of_dict)]
 
         contexts = pd.DataFrame(list_of_contexts, columns=['#','contexto','conjunto'])
-        contexts["buscar"] = contexts.contexto.apply(lambda text: self.__genWebLink(text))
+        contexts["buscar"] = contexts.contexto.apply(lambda text: self.genWebLink(text))
 
         return errors, contexts
+    '''
