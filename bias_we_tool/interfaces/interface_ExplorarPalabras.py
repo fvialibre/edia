@@ -20,7 +20,7 @@ def interface(embedding, available_logs):
         available_logs=available_logs
     )
     # --- Init vars ---
-    connector = WordExplorerConnector().build(embedding=embedding)
+    connector = WordExplorerConnector(embedding=embedding)
 
     # --- Interface ---
     interface = gr.Blocks()

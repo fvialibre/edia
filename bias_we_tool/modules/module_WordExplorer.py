@@ -125,9 +125,8 @@ class WordExplorer:
             wordlist_4
         ]
 
-        err = self.check_oov(wordlist_choice)
-        if err:
-            return None, err
+        if self.check_oov(wordlist_choice):
+            raise Exception('Word not in vocabulary')
 
         color_dict = {
             0: kwargs.get('color_wordlist_0', '#000000'),
@@ -152,7 +151,7 @@ class WordExplorer:
                             processed_word_list.append(WordToPlot(n, color_dict[color], color, n_alpha))
 
         if not processed_word_list:
-            return None, "<center><h3>" + "Ingresa al menos 2 palabras para continuar" + "<center><h3>"
+            raise Exception('Only empty lists were passed')
         
         words_embedded = np.array([self.vocabulary.getPCA(wtp.word) for wtp in processed_word_list])
 

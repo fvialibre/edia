@@ -16,7 +16,7 @@ def interface(vocabulary, contexts, available_logs):
     )
 
     # --- Init Class ---
-    connector = Word2ContextExplorerConnector().build(vocabulary=vocabulary, context=contexts)
+    connector = Word2ContextExplorerConnector(vocabulary=vocabulary, context=contexts)
 
     # --- Interface ---
     iface = gr.Blocks(css=".container { max-width: 90%; margin: auto;}")

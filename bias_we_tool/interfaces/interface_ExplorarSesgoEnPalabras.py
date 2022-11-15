@@ -29,7 +29,7 @@ def interface(embedding,available_logs):
     # --- Init vars ---
     we_bias = WEBiasExplorer2d(embedding)
     we_bias_2d = WEBiasExplorer4d(embedding)
-    connector = BiasWordExplorerConnector().build(embedding=embedding)
+    connector = BiasWordExplorerConnector(embedding=embedding)
     # saved_images = gr.State([])
 
     interface = gr.Blocks()

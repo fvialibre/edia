@@ -268,14 +268,14 @@ class WordBiasExplorer():
                        ):
         bias_2D = wordlist_top == [] and wordlist_bottom == []
 
-        err = self.check_oov([words_to_diagnose + wordlist_right + wordlist_left + wordlist_top + wordlist_bottom])
         if bias_2D and (not wordlist_right or not wordlist_left):
-            err = ""
+            raise Exception('For bar plot, wordlist right and left can NOT be empty')
         elif not bias_2D and (not wordlist_right or not wordlist_left or not wordlist_top or not wordlist_bottom):
-            err = ""
-
+            raise Exception('For plane plot, wordlist right, left, top and down can NOT be empty')
+        
+        err = self.check_oov([words_to_diagnose + wordlist_right + wordlist_left + wordlist_top + wordlist_bottom])
         if err:
-            return None, err
+            raise Exception(err)
 
         return self.get_bias_plot(bias_2D,
                                   words_to_diagnose,
@@ -381,7 +381,7 @@ class WordBiasExplorer():
 
         return ax
         
-# Would be erased if decided to keep all info in BiasWordExplorer
+# TODO: Would be erased if decided to keep all info in BiasWordExplorer
 class WEBiasExplorer2d(WordBiasExplorer):
     def __init__(self, word_embedding) -> None:
         super().__init__(word_embedding)
