@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import norm
 import seaborn as sns
 import pandas as pd
 
@@ -164,3 +165,22 @@ class WordExplorer:
                             )
         plt.show()
         return fig
+
+    def doesnt_match(self, wordlist):
+        err = self.check_oov([wordlist])
+        if err:
+            raise Exception(err)
+        
+        words_emb = np.array([self.vocabulary.getEmbedding(word) for word in wordlist])
+        mean_vec = np.mean(words_emb, axis=0)
+
+        doesnt_match = ""
+        farthest_emb = 1.0
+        for word in wordlist:
+            word_emb = self.vocabulary.getEmbedding(word)
+            cos_sim = np.dot(mean_vec, word_emb) / (norm(mean_vec)*norm(word_emb))
+            if cos_sim <= farthest_emb:
+                farthest_emb = cos_sim
+                doesnt_match = word
+
+        return doesnt_match
