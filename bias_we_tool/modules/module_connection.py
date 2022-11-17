@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 from modules.module_WordExplorer import WordExplorer
 from modules.module_BiasExplorer import WordBiasExplorer
 from modules.module_word2Context import Word2Context
+from modules.module_rankSents import RankSents
+from modules.module_crowsPairs import CrowsPairs
 
 class Connector(ABC):
     def parse_word(self, word : str):
@@ -198,3 +200,75 @@ class Word2ContextExplorerConnector(Connector):
         contexts["buscar"] = contexts.contexto.apply(lambda text: self.word2context_explorer.genWebLink(text))
 
         return err, contexts
+
+class PhraseBiasExplorerConnector(Connector):
+    def __init__(self, **kwargs):
+        if 'language_model' in kwargs:
+            language_model = kwargs.get('language_model')
+        else:
+            raise KeyError
+        self.phrase_bias_explorer = RankSents(language_model)
+
+    def rank_sentence_options(self,
+                              sent,
+                              word_list,
+                              banned_word_list,
+                              useArticles,
+                              usePrepositions,
+                              useConjunctions
+                              ):
+        err = ""
+        sent = " ".join(sent.strip().replace("*"," * ").split())
+
+        err = self.phrase_bias_explorer.errorChecking(sent)
+        if err:
+            return err, "", ""
+
+        word_list = self.parse_words(word_list)
+        banned_word_list = self.parse_words(banned_word_list)
+
+        all_plls_scores = self.phrase_bias_explorer.rank(sent, 
+                                                         word_list, 
+                                                         banned_word_list, 
+                                                         useArticles, 
+                                                         usePrepositions, 
+                                                         useConjunctions
+                                                         )
+        
+        all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)
+        return err, all_plls_scores, ""
+
+class CrowsPairsExplorerConnector(Connector):
+    def __init__(self, **kwargs):
+        if 'language_model' in kwargs:
+            language_model = kwargs.get('language_model')
+        else:
+            raise KeyError
+        self.crows_pairs_explorer = CrowsPairs(language_model)
+
+    def compare_sentences(self,
+                          sent0,
+                          sent1,
+                          sent2,
+                          sent3,
+                          sent4,
+                          sent5
+                          ):
+        err = ""
+
+        err = self.crows_pairs_explorer.errorChecking(sent0, sent1, sent2, sent3, sent4, sent5)
+        if err:
+            return err, "", ""
+
+        all_plls_scores = self.crows_pairs_explorer.rank(sent0, 
+                                                         sent1, 
+                                                         sent2, 
+                                                         sent3, 
+                                                         sent4, 
+                                                         sent5
+                                                         )
+        print(all_plls_scores)
+        
+        all_plls_scores = self.crows_pairs_explorer.Label.compute(all_plls_scores)
+
+        return err, all_plls_scores, ""
