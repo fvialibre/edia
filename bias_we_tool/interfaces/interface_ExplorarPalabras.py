@@ -62,7 +62,7 @@ def interface(embedding, available_logs, lang="spanish"):
                 with gr.Row(): 
                     err_msg = gr.Markdown(label="", visible=True)
                 with gr.Row():
-                    word_proyections = gr.Image(shape=(10, 10))
+                    word_proyections = gr.Plot(label="", show_label=False)
 
         with gr.Row():
             gr.Examples(

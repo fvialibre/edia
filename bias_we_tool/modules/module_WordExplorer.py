@@ -64,7 +64,7 @@ class WordExplorer:
                  n_neighbors, 
                  n_alpha, 
                  fontsize=18, 
-                 figsize=(15, 15)
+                 figsize=(20, 15)
                  ):
         fig, ax = plt.subplots(figsize=figsize)
 
@@ -101,7 +101,6 @@ class WordExplorer:
         ax.set_xlabel('')
         ax.set_ylabel('')
         fig.tight_layout()
-        fig.canvas.draw()
 
         return fig
 
@@ -159,7 +158,7 @@ class WordExplorer:
         fig = self.get_plot(data, processed_word_list, words_embedded, 
                             color_dict, n_neighbors, n_alpha, 
                             kwargs.get('fontsize', 18), 
-                            kwargs.get('figsize', (15, 15))
+                            kwargs.get('figsize', (20, 15))
                             )
         plt.show()
         return fig

@@ -52,7 +52,7 @@ def interface(embedding, available_logs, lang="spanish"):
                 with gr.Row():
                     err_msg = gr.Markdown(label='',visible=True)
                 with gr.Row():
-                    bias_plot = gr.Image(shape=(15, 15))
+                    bias_plot = gr.Plot(label="", show_label=False)
             # with gr.Accordion(label='Exploraciones guardadas'):
             #     gallery = gr.Gallery(value=[])     
         with gr.Row():

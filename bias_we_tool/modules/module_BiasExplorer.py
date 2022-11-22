@@ -6,6 +6,8 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 
+#plt.rcParams.update({'axes.labelsize': 22})
+
 def take_two_sides_extreme_sorted(df, n_extreme,
                                   part_column=None,
                                   head_value='',
@@ -287,7 +289,7 @@ class WordBiasExplorer():
                       definitional_2=([], []),
                       method='sum',
                       n_extreme=10,
-                      figsize=(10, 10)
+                      figsize=(15, 10)
                       ):
         fig, ax = plt.subplots(1, figsize=figsize)
         self.method = method

@@ -19,12 +19,6 @@ class Connector(ABC):
         words = [self.parse_word(word) for word in words.split(',') if word.strip() != '']
         return words
 
-    def buff_figure(self, fig):
-        data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        w, h = fig.canvas.get_width_height()
-        im = data.reshape((int(h), int(w), -1))
-        return im
-
     def process_error(self, err: str):
         if err is None:
             return
@@ -84,7 +78,7 @@ class WordExplorerConnector(Connector):
                                                      fontsize=fontsize,
                                                      n_neighbors=n_neighbors
                                                      )
-        return self.buff_figure(fig), self.process_error(err)
+        return fig, self.process_error(err)
 
 class BiasWordExplorerConnector(Connector):
 
@@ -118,7 +112,7 @@ class BiasWordExplorerConnector(Connector):
 
         fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_2, wordlist_1)
 
-        return self.buff_figure(fig), self.process_error(err)
+        return fig, self.process_error(err)
 
     def calculate_bias_4d(self,
                          wordlist_1,
@@ -146,7 +140,7 @@ class BiasWordExplorerConnector(Connector):
             return None, self.process_error(err)
 
         fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_1, wordlist_2, wordlist_3, wordlist_4)
-        return self.buff_figure(fig), self.process_error(err)
+        return fig, self.process_error(err)
 
 class Word2ContextExplorerConnector(Connector):
     def __init__(self, **kwargs):
