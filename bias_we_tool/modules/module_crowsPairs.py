@@ -23,9 +23,6 @@ class CrowsPairs:
                     out_msj = f"Error: La farse Nº{sent_id+1} no puede estar vacia!"
                     break
         
-        if out_msj:
-            out_msj = "<center><h3>"+out_msj+"</h3></center>"
-        
         return out_msj
 
     def rank(self, sent0, sent1, sent2, sent3, sent4, sent5):

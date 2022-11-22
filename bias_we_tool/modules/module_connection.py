@@ -16,7 +16,7 @@ class Connector(ABC):
         words = array_in_string.strip()
         if not words:
             return []
-        words = [self.parse_word(word) for word in words.split(',') if word != '']
+        words = [self.parse_word(word) for word in words.split(',') if word.strip() != '']
         return words
 
     def buff_figure(self, fig):
@@ -24,6 +24,11 @@ class Connector(ABC):
         w, h = fig.canvas.get_width_height()
         im = data.reshape((int(h), int(w), -1))
         return im
+
+    def process_error(self, err: str):
+        if err is None:
+            return
+        return "<center><h3>" + err + "</h3></center>"
     
 
 class WordExplorerConnector(Connector):
@@ -58,12 +63,12 @@ class WordExplorerConnector(Connector):
         wordlist_4 = self.parse_words(wordlist_4)
 
         if not (wordlist_0 or wordlist_1 or wordlist_2 or wordlist_1 or wordlist_4):
-            err = "<center><h3>" + "Ingresa al menos 1 palabras para continuar" + "<center><h3>"
+            err = self.process_error("Ingresa al menos 1 palabras para continuar")
             return None, err
         
         err = self.word_explorer.check_oov([wordlist_0, wordlist_1, wordlist_2, wordlist_3, wordlist_4])
         if err:
-            return None, err
+            return None, self.process_error(err)
 
         fig = self.word_explorer.plot_projections_2d(wordlist_0,
                                                      wordlist_1,
@@ -79,7 +84,7 @@ class WordExplorerConnector(Connector):
                                                      fontsize=fontsize,
                                                      n_neighbors=n_neighbors
                                                      )
-        return self.buff_figure(fig), err
+        return self.buff_figure(fig), self.process_error(err)
 
 class BiasWordExplorerConnector(Connector):
 
@@ -100,22 +105,20 @@ class BiasWordExplorerConnector(Connector):
         wordlist_2 = self.parse_words(wordlist_2)
         to_diagnose_list = self.parse_words(to_diagnose_list)
 
-        wordlists = [wordlist_1, wordlist_2, to_diagnose_list]
-        for list in wordlists:
+        word_lists = [wordlist_1, wordlist_2, to_diagnose_list]
+        for list in word_lists:
             if not list:
-                err = "<center><h3>" + \
-                      'Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2' + \
-                      "<center><h3>"
+                err = "Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2"
         if err:
-            return None, err
+            return None, self.process_error(err)
 
-        err = self.bias_word_explorer.check_oov(wordlists)
+        err = self.bias_word_explorer.check_oov(word_lists)
         if err:
-            return None, err
+            return None, self.process_error(err)
 
         fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_2, wordlist_1)
 
-        return self.buff_figure(fig), err
+        return self.buff_figure(fig), self.process_error(err)
 
     def calculate_bias_4d(self,
                          wordlist_1,
@@ -134,18 +137,16 @@ class BiasWordExplorerConnector(Connector):
         wordlists = [wordlist_1, wordlist_2, wordlist_3, wordlist_4, to_diagnose_list]
         for list in wordlists:
             if not list:
-                err = "<center><h3>" + \
-                      '¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!' + \
-                      "<center><h3>"
+                err = "¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!"
         if err:
-            return None, err
+            return None, self.process_error(err)
 
         err = self.bias_word_explorer.check_oov(wordlists)
         if err:
-            return None, err
+            return None, self.process_error(err)
 
         fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_1, wordlist_2, wordlist_3, wordlist_4)
-        return self.buff_figure(fig), err
+        return self.buff_figure(fig), self.process_error(err)
 
 class Word2ContextExplorerConnector(Connector):
     def __init__(self, **kwargs):
@@ -166,7 +167,7 @@ class Word2ContextExplorerConnector(Connector):
 
         err = self.word2context_explorer.errorChecking(word)
         if err:
-            return err, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
+            return self.process_error(err), contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
 
         word = self.parse_word(word)
 
@@ -178,7 +179,7 @@ class Word2ContextExplorerConnector(Connector):
         distribution_plot = self.word2context_explorer.genDistributionPlot(word)
         word_cloud_plot = self.word2context_explorer.genWordCloudPlot(word)
 
-        return err, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
+        return self.process_error(err), contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
 
     def get_word_context(self, word, n_context, subset_choice):
         word = self.parse_word(word)
@@ -189,9 +190,7 @@ class Word2ContextExplorerConnector(Connector):
         if len(subset_choice) > 0:
             ds = self.word2context_explorer.findSplits(word, subset_choice)
         else:
-            err = "<center><h3>" + \
-                  "Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!" + \
-                  "</h3></center>"
+            err = self.process_error("Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!")
             return err, contexts
 
         list_of_contexts = self.word2context_explorer.getContexts(word, n_context, ds)
@@ -199,7 +198,7 @@ class Word2ContextExplorerConnector(Connector):
         contexts = pd.DataFrame(list_of_contexts, columns=['#','contexto','conjunto'])
         contexts["buscar"] = contexts.contexto.apply(lambda text: self.word2context_explorer.genWebLink(text))
 
-        return err, contexts
+        return self.process_error(err), contexts
 
 class PhraseBiasExplorerConnector(Connector):
     def __init__(self, **kwargs):
@@ -222,7 +221,7 @@ class PhraseBiasExplorerConnector(Connector):
 
         err = self.phrase_bias_explorer.errorChecking(sent)
         if err:
-            return err, "", ""
+            return self.process_error(err), "", ""
 
         word_list = self.parse_words(word_list)
         banned_word_list = self.parse_words(banned_word_list)
@@ -236,7 +235,7 @@ class PhraseBiasExplorerConnector(Connector):
                                                          )
         
         all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)
-        return err, all_plls_scores, ""
+        return self.process_error(err), all_plls_scores, ""
 
 class CrowsPairsExplorerConnector(Connector):
     def __init__(self, **kwargs):
@@ -258,7 +257,7 @@ class CrowsPairsExplorerConnector(Connector):
 
         err = self.crows_pairs_explorer.errorChecking(sent0, sent1, sent2, sent3, sent4, sent5)
         if err:
-            return err, "", ""
+            return self.process_error(err), "", ""
 
         all_plls_scores = self.crows_pairs_explorer.rank(sent0, 
                                                          sent1, 
@@ -267,8 +266,7 @@ class CrowsPairsExplorerConnector(Connector):
                                                          sent4, 
                                                          sent5
                                                          )
-        print(all_plls_scores)
         
         all_plls_scores = self.crows_pairs_explorer.Label.compute(all_plls_scores)
 
-        return err, all_plls_scores, ""
+        return self.process_error(err), all_plls_scores, ""

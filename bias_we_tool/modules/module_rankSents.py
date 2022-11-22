@@ -31,9 +31,6 @@ class RankSents:
             max_len = self.tokenizer.max_len_single_sentence
             if sent_len > max_len:
                 out_msj = f"Error: La sentencia posee mas de {max_len} tokens!"
-
-        if out_msj:
-            out_msj = "<center><h3>"+out_msj+"</h3></center>"
         
         return out_msj
 

@@ -246,9 +246,6 @@ class WordBiasExplorer():
             if word not in self.vocabulary:
                 out_msj = f"Error: La palabra '<b>{word}</b>' no se encuentra en el vocabulario!"
 
-        if out_msj:
-            out_msj = "<center><h3>"+out_msj+"</h3></center>"
-
         return out_msj
 
     def check_oov(self, wordlists):
