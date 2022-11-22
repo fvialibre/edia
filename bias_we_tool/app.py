@@ -1,5 +1,6 @@
 # --- Imports libs ---
 import gradio as gr
+import pandas as pd
 
 
 # --- Imports modules ---
@@ -15,8 +16,9 @@ from interfaces.interface_sesgoEnFrases import interface as interface_sesgoEnFra
 from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
 # --- Tool config ---
+language            = "english"                     # [spanish | english]
 AVAILABLE_LOGS      = False
-EMBEDDING_SUBSET   = "mini"                                        # [full | mini]
+EMBEDDING_SUBSET    = "mini"                        # [full | mini]
 VOCABULARY_SUBSET   = "mini"                        # [full | semi | half | mini]
 CONTEXTS_DATASET    = "nanom/splittedspanish3bwc"
 LANGUAGE_MODEL      = "dccuchile/bert-base-spanish-wwm-uncased"
@@ -31,35 +33,40 @@ vocabulary = Vocabulary(
 beto_lm = LanguageModel(
     model_name=LANGUAGE_MODEL
 )
-
+labels = pd.read_json(f"language/{language}.json")["app"]
 
 # --- Main App ---
 INTERFACE_LIST = [
     interface_explorar_palabras(
         embedding=embedding,
-        available_logs=AVAILABLE_LOGS),
+        available_logs=AVAILABLE_LOGS,
+        lang=language),
     interface_sesgo_en_palabras(
         embedding=embedding,
-        available_logs=AVAILABLE_LOGS),
+        available_logs=AVAILABLE_LOGS,
+        lang=language),
     interface_datos(
         vocabulary=vocabulary,
         contexts=CONTEXTS_DATASET,
-        available_logs=AVAILABLE_LOGS),
+        available_logs=AVAILABLE_LOGS,
+        lang=language),
     interface_sesgoEnFrases(
         language_model=beto_lm,
-        available_logs=AVAILABLE_LOGS),
+        available_logs=AVAILABLE_LOGS,
+        lang=language),
     interface_crowsPairs(
         language_model=beto_lm,
-        available_logs=AVAILABLE_LOGS),
+        available_logs=AVAILABLE_LOGS,
+        lang=language),
 ]
 
 
 TAB_NAMES = [
-    "Explorar palabras",
-    "Sesgo en palabras",
-    "Explorar datos",
-    "Sesgo en frases",
-    "Crows-Pairs"
+    labels["wordExplorer"],
+    labels["biasWordExplorer"],
+    labels["dataExplorer"],
+    labels["phraseExplorer"],
+    labels["crowsPairsExplorer"]
 ]
 
 iface = gr.TabbedInterface(

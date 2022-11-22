@@ -6,9 +6,7 @@ import gradio as gr
 import pandas as pd
 from modules.module_connection import Word2ContextExplorerConnector
 
-
-
-def interface(vocabulary, contexts, available_logs):
+def interface(vocabulary, contexts, available_logs, lang="spanish"):
 
     # --- Init logs ---
     log_callback = HuggingFaceDatasetSaver(
@@ -17,6 +15,7 @@ def interface(vocabulary, contexts, available_logs):
 
     # --- Init Class ---
     connector = Word2ContextExplorerConnector(vocabulary=vocabulary, context=contexts)
+    labels = pd.read_json(f"language/{lang}.json")["DataExplorer_interface"]
 
     # --- Interface ---
     iface = gr.Blocks(css=".container { max-width: 90%; margin: auto;}")
@@ -25,39 +24,41 @@ def interface(vocabulary, contexts, available_logs):
         with gr.Row():
             with gr.Column():
                 with gr.Group():
-                    gr.Markdown("1. Ingrese una palabra de interés")
-                    with gr.Row(): input_word = gr.Textbox(label="", show_label=False, placeholder="Ingresar aquí la palabra ...")
-                    with gr.Row(): btn_get_w_info = gr.Button("Obtener información de palabra")   
+                    gr.Markdown(labels["step1"])
+                    with gr.Row(): input_word = gr.Textbox(label=labels["inputWord"]["title"], 
+                                                            show_label=False, 
+                                                            placeholder=labels["inputWord"]["placeholder"])
+                    with gr.Row(): btn_get_w_info = gr.Button(labels["wordInfoButton"])
 
                 with gr.Group():
-                    gr.Markdown("2. Seleccione cantidad máxima de contextos a recuperar")
+                    gr.Markdown(labels["step2"])
                     n_context = gr.Slider(label="", 
                                         step=1, minimum=1, maximum=30, value=5, 
                                         visible=True, interactive=True)
                 with gr.Group():
-                    gr.Markdown("3. Seleccione conjuntos de interés")
+                    gr.Markdown(labels["step3"])
                     subsets_choice = gr.CheckboxGroup(label="", 
                                         interactive=True, 
                                         visible=True)
-                    with gr.Row(): btn_get_contexts = gr.Button("Buscar contextos", visible=True)
+                    with gr.Row(): btn_get_contexts = gr.Button(labels["wordContextButton"], visible=True)
                 
                 with gr.Row(): out_msj = gr.Markdown(label="", visible=True)
 
             with gr.Column():
                 with gr.Group():
-                    gr.Markdown("Distribución de palabra en vocabulario")
+                    gr.Markdown(labels["wordDistributionTitle"])
                     dist_plot = gr.Plot(label="", show_label=False)
                     wc_plot = gr.Plot(label="", show_label=False,)
 
                 with gr.Group():
-                    gr.Markdown("Frecuencias de aparición por conjunto")
+                    gr.Markdown(labels["frequencyPerSetTitle"])
                     # subsets_freq = gr.Label(label="Frecuencias de aparición p/subconjunto:", 
                     #     num_top_classes=16, visible=True, show_label=False)
                     subsets_freq = gr.HTML(label="")
     
         with gr.Row():
             with gr.Group():
-                with gr.Row(): gr.Markdown("Lista de contextos")
+                with gr.Row(): gr.Markdown(labels["contextList"])
                 with gr.Row(): out_context = gr.Dataframe(label="", 
                                                 interactive=False, 
                                                 value=pd.DataFrame([], columns=['']),

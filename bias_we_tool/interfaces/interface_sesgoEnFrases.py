@@ -4,9 +4,10 @@ from modules.module_connection import PhraseBiasExplorerConnector
 from examples.examples import examples_sesgos_frases
 from tool_info import TOOL_INFO
 import gradio as gr
+import pandas as pd
 
 
-def interface(language_model, available_logs):
+def interface(language_model, available_logs, lang="spanish"):
 
     # --- Init logs ---
     log_callback = HuggingFaceDatasetSaver(
@@ -15,6 +16,7 @@ def interface(language_model, available_logs):
 
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(language_model=language_model)
+    labels = pd.read_json(f"language/{lang}.json")["PhraseExplorer_interface"]
 
     # --- Interface ---
     iface = gr.Blocks(css=".container {max-width: 90%; margin: auto;}")
@@ -23,26 +25,28 @@ def interface(language_model, available_logs):
         with gr.Row():
             with gr.Column():
                 with gr.Group():
-                    gr.Markdown("1. Ingrese una frase")
-                    sent = gr.Textbox(label="",
-                                    placeholder="Utilice * para enmascarar la palabra de interés")
+                    gr.Markdown(labels["step1"])
+                    sent = gr.Textbox(label=labels["sent"]["title"],
+                                    placeholder=labels["sent"]["placeholder"])
                     
-                    gr.Markdown("2. Ingrese palabras de interés (Opcional)")
-                    word_list = gr.Textbox( label="", placeholder="La lista de palabras deberán estar separadas por ,")
+                    gr.Markdown(labels["step2"])
+                    word_list = gr.Textbox( label=labels["wordList"]["title"], 
+                                            placeholder=labels["wordList"]["placeholder"])
                     
                     with gr.Group():
-                        gr.Markdown("3. Ingrese palabras no deseadas (En caso de no completar punto 2)")    
-                        banned_word_list = gr.Textbox( label="", placeholder="La lista de palabras deberán estar separadas por ,")
+                        gr.Markdown(labels["step3"])
+                        banned_word_list = gr.Textbox( label=labels["bannedWordList"]["title"], 
+                                                        placeholder=labels["bannedWordList"]["placeholder"])
                         with gr.Row():
-                            with gr.Row(): articles = gr.Checkbox(label="Excluir Artículos", value=False)
-                            with gr.Row(): prepositions = gr.Checkbox(label="Excluir Preposiciones", value=False)
-                            with gr.Row(): conjunctions = gr.Checkbox(label="Excluir Conjunciones", value=False)
+                            with gr.Row(): articles     = gr.Checkbox(label=labels["excludeArticles"], value=False)
+                            with gr.Row(): prepositions = gr.Checkbox(label=labels["excludePrepositions"], value=False)
+                            with gr.Row(): conjunctions = gr.Checkbox(label=labels["excludeConjunctions"], value=False)
 
-                with gr.Row(): btn = gr.Button(value="Obtener")
+                with gr.Row(): btn = gr.Button(value=labels["resultsButton"])
 
             with gr.Column():
                 with gr.Group():
-                    gr.Markdown("Visualización de proporciones")
+                    gr.Markdown(labels["plot"])
                     dummy = gr.CheckboxGroup(value="", show_label=False, choices=[])
                     out = gr.HTML(label="")
                     out_msj = gr.Markdown()
@@ -52,7 +56,8 @@ def interface(language_model, available_logs):
                 fn=connector.rank_sentence_options,
                 inputs = [sent, word_list],
                 outputs=[out, out_msj],
-                examples = examples_sesgos_frases
+                examples = examples_sesgos_frases,
+                label=labels["examples"]
             )
 
         with gr.Row(): 
