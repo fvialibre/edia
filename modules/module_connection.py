@@ -20,9 +20,9 @@ class Connector(ABC):
         return words
 
     def process_error(self, err: str):
-        if err is None:
-            return
-        return "<center><h3>" + err + "</h3></center>"
+        if err:
+            err = "<center><h3>" + err + "</h3></center>"
+        return err
     
 
 class WordExplorerConnector(Connector):
@@ -50,6 +50,7 @@ class WordExplorerConnector(Connector):
                             n_neighbors
                             ):
         err = ""
+        nn_method = 'sklearn'
         wordlist_0 = self.parse_words(wordlist_0)
         wordlist_1 = self.parse_words(wordlist_1)
         wordlist_2 = self.parse_words(wordlist_2)
@@ -76,7 +77,8 @@ class WordExplorerConnector(Connector):
                                                      color_wordlist_4=color_wordlist_4,
                                                      n_alpha=n_alpha,
                                                      fontsize=fontsize,
-                                                     n_neighbors=n_neighbors
+                                                     n_neighbors=n_neighbors,
+                                                     nn_method = nn_method
                                                      )
         return fig, self.process_error(err)
 

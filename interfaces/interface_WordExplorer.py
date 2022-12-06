@@ -9,7 +9,13 @@ from modules.module_connection import WordExplorerConnector
 
 plt.rcParams.update({'font.size': 14})
 
-def interface(embedding, available_logs, lang="spanish"):
+def interface(
+    embedding, 
+    available_logs: bool, 
+    max_neighbors: int, # Updated
+    lang: str="spanish",
+) -> gr.Blocks:
+
     # --- Init logs ---
     log_callback = HuggingFaceDatasetSaver(
         available_logs=available_logs
@@ -53,7 +59,7 @@ def interface(embedding, available_logs, lang="spanish"):
                 with gr.Row():
                     with gr.Row():
                         gr.Markdown(labels["plotNeighbours"]["title"])
-                        n_neighbors = gr.Slider(minimum=0,maximum=100,step=1,label=labels["plotNeighbours"]["quantity"])
+                        n_neighbors = gr.Slider(minimum=0,maximum=max_neighbors,step=1,label=labels["plotNeighbours"]["quantity"])
                     with gr.Row():
                         alpha = gr.Slider(minimum=0.1,maximum=0.9, value=0.3, step=0.1,label=labels["options"]["transparency"])
                         fontsize=gr.Number(value=18, label=labels["options"]["font-size"])

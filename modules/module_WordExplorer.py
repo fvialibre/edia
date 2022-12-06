@@ -1,7 +1,7 @@
 import numpy as np
-from numpy.linalg import norm
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
+from numpy.linalg import norm
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -29,7 +29,6 @@ class WordExplorer:
 
         return out_msj
 
-
     def parse_words(self, string):
         words = string.strip()
         if words:
@@ -44,8 +43,8 @@ class WordExplorer:
                     return msg
         return None
 
-    def get_neighbors(self, word, n_neighbors=5):
-        return self.vocabulary.ann.get(word, n_neighbors=n_neighbors)
+    def get_neighbors(self, word, n_neighbors, nn_method):
+        return self.vocabulary.getNearestNeighbors(word, n_neighbors, nn_method)
 
     def get_df(self, words_embedded, processed_word_list):
         df = pd.DataFrame(words_embedded)
@@ -143,7 +142,10 @@ class WordExplorer:
                 processed_word_list.append(WordToPlot(word, color_dict[color], color, 1))
 
                 if n_neighbors > 0:
-                    neighbors = self.get_neighbors(word, n_neighbors=n_neighbors+1)
+                    neighbors = self.get_neighbors(word,
+                        n_neighbors=n_neighbors, 
+                        nn_method=kwargs.get('nn_method', 'sklearn')
+                    )
                     for n in neighbors:
                         if n not in [wtp.word for wtp in processed_word_list]:
                             processed_word_list.append(WordToPlot(n, color_dict[color], color, n_alpha))
