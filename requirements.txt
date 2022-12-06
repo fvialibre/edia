@@ -8,7 +8,7 @@ numpy
 uuid
 python-dotenv
 memory_profiler
-gensim
+gensim==4.2.0
 seaborn
 annoy
 datasets
