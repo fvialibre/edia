@@ -1,97 +1,73 @@
 import copy
-
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from typing import List, Dict, Tuple, Optional, Any
+from modules.utils import normalize, cosine_similarity, project_params, take_two_sides_extreme_sorted
 
-#plt.rcParams.update({'axes.labelsize': 22})
+__all__ = ['WordBiasExplorer', 'WEBiasExplorer2Spaces', 'WEBiasExplorer4Spaces']
 
-def take_two_sides_extreme_sorted(df, n_extreme,
-                                  part_column=None,
-                                  head_value='',
-                                  tail_value=''):
-    head_df = df.head(n_extreme)[:]
-    tail_df = df.tail(n_extreme)[:]
+class WordBiasExplorer:
+    def __init__(
+        self, 
+        embedding  # Class Embedding instance
+    ) -> None:
 
-    if part_column is not None:
-        head_df[part_column] = head_value
-        tail_df[part_column] = tail_value
-
-    return (pd.concat([head_df, tail_df])
-            .drop_duplicates()
-            .reset_index(drop=True))
-
-def normalize(v):
-    """Normalize a 1-D vector."""
-    if v.ndim != 1:
-        raise ValueError('v should be 1-D, {}-D was given'.format(
-            v.ndim))
-    norm = np.linalg.norm(v)
-    if norm == 0:
-        return v
-    return v / norm
-
-def project_params(u, v):
-    """Projecting and rejecting the vector v onto direction u with scalar."""
-    normalize_u = normalize(u)
-    projection = (v @ normalize_u)
-    projected_vector = projection * normalize_u
-    rejected_vector = v - projected_vector
-    return projection, projected_vector, rejected_vector
-
-
-def cosine_similarity(v, u):
-    """Calculate the cosine similarity between two vectors."""
-    v_norm = np.linalg.norm(v)
-    u_norm = np.linalg.norm(u)
-    similarity = v @ u / (v_norm * u_norm)
-    return similarity
-
-
-DIRECTION_METHODS = ['single', 'sum', 'pca']
-DEBIAS_METHODS = ['neutralize', 'hard', 'soft']
-FIRST_PC_THRESHOLD = 0.5
-MAX_NON_SPECIFIC_EXAMPLES = 1000
-
-__all__ = ['GenderBiasWE', 'BiasWordEmbedding']
-
-
-class WordBiasExplorer():
-    def __init__(self, vocabulary):
-        # pylint: disable=undefined-variable
-
-        self.vocabulary = vocabulary
+        self.embedding = embedding
         self.direction = None
         self.positive_end = None
         self.negative_end = None
+        self.DIRECTION_METHODS = ['single', 'sum', 'pca']
 
-    def __copy__(self):
-        bias_word_embedding = self.__class__(self.vocabulary)
+    def __copy__(
+        self
+    ) -> 'WordBiasExplorer':
+
+        bias_word_embedding = self.__class__(self.embedding)
         bias_word_embedding.direction = copy.deepcopy(self.direction)
         bias_word_embedding.positive_end = copy.deepcopy(self.positive_end)
         bias_word_embedding.negative_end = copy.deepcopy(self.negative_end)
         return bias_word_embedding
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(
+        self, 
+        memo: Optional[Dict[int, Any]]
+    )-> 'WordBiasExplorer':
+
         bias_word_embedding = copy.copy(self)
         bias_word_embedding.model = copy.deepcopy(bias_word_embedding.model)
         return bias_word_embedding
 
-    def __getitem__(self, key):
-        return self.vocabulary.getEmbedding(key)
+    def __getitem__(
+        self, 
+        key: str
+    ) -> np.ndarray:
 
-    def __contains__(self, item):
-        return item in self.vocabulary
+        return self.embedding.getEmbedding(key)
 
-    def _is_direction_identified(self):
+    def __contains__(
+        self, 
+        item: str
+    ) -> bool:
+
+        return item in self.embedding
+
+    def _is_direction_identified(
+        self
+    ):
         if self.direction is None:
             raise RuntimeError('The direction was not identified'
                                ' for this {} instance'
                                .format(self.__class__.__name__))
 
-    def _identify_subspace_by_pca(self, definitional_pairs, n_components):
+    def _identify_subspace_by_pca(
+        self, 
+        definitional_pairs: List[Tuple[str, str]], 
+        n_components: int
+    ) -> PCA:
+
         matrix = []
 
         for word1, word2 in definitional_pairs:
@@ -108,11 +84,18 @@ class WordBiasExplorer():
         return pca
 
 
-    def _identify_direction(self, positive_end, negative_end,
-                            definitional, method='pca'):
-        if method not in DIRECTION_METHODS:
+    def _identify_direction(
+        self, 
+        positive_end: str, 
+        negative_end: str,
+        definitional: Tuple[str, str], 
+        method: str='pca',
+        first_pca_threshold: float=0.5
+    ) -> None:
+
+        if method not in self.DIRECTION_METHODS:
             raise ValueError('method should be one of {}, {} was given'.format(
-                DIRECTION_METHODS, method))
+                self.DIRECTION_METHODS, method))
 
         if positive_end == negative_end:
             raise ValueError('positive_end and negative_end'
@@ -137,11 +120,11 @@ class WordBiasExplorer():
 
         elif method == 'pca':
             pca = self._identify_subspace_by_pca(definitional, 10)
-            if pca.explained_variance_ratio_[0] < FIRST_PC_THRESHOLD:
+            if pca.explained_variance_ratio_[0] < first_pca_threshold:
                 raise RuntimeError('The Explained variance'
                                    'of the first principal component should be'
                                    'at least {}, but it is {}'
-                                   .format(FIRST_PC_THRESHOLD,
+                                   .format(first_pca_threshold,
                                            pca.explained_variance_ratio_[0]))
             direction = pca.components_[0]
 
@@ -157,7 +140,11 @@ class WordBiasExplorer():
         self.positive_end = positive_end
         self.negative_end = negative_end
 
-    def project_on_direction(self, word):
+    def project_on_direction(
+        self, 
+        word: str
+    ) -> float:
+
         """Project the normalized vector of the word on the direction.
         :param str word: The word tor project
         :return float: The projection scalar
@@ -166,13 +153,15 @@ class WordBiasExplorer():
         self._is_direction_identified()
 
         vector = self[word]
-        projection_score = self.vocabulary.cosineSimilarities(self.direction,
+        projection_score = self.embedding.cosineSimilarities(self.direction,
                                                           [vector])[0]
         return projection_score
 
+    def _calc_projection_scores(
+        self, 
+        words: List[str]
+    ) -> pd.DataFrame:
 
-
-    def _calc_projection_scores(self, words):
         self._is_direction_identified()
 
         df = pd.DataFrame({'word': words})
@@ -184,7 +173,11 @@ class WordBiasExplorer():
 
         return df
 
-    def calc_projection_data(self, words):
+    def calc_projection_data(
+        self, 
+        words: List[str]
+    ) -> pd.DataFrame:
+
         """
         Calculate projection, projected and rejected vectors of a words list.
         :param list words: List of words
@@ -209,7 +202,12 @@ class WordBiasExplorer():
 
         return pd.DataFrame(projection_data)
 
-    def plot_dist_projections_on_direction(self, word_groups, ax=None):
+    def plot_dist_projections_on_direction(
+        self, 
+        word_groups: Dict[str, List[str]], 
+        ax: plt.Axes=None
+    ) -> plt.Axes:
+
         """Plot the projection scalars distribution on the direction.
         :param dict word_groups word: The groups to projects
         :return float: The ax object of the plot
@@ -224,7 +222,7 @@ class WordBiasExplorer():
             words = word_groups[name]
             label = '{} (#{})'.format(name, len(words))
             vectors = [self[word] for word in words]
-            projections = self.vocabulary.cosineSimilarities(self.direction,
+            projections = self.embedding.cosineSimilarities(self.direction,
                                                          vectors)
             sns.distplot(projections, hist=False, label=label, ax=ax)
 
@@ -239,18 +237,26 @@ class WordBiasExplorer():
 
         return ax
 
-    def __errorChecking(self, word):
+    def __errorChecking(
+        self, 
+        word: str
+    ) -> str:
+
         out_msj = ""
 
         if not word:
             out_msj = "Error: Primero debe ingresar una palabra!"
         else:
-            if word not in self.vocabulary:
+            if word not in self.embedding:
                 out_msj = f"Error: La palabra '<b>{word}</b>' no se encuentra en el vocabulario!"
 
         return out_msj
 
-    def check_oov(self, wordlists):
+    def check_oov(
+        self, 
+        wordlists: List[str]
+    ) -> str:
+
         for wordlist in wordlists:
             for word in wordlist:
                 msg = self.__errorChecking(word)
@@ -258,190 +264,72 @@ class WordBiasExplorer():
                     return msg
         return None
     
-    def plot_biased_words(self,
-                       words_to_diagnose,
-                       wordlist_right,
-                       wordlist_left,
-                       wordlist_top=[],
-                       wordlist_bottom=[]
-                       ):
-        bias_2D = wordlist_top == [] and wordlist_bottom == []
+class WEBiasExplorer2Spaces(WordBiasExplorer):
+    def __init__(self, embedding) -> None:
+        super().__init__(embedding)
 
-        if bias_2D and (not wordlist_right or not wordlist_left):
-            raise Exception('For bar plot, wordlist right and left can NOT be empty')
-        elif not bias_2D and (not wordlist_right or not wordlist_left or not wordlist_top or not wordlist_bottom):
-            raise Exception('For plane plot, wordlist right, left, top and down can NOT be empty')
+    def calculate_bias(
+        self,
+        wordlist_to_diagnose: List[str],
+        wordlist_right: List[str],
+        wordlist_left: List[str]
+    ) -> plt.Figure:
+
+        wordlists = [wordlist_to_diagnose, wordlist_right, wordlist_left] 
         
-        err = self.check_oov([words_to_diagnose + wordlist_right + wordlist_left + wordlist_top + wordlist_bottom])
+        for wordlist in wordlists:
+            if not wordlist:
+                raise Exception('Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2')
+        
+        err = self.check_oov(wordlists)
         if err:
             raise Exception(err)
 
-        return self.get_bias_plot(bias_2D,
-                                  words_to_diagnose,
-                                  definitional_1=(wordlist_right, wordlist_left),
-                                  definitional_2=(wordlist_top, wordlist_bottom)
-                                  )
+        return self.get_bias_plot(
+                wordlist_to_diagnose,
+                definitional=(wordlist_left, wordlist_right),
+                method='sum',
+                n_extreme=10
+            )
 
-    def get_bias_plot(self,
-                      plot_2D,
-                      words_to_diagnose,
-                      definitional_1,
-                      definitional_2=([], []),
-                      method='sum',
-                      n_extreme=10,
-                      figsize=(15, 10)
-                      ):
-        fig, ax = plt.subplots(1, figsize=figsize)
-        self.method = method
-        self.plot_projection_scores(plot_2D, words_to_diagnose, definitional_1, definitional_2, n_extreme, ax)
-        
-        if plot_2D:
-            fig.tight_layout()
-        fig.canvas.draw()
-
-        return fig
-
-    def plot_projection_scores(self,
-                                  plot_2D,
-                                  words,
-                                  definitional_1,
-                                  definitional_2=([], []),
-                                  n_extreme=10,
-                                  ax=None,
-                                  axis_projection_step=0.1):
-        name_left  = ', '.join(definitional_1[1])
-        name_right = ', '.join(definitional_1[0])
-
-        self._identify_direction(name_left, name_right, definitional=definitional_1, method='sum')
-        self._is_direction_identified()
-
-        projections_df = self._calc_projection_scores(words)
-        projections_df['projection_x'] = projections_df['projection'].round(2)
-
-        if not plot_2D:
-            name_top    = ', '.join(definitional_2[1])
-            name_bottom = ', '.join(definitional_2[0])
-            self._identify_direction(name_top, name_bottom, definitional=definitional_2, method='sum')
-            self._is_direction_identified()
-
-            projections_df['projection_y'] = self._calc_projection_scores(words)['projection'].round(2)
-
-        if n_extreme is not None:
-            projections_df = take_two_sides_extreme_sorted(projections_df, n_extreme=n_extreme)
-        
-        if ax is None:
-            _, ax = plt.subplots(1)
-        
-        cmap = plt.get_cmap('RdBu')
-        projections_df['color'] = ((projections_df['projection'] + 0.5).apply(cmap))
-        most_extream_projection = np.round(
-            projections_df['projection']
-            .abs()
-            .max(),
-            decimals=1)
-        
-        if plot_2D:
-            sns.barplot(x='projection', y='word', data=projections_df,
-                    palette=projections_df['color'])
-        else:
-            sns.scatterplot(x='projection_x', y='projection_y', data=projections_df,
-                        palette=projections_df['color'])
-        
-        plt.xticks(np.arange(-most_extream_projection,
-                             most_extream_projection + axis_projection_step,
-                             axis_projection_step))
-
-        x_label = '← {} {} {} →'.format(name_left,
-                                        ' ' * 20,
-                                        name_right)
-        if not plot_2D:
-            y_label = '← {} {} {} →'.format(name_top,
-                                        ' ' * 20,
-                                        name_bottom)
-            for _, row in (projections_df.iterrows()):
-                ax.annotate(row['word'], (row['projection_x'], row['projection_y']))
-        
-        plt.xlabel(x_label)
-        plt.ylabel('Words')
-
-        if not plot_2D:
-            ax.xaxis.set_label_position('bottom')
-            ax.xaxis.set_label_coords(.5, 0)
-
-            plt.ylabel(y_label)
-            ax.yaxis.set_label_position('left')
-            ax.yaxis.set_label_coords(0, .5)
-
-            ax.spines['left'].set_position('center')
-            ax.spines['bottom'].set_position('center')
-
-            ax.set_xticks([])
-            ax.set_yticks([])
-
-        return ax
-        
-# TODO: Would be erased if decided to keep all info in BiasWordExplorer
-class WEBiasExplorer2d(WordBiasExplorer):
-    def __init__(self, word_embedding) -> None:
-        super().__init__(word_embedding)
-
-    def calculate_bias( self,
-                        palabras_extremo_1,
-                        palabras_extremo_2,
-                        palabras_para_situar
-                        ):
-        wordlists = [palabras_extremo_1, palabras_extremo_2, palabras_para_situar] 
-        
-        err = self.check_oov(wordlists)
-        for wordlist in wordlists:
-            if not wordlist:
-                err = "<center><h3>" + 'Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2' + "<center><h3>"
-        if err:
-            return None, err
-
-        im = self.get_bias_plot(
-            palabras_para_situar,
-            definitional=(
-                palabras_extremo_1, palabras_extremo_2),
-            method='sum',
-            n_extreme=10
-        )
-        return im, ''
-
-    def get_bias_plot(self,
-                      palabras_para_situar,
-                      definitional,
-                      method='sum',
-                      n_extreme=10,
-                      figsize=(10, 10)
-                      ):
+    def get_bias_plot(
+        self,
+        wordlist_to_diagnose: List[str],
+        definitional: Tuple[List[str], List[str]],
+        method: str='sum',
+        n_extreme: int=10,
+        figsize: Tuple[int, int]=(10, 10)
+    ) -> plt.Figure:
 
         fig, ax = plt.subplots(1, figsize=figsize)
         self.method = method
         self.plot_projection_scores(
             definitional,
-            palabras_para_situar, n_extreme, ax=ax,)
+            wordlist_to_diagnose, n_extreme, ax=ax,)
 
         fig.tight_layout()
         fig.canvas.draw()
 
-        data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        w, h = fig.canvas.get_width_height()
-        im = data.reshape((int(h), int(w), -1))
-        return im
+        return fig
 
-    def plot_projection_scores(self, definitional,
-                               words, n_extreme=10,
-                               ax=None, axis_projection_step=None):
+    def plot_projection_scores(
+        self, 
+        definitional: Tuple[List[str], List[str]],
+        words: List[str], 
+        n_extreme: int=10,
+        ax: plt.Axes=None, 
+        axis_projection_step: float=None
+    ) -> plt.Axes:
+
         """Plot the projection scalar of words on the direction.
         :param list words: The words tor project
         :param int or None n_extreme: The number of extreme words to show
         :return: The ax object of the plot
         """
-        nombre_del_extremo_1 = ', '.join(definitional[0])
-        nombre_del_extremo_2 = ', '.join(definitional[1])
+        name_left = ', '.join(definitional[0])
+        name_right = ', '.join(definitional[1])
 
-        self._identify_direction(nombre_del_extremo_1, nombre_del_extremo_2,
+        self._identify_direction(name_left, name_right,
                                  definitional=definitional,
                                  method='sum')
 
@@ -486,80 +374,84 @@ class WEBiasExplorer2d(WordBiasExplorer):
         return ax
 
 
-class WEBiasExplorer4d(WordBiasExplorer):
-    def __init__(self, word_embedding) -> None:
-        super().__init__(word_embedding)
+class WEBiasExplorer4Spaces(WordBiasExplorer):
+    def __init__(self, embedding) -> None:
+        super().__init__(embedding)
 
-    def calculate_bias( self,
-                        palabras_extremo_1,
-                        palabras_extremo_2,
-                        palabras_extremo_3,
-                        palabras_extremo_4,
-                        palabras_para_situar
-                        ):
+    def calculate_bias(
+        self,
+        wordlist_to_diagnose: List[str],
+        wordlist_right: List[str],
+        wordlist_left: List[str],
+        wordlist_top: List[str],
+        wordlist_bottom: List[str],
+    ) -> plt.Figure:
+
         wordlists = [
-            palabras_extremo_1,
-            palabras_extremo_2,
-            palabras_extremo_3,
-            palabras_extremo_4,
-            palabras_para_situar
+            wordlist_to_diagnose,
+            wordlist_left,
+            wordlist_right,
+            wordlist_top,
+            wordlist_bottom
         ]
+
+        # TODO: Ver este chequeo del lado de Connector
         for wordlist in wordlists:
             if not wordlist:
-                err = "<center><h3>" + \
-                    '¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!' + "<center><h3>"
+                raise Exception('¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!')
 
         err = self.check_oov(wordlist)
-
         if err:
-            return None, err
+            raise Exception(err)
 
-        im = self.get_bias_plot(
-            palabras_para_situar,
-            definitional_1=(
-                palabras_extremo_1, palabras_extremo_2),
-            definitional_2=(
-                palabras_extremo_3, palabras_extremo_4),
-            method='sum',
-            n_extreme=10
-        )
-        return im, ''
+        return self.get_bias_plot(
+                wordlist_to_diagnose,
+                definitional_1=(wordlist_right, wordlist_left),
+                definitional_2=(wordlist_top, wordlist_bottom),
+                method='sum',
+                n_extreme=10
+            )
 
-    def get_bias_plot(self,
-                      palabras_para_situar,
-                      definitional_1,
-                      definitional_2,
-                      method='sum',
-                      n_extreme=10,
-                      figsize=(10, 10)
-                      ):
+    def get_bias_plot(
+        self,
+        wordlist_to_diagnose: List[str],
+        definitional_1: Tuple[List[str], List[str]],
+        definitional_2: Tuple[List[str], List[str]],
+        method: str='sum',
+        n_extreme: int=10,
+        figsize: Tuple[int, int]=(10, 10)
+    ) -> plt.Figure:
 
         fig, ax = plt.subplots(1, figsize=figsize)
         self.method = method
         self.plot_projection_scores(
             definitional_1,
             definitional_2,
-            palabras_para_situar, n_extreme, ax=ax,)
+            wordlist_to_diagnose, n_extreme, ax=ax,)
         fig.canvas.draw()
 
-        data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        w, h = fig.canvas.get_width_height()
-        im = data.reshape((int(h), int(w), -1))
-        return im
+        return fig
 
-    def plot_projection_scores(self, definitional_1, definitional_2,
-                               words, n_extreme=10,
-                               ax=None, axis_projection_step=None):
+    def plot_projection_scores(
+        self, 
+        definitional_1: Tuple[List[str], List[str]], 
+        definitional_2: Tuple[List[str], List[str]],
+        words: List[str], 
+        n_extreme: int=10,
+        ax: plt.Axes=None, 
+        axis_projection_step: float=None
+    ) -> plt.Axes:
+
         """Plot the projection scalar of words on the direction.
         :param list words: The words tor project
         :param int or None n_extreme: The number of extreme words to show
         :return: The ax object of the plot
         """
 
-        nombre_del_extremo_1 = ', '.join(definitional_1[1])
-        nombre_del_extremo_2 = ', '.join(definitional_1[0])
+        name_left = ', '.join(definitional_1[1])
+        name_right = ', '.join(definitional_1[0])
 
-        self._identify_direction(nombre_del_extremo_1, nombre_del_extremo_2,
+        self._identify_direction(name_left, name_right,
                                  definitional=definitional_1,
                                  method='sum')
 
@@ -568,9 +460,9 @@ class WEBiasExplorer4d(WordBiasExplorer):
         projections_df = self._calc_projection_scores(words)
         projections_df['projection_x'] = projections_df['projection'].round(2)
 
-        nombre_del_extremo_3 = ', '.join(definitional_2[1])
-        nombre_del_extremo_4 = ', '.join(definitional_2[0])
-        self._identify_direction(nombre_del_extremo_3, nombre_del_extremo_4,
+        name_top = ', '.join(definitional_2[1])
+        name_bottom = ', '.join(definitional_2[0])
+        self._identify_direction(name_top, name_bottom,
                                  definitional=definitional_2,
                                  method='sum')
 
@@ -606,13 +498,13 @@ class WEBiasExplorer4d(WordBiasExplorer):
         for _, row in (projections_df.iterrows()):
             ax.annotate(
                 row['word'], (row['projection_x'], row['projection_y']))
-        x_label = '← {} {} {} →'.format(nombre_del_extremo_1,
+        x_label = '← {} {} {} →'.format(name_left,
                                         ' ' * 20,
-                                        nombre_del_extremo_2)
+                                        name_right)
 
-        y_label = '← {} {} {} →'.format(nombre_del_extremo_3,
+        y_label = '← {} {} {} →'.format(name_top,
                                         ' ' * 20,
-                                        nombre_del_extremo_4)
+                                        name_bottom)
 
         plt.xlabel(x_label)
         ax.xaxis.set_label_position('bottom')
@@ -627,8 +519,5 @@ class WEBiasExplorer4d(WordBiasExplorer):
 
         ax.set_xticks([])
         ax.set_yticks([])
-        #plt.yticks([], [])
-        # ax.spines['left'].set_position('zero')
-        # ax.spines['bottom'].set_position('zero')
 
         return ax

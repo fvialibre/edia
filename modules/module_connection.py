@@ -3,7 +3,7 @@ import pandas as pd
 import gradio as gr
 from abc import ABC, abstractmethod
 from modules.module_WordExplorer import WordExplorer
-from modules.module_BiasExplorer import WordBiasExplorer
+from modules.module_BiasExplorer import WordBiasExplorer, WEBiasExplorer2Spaces, WEBiasExplorer4Spaces
 from modules.module_word2Context import Word2Context
 from modules.module_rankSents import RankSents
 from modules.module_crowsPairs import CrowsPairs
@@ -89,7 +89,8 @@ class BiasWordExplorerConnector(Connector):
             embedding = kwargs.get('embedding')
         else:
             raise KeyError
-        self.bias_word_explorer = WordBiasExplorer(embedding)
+        self.bias_word_explorer_2_spaces = WEBiasExplorer2Spaces(embedding)
+        self.bias_word_explorer_4_spaces = WEBiasExplorer4Spaces(embedding)
 
     def calculate_bias_2d(self,
                          wordlist_1,
@@ -108,12 +109,11 @@ class BiasWordExplorerConnector(Connector):
         if err:
             return None, self.process_error(err)
 
-        err = self.bias_word_explorer.check_oov(word_lists)
+        err = self.bias_word_explorer_2_spaces.check_oov(word_lists)
         if err:
             return None, self.process_error(err)
 
-        fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_2, wordlist_1)
-
+        fig = self.bias_word_explorer_2_spaces.calculate_bias(to_diagnose_list, wordlist_1, wordlist_2)
         return fig, self.process_error(err)
 
     def calculate_bias_4d(self,
@@ -137,11 +137,11 @@ class BiasWordExplorerConnector(Connector):
         if err:
             return None, self.process_error(err)
 
-        err = self.bias_word_explorer.check_oov(wordlists)
+        err = self.bias_word_explorer_4_spaces.check_oov(wordlists)
         if err:
             return None, self.process_error(err)
 
-        fig = self.bias_word_explorer.plot_biased_words(to_diagnose_list, wordlist_1, wordlist_2, wordlist_3, wordlist_4)
+        fig = self.bias_word_explorer_4_spaces.calculate_bias(to_diagnose_list, wordlist_1, wordlist_2, wordlist_3, wordlist_4)
         return fig, self.process_error(err)
 
 class Word2ContextExplorerConnector(Connector):

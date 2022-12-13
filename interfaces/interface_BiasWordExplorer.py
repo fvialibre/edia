@@ -2,17 +2,10 @@ from tkinter import image_names
 import gradio as gr
 import pandas as pd
 
-from modules.module_BiasExplorer import  WEBiasExplorer2d, WEBiasExplorer4d
 from examples.examples import examples1_explorar_sesgo_en_palabras, examples2_explorar_sesgo_en_palabras
 from modules.module_logsManager import HuggingFaceDatasetSaver
 from modules.module_connection import BiasWordExplorerConnector
 from tool_info import TOOL_INFO
-
-# def make_gallery(plot,saved_images):
-#     saved_images = saved_images.append(plot)
-#     image_list = [i for i in saved_images]
-#     gallery= gr.Gallery(value=image_list)
-#     return saved_images, image_list
 
 # --- Interface ---
 def interface(embedding, available_logs, lang="spanish"):
@@ -23,7 +16,6 @@ def interface(embedding, available_logs, lang="spanish"):
     # --- Init vars ---
     connector = BiasWordExplorerConnector(embedding=embedding)
     labels = pd.read_json(f"language/{lang}.json")["BiasWordExplorer_interface"]
-    # saved_images = gr.State([])
 
     interface = gr.Blocks()
     with interface:
@@ -46,15 +38,11 @@ def interface(embedding, available_logs, lang="spanish"):
                 with gr.Row():
                     bias2d = gr.Button(labels["plot2SpacesButton"])
                 with gr.Row():
-                    bias4d = gr.Button(labels["plot4SpacesButton"])    
-                # with gr.Row():
-                #     save_image = gr.Button('Guardar exploracion')    
+                    bias4d = gr.Button(labels["plot4SpacesButton"])
                 with gr.Row():
                     err_msg = gr.Markdown(label='',visible=True)
                 with gr.Row():
                     bias_plot = gr.Plot(label="", show_label=False)
-            # with gr.Accordion(label='Exploraciones guardadas'):
-            #     gallery = gr.Gallery(value=[])     
         with gr.Row():
             examples = gr.Examples(
                 fn=connector.calculate_bias_2d,
@@ -87,11 +75,6 @@ def interface(embedding, available_logs, lang="spanish"):
             inputs=[wordlist_1,wordlist_2,wordlist_3,wordlist_4,diagnose_list],
             outputs=[bias_plot,err_msg]
         )
-        # save_image.click(
-        #     fn=make_gallery,
-        #     inputs=[bias_plot,saved_images],
-        #     outputs=[saved_images,gallery]
-        # )
         # --- Logs ---
         save_field = [wordlist_1,wordlist_2,wordlist_3,wordlist_4,diagnose_list]
         log_callback.setup(components=save_field, flagging_dir="sesgo_en_palabras")
