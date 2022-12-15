@@ -395,12 +395,11 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
             wordlist_bottom
         ]
 
-        # TODO: Ver este chequeo del lado de Connector
         for wordlist in wordlists:
             if not wordlist:
                 raise Exception('¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!')
 
-        err = self.check_oov(wordlist)
+        err = self.check_oov(wordlists)
         if err:
             raise Exception(err)
 
