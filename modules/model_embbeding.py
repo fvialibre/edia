@@ -2,7 +2,8 @@ from modules.module_ann import Ann
 from memory_profiler import profile
 from sklearn.neighbors import NearestNeighbors
 from sklearn.decomposition import PCA
-from gensim.models import KeyedVectors
+from gensim.models import KeyedVectors, FastText
+from gensim.models.fasttext import load_facebook_vectors
 from typing import List
 import os
 import operator
@@ -91,14 +92,45 @@ class Embedding:
             pca = PCA(
                 n_components=2
             )
+
+        model = None
+
+        # Should be enough for all .vec files
+        try:
+            model = KeyedVectors.load_word2vec_format(
+                fname=path, 
+                binary=binary, 
+                limit=limit,
+                unicode_errors='ignore'
+            )
+            
+        except UnicodeDecodeError:
+            pass    #Try other way of loading
+
+        # If it's a .bin Fasttext saved model
+        if model is None and binary:
+
+            # If it's a Fasttext model
+            try:
+                model = load_facebook_vectors(
+                    path=path
+                )
+
+            except UnicodeDecodeError:
+                pass
+
+            if model is None:
+                # Last chance, if it is a Word2Vec model
+                try:
+                    model = KeyedVectors.load(
+                        fname=path
+                    )
+
+                except:
+                    pass
         
-        print("--------> PATH:", path)
-        model = KeyedVectors.load_word2vec_format(
-            fname=path, 
-            binary=binary, 
-            limit=limit,
-            unicode_errors='ignore'
-        )
+        if model is None:
+            raise Exception(f'Can\'t load {path} after multiple approaches.')
 
         # Cased Vocab
         cased_words = model.index_to_key
