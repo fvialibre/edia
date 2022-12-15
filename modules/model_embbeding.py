@@ -96,7 +96,8 @@ class Embedding:
         model = KeyedVectors.load_word2vec_format(
             fname=path, 
             binary=binary, 
-            limit=limit
+            limit=limit,
+            unicode_errors='ignore'
         )
 
         # Cased Vocab
