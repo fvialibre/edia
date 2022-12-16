@@ -109,6 +109,10 @@ class Embedding:
 
         # If it's a .bin Fasttext saved model
         if model is None and binary:
+            print('Error during load of provided model. \
+                   Using different approaches. \
+                   The limit parameter won\'t be taken into account'
+                )
 
             # If it's a Fasttext model
             try:
