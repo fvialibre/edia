@@ -1,5 +1,10 @@
+from typing import List, Dict
+
 class CustomSubsetsLabel:
-    def __init__(self):
+    def __init__(
+        self
+    ) -> None:
+
         self.html_head = """
         <html>
             <head>
@@ -50,7 +55,14 @@ class CustomSubsetsLabel:
             'UN': "http://opus.nlpl.eu/UN.php",
         }
 
-    def __progressbar(self, percentage, subset, freq, size=15):
+    def __progressbar(
+        self, 
+        percentage: float, 
+        subset: str, 
+        freq: int, 
+        size: int=15
+    ) -> str:
+
         html = f"""
         <div id="myturn">
             <progress value="{int(percentage)}" max="100"></progress>
@@ -66,7 +78,13 @@ class CustomSubsetsLabel:
         """
         return html
 
-    def __render(self, subsets, freqs, percentages):
+    def __render(
+        self, 
+        subsets: List[str], 
+        freqs: List[int], 
+        percentages: List[float]
+    ) -> str:
+
         html = ""
         for subset, freq, perc in zip(subsets, freqs, percentages):
             html += self.__progressbar(
@@ -77,13 +95,24 @@ class CustomSubsetsLabel:
 
         return self.html_head + html + self.html_footer
     
-    def compute(self, subsets_dic):
+    def compute(
+        self, 
+        subsets_dic: Dict[str, int]
+    ) -> str:
+
         subsets_dic_info = {
             k.split()[0]:{'freq':int(k.split()[1][1:-1]),'perc':round(v*100,2)} 
             for k,v in subsets_dic.items()
         }
         
         subsets = list(subsets_dic_info.keys())
-        freqs = [d['freq'] for d in subsets_dic_info.values()]
-        percentages = [d['perc'] for d in subsets_dic_info.values()]
+        freqs = [
+            d['freq'] 
+            for d in subsets_dic_info.values()
+        ]
+        percentages = [
+            d['perc'] 
+            for d in subsets_dic_info.values()
+        ]
+
         return self.__render(subsets, freqs, percentages)

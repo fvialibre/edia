@@ -2,7 +2,7 @@
     "app": {
         "wordExplorer": "Word explorer",
         "biasWordExplorer": "Word bias",
-        "dataExplorer": "Data bias",
+        "dataExplorer": "Data",
         "phraseExplorer": "Phrase bias",
         "crowsPairsExplorer": "Crows-Pairs"
     },
@@ -43,11 +43,11 @@
         "step2": "2. Enter words of interest (Optional)",
         "step3": "3. Enter unwanted words (If item 2 is not completed)",
         "sent": {
-            "title": "",
+            "title": "Sent",
             "placeholder": "Use * to mask the word of interest."
         },
         "wordList": {
-            "title": "",
+            "title": "Word List",
             "placeholder": "The words in the list must be comma separated"
         },
         "bannedWordList": {
@@ -66,7 +66,7 @@
         "step2": "2. Select maximum number of contexts to retrieve",
         "step3": "3. Select sets of interest",
         "inputWord": {
-            "title": "",
+            "title": "Word",
             "placeholder": "Enter the word ..."
         },
         "wordInfoButton": "Get word information",

@@ -1,5 +1,10 @@
+from typing import List, Dict
+
 class CustomPllLabel:
-    def __init__(self):
+    def __init__(
+        self
+    ) -> None:
+
         self.html_head = """
         <html>
             <head>
@@ -39,11 +44,19 @@ class CustomPllLabel:
 
         self.html_footer ="</body></html>"
     
-    def __progressbar(self, percentage, sent, ratio, score, size=15):
+    def __progressbar(
+        self, 
+        percentage: int, 
+        sent: str, 
+        ratio: float, 
+        score: float, 
+        size: int=15
+    ) -> str:
+
         html = f"""
         <div id="myturn">
             <span data-value="{percentage/2}" style="width:{percentage/2}%;">
-                <strong>x{round(ratio,3)}</strong> (score:{round(score,2)})
+                <strong>x{round(ratio,3)}</strong>
             </span>
             <progress value="{percentage}" max="100"></progress>
             <p style='font-size:22px; padding:2px;'>{sent}</p>
@@ -51,7 +64,13 @@ class CustomPllLabel:
         """
         return html
 
-    def __render(self, sents, scores, ratios):
+    def __render(
+        self, 
+        sents: List[str],
+        scores: List[float], 
+        ratios: List[float]
+    ) -> str:
+
         max_ratio = max(ratios)
         ratio2percentage = lambda ratio: int(ratio*100/max_ratio)
 
@@ -66,13 +85,25 @@ class CustomPllLabel:
 
         return self.html_head + html + self.html_footer
     
-    def __getProportions(self, scores):
+    def __getProportions(
+        self, 
+        scores: List[float], 
+    ) -> List[float]:
+    
         min_score = min(scores)
         return [min_score/s for s in scores]
 
-    def compute(self, pll_dict):
+    def compute(
+        self, 
+        pll_dict: Dict[str, float]
+    ) -> str:
+
         sorted_pll_dict = dict(sorted(pll_dict.items(), key=lambda x: x[1], reverse=True))
+        
         sents = list(sorted_pll_dict.keys())
+        # Scape < and > marks from hightlight word/s
+        sents = [s.replace("<","&#60;").replace(">","&#62;")for s in sents]
+
         scores  = list(sorted_pll_dict.values())
         ratios = self.__getProportions(scores)
 

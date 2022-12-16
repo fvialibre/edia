@@ -4,7 +4,7 @@ TOOL_INFO = """
 * [Read Full Paper](https://arxiv.org/abs/2207.06591)
 
 > ### Licensing Information 
-* [MIT Licence](https://huggingface.co/spaces/vialibre/vialibre/bias_we_std_tool/resolve/main/LICENSE)
+* [MIT Licence](https://github.com/git-lu/notebook_bias_tools.git/LICENSE)
 
 > ### Citation Information
 ```c

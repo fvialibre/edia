@@ -1,45 +1,71 @@
-from memory_profiler import profile
-from annoy import AnnoyIndex
-from tqdm import tqdm
 import time
-import operator
+from tqdm import tqdm
+from annoy import AnnoyIndex
+from memory_profiler import profile
+from typing import List
 
 class TicToc:
-    def __init__(self):
+    def __init__(
+        self
+    ) -> None:
+
         self.i = None
-    def start(self):
+
+    def start(
+        self
+    ) -> None:
+
         self.i = time.time()
-    def stop(self):
+
+    def stop(
+        self
+    ) -> None:
+
         f = time.time()
         print(f - self.i, "seg.")
 
+
 class Ann:
-    def __init__(self, words, vectors, coord):
-        self.words = words.to_list()
-        self.vectors = vectors.to_list()
-        self.coord = coord.to_list()
+    def __init__(
+        self, 
+        words: List[str], 
+        vectors: List, 
+        coord: List, 
+    ) -> None:
+
+        self.words = words
+        self.vectors = vectors
+        self.coord = coord
         self.tree = None
 
         self.tt = TicToc()
 
-    @profile
-    def init(self, n_trees=10, metric='angular', n_jobs=-1):
-        # metrics options = "angular", "euclidean", "manhattan", "hamming", or "dot"
-        # n_jobs=-1 Run over all CPU availables
+    def init(self, 
+        n_trees: int=10, 
+        metric: str='angular', 
+        n_jobs: int=-1  # n_jobs=-1 Run over all CPU availables
+    ) -> None:
 
-        print("Init tree...")
+        availables_metrics = ['angular','euclidean','manhattan','hamming','dot']
+        assert(metric in self.availables_metrics), f"Error: The value of the parameter 'metric' can only be {availables_metrics}!"
+
+        print("\tInit tree...")
         self.tt.start()
         self.tree = AnnoyIndex(len(self.vectors[0]), metric=metric)
-        for i,v in tqdm(enumerate(self.vectors), total=len(self.vectors)):
-            self.tree.add_item(i,v)
+        for i, v in tqdm(enumerate(self.vectors), total=len(self.vectors)):
+            self.tree.add_item(i, v)
         self.tt.stop()
 
-        print("Build tree...")
+        print("\tBuild tree...")
         self.tt.start()
         self.tree.build(n_trees=n_trees, n_jobs=n_jobs)
         self.tt.stop()
 
-    def __getWordId(self, word):
+    def __getWordId(
+        self, 
+        word: str
+    ) -> int:
+
         word_id = None
         try:
             word_id = self.words.index(word)
@@ -47,16 +73,20 @@ class Ann:
             pass
         return word_id
 
-    def get(self, word, n_neighbors=10):
+    def get(
+        self, 
+        word: str, 
+        n_neighbors: int=10
+    ) -> List[str]:
+        
         word_id = self.__getWordId(word)
-        reword_xy_list = None
+        neighbors_list = None
 
         if word_id != None:
-            neighbord_id = self.tree.get_nns_by_item(word_id, n_neighbors)
-            # word_xy_list = list(map(lambda i: (self.words[i],self.coord[i]), neighbord_id))
-            # word_xy_list = list(map(lambda i: self.words[i], neighbord_id))
-            word_xy_list = operator.itemgetter(*neighbord_id)(self.words)
+            neighbords_id = self.tree.get_nns_by_item(word_id, n_neighbors + 1)
+            neighbors_list = [self.words[idx] for idx in neighbords_id][1:]
+
         else:
             print(f"The word '{word}' does not exist")
-        
-        return word_xy_list
+
+        return neighbors_list

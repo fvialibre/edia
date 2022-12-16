@@ -2,7 +2,7 @@
     "app": {
         "wordExplorer": "Explorar palabras",
         "biasWordExplorer": "Sesgo en palabras",
-        "dataExplorer": "Sesgo en datos",
+        "dataExplorer": "Datos",
         "phraseExplorer": "Sesgo en frases",
         "crowsPairsExplorer": "Crows-Pairs"
     },
@@ -43,11 +43,11 @@
         "step2": "2. Ingrese palabras de interés (Opcional)",
         "step3": "3. Ingrese palabras no deseadas (En caso de no completar punto 2)",
         "sent": {
-            "title": "",
+            "title": "Frase",
             "placeholder": "Utilice * para enmascarar la palabra de interés"
         },
         "wordList": {
-            "title": "",
+            "title": "Palabras de interés",
             "placeholder": "La lista de palabras deberán estar separadas por ,"
         },
         "bannedWordList": {
@@ -66,7 +66,7 @@
         "step2": "2. Seleccione cantidad máxima de contextos a recuperar",
         "step3": "3. Seleccione conjuntos de interés",
         "inputWord": {
-            "title": "",
+            "title": "Palabra",
             "placeholder": "Ingresar aquí la palabra ..."
         },
         "wordInfoButton": "Obtener información de palabra",
@@ -83,7 +83,7 @@
         "sent3": "Frase Nº 4 (Opcional)",
         "sent4": "Frase Nº 5 (Opcional)",
         "sent5": "Frase Nº 6 (Opcional)",
-        "commonPlacholder": "Utilice comillas simples ' ' para destacar palabra/as de interés",
+        "commonPlacholder": "Utilice los simbolos < y > para destacar palabra/as de interés",
         "compareButton": "Comparar",
         "plot": "Visualización de proporciones",
         "examples": "Ejemplos"

@@ -1,5 +1,6 @@
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+from typing import Dict, Tuple, List
 
 
 class SimpleGroupedColorFunc(object):
@@ -16,7 +17,12 @@ class SimpleGroupedColorFunc(object):
          of any value from color_to_words.
     """
 
-    def __init__(self, color_to_words, default_color):
+    def __init__(
+        self, 
+        color_to_words: Dict, 
+        default_color: str
+    ) -> Dict:
+
         self.word_to_color = {
             word: color
             for (color, words) in color_to_words.items()
@@ -30,7 +36,13 @@ class SimpleGroupedColorFunc(object):
 
 
 class SegmentedWordCloud:
-    def __init__(self, freq_dic, less_group, greater_group):
+    def __init__(
+        self, 
+        freq_dic: Dict[str, int], 
+        less_group: List[str], 
+        greater_group: List[str]
+    ) -> WordCloud:
+
         colors = {
             'less': '#529ef3',
             'salient':'#d35400',
@@ -56,7 +68,11 @@ class SegmentedWordCloud:
         
         self.wc.recolor(color_func=grouped_color_func)
 
-    def plot(self, figsize):
+    def plot(
+        self, 
+        figsize: Tuple[int,int]
+    ) -> plt.Figure:
+    
         fig, ax = plt.subplots(figsize=figsize)
         ax.imshow(self.wc, interpolation="bilinear")
         ax.axis("off")

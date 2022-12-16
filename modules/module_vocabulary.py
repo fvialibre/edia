@@ -1,10 +1,13 @@
 from memory_profiler import profile
 import pandas as pd
-import ast
+from typing import List, Dict, Tuple
 
 class Vocabulary:
-    @profile
-    def __init__(self, subset_name):
+    def __init__(
+        self, 
+        subset_name: str
+    ) -> None:
+
         # Dataset info
         self.subset_name = subset_name
         self.ds_path = f"data/{subset_name}_vocab_v6.zip"
@@ -18,10 +21,17 @@ class Vocabulary:
         # Load vocabulary dataset
         self.__load()
 
-    def __contains__(self, word):
+    def __contains__(
+        self, 
+        word: str
+    ) -> bool:
+
         return word in self.df_vocab['word'].to_list()
 
-    def __load(self):
+    def __load(
+        self
+    ) -> None:
+
         print(f"Preparing {self.subset_name} vocabulary...")
 
         # --- Download vocab dataset ---
@@ -42,7 +52,11 @@ class Vocabulary:
             reverse=True
         )
         
-    def __getValue(self, word, feature):
+    def __getValue(
+        self, 
+        word: str, 
+        feature: str
+    ):
         word_id, value = None, None
 
         if word in self:
@@ -53,23 +67,47 @@ class Vocabulary:
 
         return value
 
-    def getFreq(self, word):
+    def getFreq(
+        self, 
+        word
+    ) -> int:
+
         return self.__getValue(word, 'freq')
 
-    def getPercentile(self, word):
+    def getPercentile(
+        self, 
+        word:str
+    ) -> float:
+
         return self.__getValue(word, 'percentile')
 
-    def getSplits(self, word):
+    def getSplits(
+        self, 
+        word: str
+    ) -> List[str]:
+
         return self.__getValue(word, 'splits')
     
-    def getSubsets(self, word):
+    def getSubsets(
+        self, 
+        word: str
+    ) -> Dict[str, int]:
+
         return self.__getValue(word, 'in_subset')
 
-    def distribution(self):
+    def distribution(
+        self
+    ) -> Tuple:
+
         x_values, y_values = zip(*self.histogram)
         return x_values, y_values
      
-    def getWordNeighbors(self, word, n_neighbors=20):
+    def getWordNeighbors(
+        self, 
+        word: str, 
+        n_neighbors: int=20
+    )-> Tuple:
+
         word_id = self.df_vocab['word'].to_list().index(word)
         words = self.df_vocab['word'].to_list()
         freqs = self.df_vocab['freq'].to_list()

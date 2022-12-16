@@ -12,7 +12,7 @@ __all__ = ['WordBiasExplorer', 'WEBiasExplorer2Spaces', 'WEBiasExplorer4Spaces']
 class WordBiasExplorer:
     def __init__(
         self, 
-        embedding  # Class Embedding instance
+        embedding  # Embedding Class instance
     ) -> None:
 
         self.embedding = embedding
@@ -265,7 +265,11 @@ class WordBiasExplorer:
         return None
     
 class WEBiasExplorer2Spaces(WordBiasExplorer):
-    def __init__(self, embedding) -> None:
+    def __init__(
+        self, 
+        embedding   # Embedding class instance
+    ) -> None:
+
         super().__init__(embedding)
 
     def calculate_bias(
@@ -375,7 +379,11 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
 
 
 class WEBiasExplorer4Spaces(WordBiasExplorer):
-    def __init__(self, embedding) -> None:
+    def __init__(
+        self, 
+        embedding   # Embedding Class instance
+    ) -> None:
+
         super().__init__(embedding)
 
     def calculate_bias(

@@ -1,10 +1,8 @@
 from datasets import load_dataset, interleave_datasets
 from modules.module_segmentedWordCloud import SegmentedWordCloud
 from modules.module_customSubsetsLabel import CustomSubsetsLabel
-
 from random import sample as random_sample
-#import gradio as gr
-#import pandas as pd
+from typing import Tuple, List, Dict
 import re
 
 import matplotlib as mpl
@@ -13,7 +11,12 @@ import matplotlib.pyplot as plt
 
 
 class Word2Context:
-    def __init__(self, context_ds_name, vocabulary):
+    def __init__(
+        self, 
+        context_ds_name: str, 
+        vocabulary  # Vocabulary class instance
+    ) -> None:
+
         self.context_ds_name = context_ds_name
         
         # Vocabulary class 
@@ -22,7 +25,11 @@ class Word2Context:
         # Custom Label component
         self.Label = CustomSubsetsLabel()
 
-    def errorChecking(self, word):
+    def errorChecking(
+        self, 
+        word: str
+    ) -> str:
+
         out_msj = ""
 
         if not word:
@@ -33,19 +40,33 @@ class Word2Context:
         
         return out_msj
 
-    def genWebLink(self,text):
+    def genWebLink(
+        self,
+        text: str
+    ) -> str:
+
         text = text.replace("\"", "'")
         text = text.replace("<u><b>", "")
         text = text.replace("</b></u>", "")
         url = "https://www.google.com.tr/search?q={}".format(text)
         return '<a href="{}" rel="noopener noreferrer" target="_blank"><center>🌐🔍</center></a>'.format(url)
 
-    def genWordCloudPlot(self, word, figsize=(9,3)):
+    def genWordCloudPlot(
+        self, 
+        word: str, 
+        figsize: Tuple[int,int]=(9,3)
+    ) -> plt.Figure:
+
         freq_dic, l_group, g_group = self.vocab.getWordNeighbors(word, n_neighbors=10)
         wc = SegmentedWordCloud(freq_dic, l_group, g_group)
         return wc.plot(figsize)
 
-    def genDistributionPlot(self, word, figsize=(6,1)):
+    def genDistributionPlot(
+        self, 
+        word: str, 
+        figsize: Tuple[int,int]=(6,1)
+    ) -> plt.Figure:
+
         x_values, y_values = self.vocab.distribution()
         w_percentile = self.vocab.getPercentile(word)
         w_freq = self.vocab.getFreq(word)
@@ -57,15 +78,17 @@ class Word2Context:
         ax.axvline(x=max(0,w_percentile-.01), 
             color='blue', 
             linewidth=7, 
-            alpha=.2,
+            alpha=.1,
             linestyle='-'
         )
+
         ax.axvline(x=min(100,w_percentile+.01), 
             color='black', 
             linewidth=7, 
-            alpha=.2, 
+            alpha=.1, 
             linestyle='-'
         )
+
         ax.axvline(x=w_percentile, 
             color='#d35400', 
             linewidth=2, 
@@ -77,7 +100,12 @@ class Word2Context:
         plt.legend(loc='upper left', prop={'size': 7})
         return fig
     
-    def findSplits(self, word, subsets_list):
+    def findSplits(
+        self, 
+        word: str, 
+        subsets_list: List[str]
+    ):
+
         w_splits = self.vocab.getSplits(word)
 
         splits_list = [] 
@@ -103,7 +131,12 @@ class Word2Context:
 
         return datasets
 
-    def findContexts(self, sample, word):
+    def findContexts(
+        self, 
+        sample: str, 
+        word: str
+    ) -> Dict[str,str]:
+
         sample = sample['text'].strip()
         context = ""
         m = re.search(r'\b{}\b'.format(word), sample)
@@ -113,7 +146,11 @@ class Word2Context:
             context = sample[:init]+"<u><b>"+word+"</b></u>"+sample[end:]
         return {'context':context}
 
-    def getSubsetsInfo(self, word):
+    def getSubsetsInfo(
+        self, 
+        word: str
+    ) -> Tuple:
+
         total_freq = self.vocab.getFreq(word)
         subsets_name_list = list(self.vocab.getSubsets(word).keys())
         subsets_freq_list = list(self.vocab.getSubsets(word).values())
@@ -128,73 +165,21 @@ class Word2Context:
         subsets_info = self.Label.compute(subsets_origin_info)
         return subsets_info, subsets_origin_info
 
-    def getContexts(self, word, n_context, ds):
+    def getContexts(
+        self, 
+        word: str, 
+        n_context: int, 
+        ds
+    ) -> List[Tuple]:
+
         ds_w_contexts = ds.map(lambda sample: self.findContexts(sample, word))
         only_contexts = ds_w_contexts.filter(lambda sample: sample['context'] != "")
         shuffle_contexts = only_contexts.shuffle(buffer_size=10)
         
         list_of_dict = list(shuffle_contexts.take(n_context))
-        list_of_contexts = [(i,dic['context'],dic['subset']) for i,dic in enumerate(list_of_dict)]
+        list_of_contexts = [
+            (i, dic['context'], dic['subset']) 
+            for i,dic in enumerate(list_of_dict)
+        ]
 
         return list_of_contexts
-
-    # TODO: The next methods can be removed, or keep them as a wrapper method of several ones
-    '''
-    def getWordInfo(self, word):
-        errors = ""
-        contexts = pd.DataFrame([],columns=[''])
-        subsets_info = ""
-        distribution_plot = None
-        word_cloud_plot = None
-        subsets_choice = gr.CheckboxGroup.update(choices=[])
-    
-        errors = self.errorChecking(word)
-        if errors:
-            return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
-
-        total_freq = self.vocab.getFreq(word)        
-        subsets_name_list = list(self.vocab.getSubsets(word).keys())
-        subsets_freq_list = list(self.vocab.getSubsets(word).values())
-        
-        # Create subset frequency dict to subset_freq component
-        subsets_info = {
-            s_name + f" ({s_freq})": s_freq/total_freq
-            for s_name, s_freq in zip(subsets_name_list, subsets_freq_list) 
-        }
-        subsets_origin_info = dict(sorted(subsets_info.items(), key=lambda x: x[1], reverse=True))
-        subsets_info = self.Label.compute(subsets_origin_info)
-
-        # Create sort list to subsets_choice component
-        clean_keys = [key.split(" ")[0].strip() for key in subsets_origin_info]
-        subsets_choice = gr.CheckboxGroup.update(choices=clean_keys)
-
-        # Get word distribution, and wordcloud graph
-        distribution_plot = self.genDistributionPlot(word)
-        word_cloud_plot = self.genWordCloudPlot(word)
-
-        return errors, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
-    
-    def getWordContext(self, word, n_context, subset_choice):
-        n_context = int(n_context)
-        errors = ""
-        
-        if len(subset_choice) > 0:
-            ds = self.findSplits(word, subset_choice)
-
-        else:
-            errors = "Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
-            errors = "<center><h3>"+errors+"</h3></center>"
-            return errors, pd.DataFrame([], columns=[''])
-        
-        ds_w_contexts = ds.map(lambda sample: self.findContexts(sample, word))
-        only_contexts = ds_w_contexts.filter(lambda sample: sample['context'] != "")
-        shuffle_contexts = only_contexts.shuffle(buffer_size=10)
-        
-        list_of_dict = list(shuffle_contexts.take(n_context))
-        list_of_contexts = [(i,dic['context'],dic['subset']) for i,dic in enumerate(list_of_dict)]
-
-        contexts = pd.DataFrame(list_of_contexts, columns=['#','contexto','conjunto'])
-        contexts["buscar"] = contexts.contexto.apply(lambda text: self.genWebLink(text))
-
-        return errors, contexts
-    '''

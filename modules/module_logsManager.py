@@ -1,4 +1,3 @@
-from distutils.log import debug
 from gradio.flagging import FlaggingCallback, _get_dataset_features_info
 from gradio.components import IOComponent
 from gradio import utils
@@ -14,14 +13,24 @@ load_dotenv()
 
 # --- Classes declaration ---
 class DateLogs:
-    def __init__(self, zone="America/Argentina/Cordoba"):
+    def __init__(
+        self, 
+        zone: str="America/Argentina/Cordoba"
+    ) -> None:
+
         self.time_zone = pytz.timezone(zone)
         
-    def full(self):
+    def full(
+        self
+    ) -> str:
+
         now = datetime.now(self.time_zone)
         return now.strftime("%H:%M:%S %d-%m-%Y")
     
-    def day(self):
+    def day(
+        self
+    ) -> str:
+
         now = datetime.now(self.time_zone)
         return now.strftime("%d-%m-%Y")
 
@@ -41,12 +50,12 @@ class HuggingFaceDatasetSaver(FlaggingCallback):
 
     def __init__(
         self,
-        hf_token: str = os.getenv('HF_TOKEN'),
-        dataset_name: str = os.getenv('DS_LOGS_NAME'),
-        organization: Optional[str] = os.getenv('ORG_NAME'),
-        private: bool = True,
-        available_logs: bool = False
-    ):
+        dataset_name: str=None,
+        hf_token: str=os.getenv('HF_TOKEN'),
+        organization: Optional[str]=os.getenv('ORG_NAME'),
+        private: bool=True,
+        available_logs: bool=False
+    ) -> None:
         """
         Parameters:
             hf_token: The HuggingFace token to use to create (and write the flagged sample to) the HuggingFace dataset.
@@ -54,8 +63,10 @@ class HuggingFaceDatasetSaver(FlaggingCallback):
             organization: The organization to save the dataset under. The hf_token must provide write access to this organization. If not provided, saved under the name of the user corresponding to the hf_token.
             private: Whether the dataset should be private (defaults to False).
         """
-        self.hf_token = hf_token
+        assert(dataset_name is not None), "Error: Parameter 'dataset_name' can not be empty!."
+
         self.dataset_name = dataset_name
+        self.hf_token = hf_token
         self.organization_name = organization
         self.dataset_private = private
         self.datetime = DateLogs()
@@ -66,10 +77,10 @@ class HuggingFaceDatasetSaver(FlaggingCallback):
         
 
     def setup(
-            self, 
-            components: List[IOComponent],
-            flagging_dir: str
-        ):
+        self, 
+        components: List[IOComponent],
+        flagging_dir: str
+    ) -> None:
         """
         Params:
         flagging_dir (str): local directory where the dataset is cloned,
@@ -113,9 +124,9 @@ class HuggingFaceDatasetSaver(FlaggingCallback):
     def flag(
         self,
         flag_data: List[Any],
-        flag_option: Optional[str] = None,
-        flag_index: Optional[int] = None,
-        username: Optional[str] = None,
+        flag_option: Optional[str]=None,
+        flag_index: Optional[int]=None,
+        username: Optional[str]=None,
     ) -> int:
 
         if self.available_logs:
