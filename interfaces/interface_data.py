@@ -1,8 +1,7 @@
-from modules.module_logsManager import HuggingFaceDatasetSaver
-from modules.module_connection import Word2ContextExplorerConnector
-from tool_info import TOOL_INFO
 import gradio as gr
 import pandas as pd
+from tool_info import TOOL_INFO
+from modules.module_connection import Word2ContextExplorerConnector
 
 
 def interface(
@@ -13,16 +12,11 @@ def interface(
     lang: str="es"
 ) -> gr.Blocks:
 
-    # --- Init logs ---
-    log_callback = HuggingFaceDatasetSaver(
-        available_logs=available_logs,
-        dataset_name=f"logs_edia_datos_{lang}"
-    )
-
     # --- Init Class ---
     connector = Word2ContextExplorerConnector(
         vocabulary=vocabulary, 
-        context=contexts
+        context=contexts,
+        logs_file_name=f"logs_edia_datos_{lang}" if available_logs else None
     )
 
     # --- Load language ---
@@ -144,24 +138,6 @@ def interface(
             fn=connector.get_word_context, 
             inputs=[input_word, n_context, subsets_choice], 
             outputs=[out_msj, out_context]
-        )
-        
-        # --- Logs ---
-        save_field = [input_word, subsets_choice]
-        log_callback.setup(
-            components=save_field, 
-            flagging_dir="logs"
-        )
-        
-        btn_get_contexts.click(
-            fn=lambda *args: log_callback.flag(
-                flag_data=args,
-                flag_option="datos",
-                username="vialibre"
-            ),
-            inputs=save_field,
-            outputs=None, 
-            preprocess=False
         )
     
     return iface

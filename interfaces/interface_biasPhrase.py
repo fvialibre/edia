@@ -1,9 +1,7 @@
 import gradio as gr
 import pandas as pd
 from tool_info import TOOL_INFO
-from modules.module_logsManager import HuggingFaceDatasetSaver
 from modules.module_connection import PhraseBiasExplorerConnector
-
 
 
 def interface(
@@ -18,16 +16,12 @@ def interface(
     elif lang == 'en':
         from examples.examples_en import examples_sesgos_frases
 
-    # --- Init logs ---
-    log_callback = HuggingFaceDatasetSaver(
-        available_logs=available_logs,
-        dataset_name=f"logs_edia_lmodels_{lang}"
-    )
 
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(
         language_model=language_model,
-        lang=lang
+        lang=lang,
+        logs_file_name=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None
     )
 
     # --- Get language labels---
@@ -127,24 +121,6 @@ def interface(
             fn=connector.rank_sentence_options,
             inputs=[sent, word_list, banned_word_list, articles, prepositions, conjunctions], 
             outputs=[out_msj, out, dummy]
-        )
-
-        # --- Logs ---
-        save_field = [sent, word_list]
-        log_callback.setup(
-            components=save_field, 
-            flagging_dir="logs_phrase_bias"
-        )
-        
-        btn.click(
-            fn=lambda *args: log_callback.flag(
-                flag_data=args,
-                flag_option="phrase_bias",
-                username="vialibre"
-            ),
-            inputs=save_field,
-            outputs=None, 
-            preprocess=False
         )
     
     return iface

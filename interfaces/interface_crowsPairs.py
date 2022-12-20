@@ -1,7 +1,6 @@
 import gradio as gr
 import pandas as pd
 from tool_info import TOOL_INFO
-from modules.module_logsManager import HuggingFaceDatasetSaver
 from modules.module_connection import CrowsPairsExplorerConnector
 
 
@@ -18,15 +17,11 @@ def interface(
     elif lang == 'en':
         from examples.examples_en import examples_crows_pairs
 
-    # --- Init logs ---
-    log_callback = HuggingFaceDatasetSaver(
-        available_logs=available_logs,
-        dataset_name=f"logs_edia_lmodels_{lang}"
-    )
 
     # --- Init vars ---
     connector = CrowsPairsExplorerConnector(
-        language_model=language_model
+        language_model=language_model,
+        logs_file_name=f"logs_edia_lmodels_crowspairs_{lang}" if available_logs else None
     )
     
     # --- Load language ---
@@ -115,24 +110,6 @@ def interface(
             fn=connector.compare_sentences,
             inputs=[sent0, sent1, sent2, sent3, sent4, sent5],
             outputs=[out_msj, out, dummy]
-        )
-
-        # --- Logs ---
-        save_field = [sent0, sent1, sent2, sent3, sent4, sent5]
-        log_callback.setup(
-            components=save_field, 
-            flagging_dir=f"logs_crows_pairs"
-        )
-        
-        btn.click(
-            fn=lambda *args: log_callback.flag(
-                flag_data=args,
-                flag_option="crows_pairs",
-                username="vialibre"
-            ),
-            inputs=save_field,
-            outputs=None, 
-            preprocess=False
         )
     
     return iface

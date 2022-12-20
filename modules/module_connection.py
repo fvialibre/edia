@@ -1,15 +1,24 @@
-import numpy as np
+import csv, os
 import pandas as pd
 import gradio as gr
-from abc import ABC, abstractmethod
+from abc import ABC
+from modules.utils import DateLogs
+from typing import List, Tuple, Any
 from modules.module_WordExplorer import WordExplorer
 from modules.module_BiasExplorer import WEBiasExplorer2Spaces, WEBiasExplorer4Spaces
 from modules.module_word2Context import Word2Context
 from modules.module_rankSents import RankSents
 from modules.module_crowsPairs import CrowsPairs
-from typing import List, Tuple
+
 
 class Connector(ABC):
+    def __init__(
+        self
+    ) -> None:
+
+        self.datalog = DateLogs()
+        self.log_folder = 'logs'
+
     def parse_word(
         self, 
         word: str
@@ -39,7 +48,51 @@ class Connector(ABC):
 
         if err:
             err = "<center><h3>" + err + "</h3></center>"
-        return err    
+        return err
+    
+    def logs_save(
+        self,
+        file_name: str,
+        headers: List[str]=None,
+        *data: List[Any]
+    ) -> None:
+
+        if file_name is None:
+            return None
+
+        if not os.path.exists(self.log_folder):
+            print(f"Creating logs folder '{self.log_folder}' ...")
+            os.mkdir(self.log_folder)
+
+        file_path = os.path.join(self.log_folder, file_name+'.csv')
+        f_out = None
+
+        if not os.path.exists(file_path):
+            print(f"Creating new '{file_name}' logs file...")
+
+            with open(file_path, mode='w', encoding='UTF8') as f_out:
+                # Create the csv writer
+                writer = csv.writer(f_out)
+                
+                # Write the header
+                if headers is None:
+                    headers = [
+                        "input_" + str(ith)  
+                        for ith,_ in enumerate(data)
+                    ]
+                headers = headers + ["datatime"]
+
+                writer.writerow(headers)
+                    
+        with open(file_path, mode='a', encoding='UTF8') as f_out:
+            # Create the csv writer
+            writer = csv.writer(f_out)
+
+            # Write a row to the csv file
+            data = list(data) + [ self.datalog.full() ]
+            writer.writerow(data)
+
+            print(f"Logs: '{file_path}' successfully saved!")
 
 class WordExplorerConnector(Connector):
     def __init__(
@@ -47,9 +100,18 @@ class WordExplorerConnector(Connector):
         **kwargs
     ) -> None:
 
-        if 'embedding' in kwargs:
-            embedding = kwargs.get('embedding')
-        else:
+        Connector.__init__(self)
+        embedding = kwargs.get('embedding', None)
+        self.logs_file_name = kwargs.get('logs_file_name', None)
+        self.headers = [
+            "word_list_to_diagnose",
+            "word_list_1",
+            "word_list_2",
+            "word_list_3",
+            "word_list_4"
+        ]
+        
+        if embedding is None:
             raise KeyError
         
         self.word_explorer = WordExplorer(
@@ -82,7 +144,7 @@ class WordExplorerConnector(Connector):
         wordlist_4 = self.parse_words(wordlist_4)
 
         if not (wordlist_0 or wordlist_1 or wordlist_2 or wordlist_1 or wordlist_4):
-            err = self.process_error("Enter at least one word to continue")
+            err = self.process_error("Error: Enter at least one word to continue.")
             return None, err
         
         err = self.word_explorer.check_oov(
@@ -91,6 +153,17 @@ class WordExplorerConnector(Connector):
 
         if err:
             return None, self.process_error(err)
+
+        # Save inputs in logs file
+        self.logs_save(
+            self.logs_file_name,
+            self.headers,
+            wordlist_0,
+            wordlist_1,
+            wordlist_2,
+            wordlist_3,
+            wordlist_4,
+        )
 
         fig = self.word_explorer.plot_projections_2d(
             wordlist_0,
@@ -118,9 +191,19 @@ class BiasWordExplorerConnector(Connector):
         **kwargs
     ) -> None:
 
-        if 'embedding' in kwargs:
-            embedding = kwargs.get('embedding')
-        else:
+        Connector.__init__(self)
+        embedding = kwargs.get('embedding', None)
+        self.logs_file_name = kwargs.get('logs_file_name', None)
+        self.headers = [
+            "word_list_to_diagnose",
+            "word_list_1",
+            "word_list_2",
+            "word_list_3",
+            "word_list_4",
+            "plot_space"
+        ]
+
+        if embedding is None:
             raise KeyError
 
         self.bias_word_explorer_2_spaces = WEBiasExplorer2Spaces(
@@ -152,6 +235,18 @@ class BiasWordExplorerConnector(Connector):
         err = self.bias_word_explorer_2_spaces.check_oov(word_lists)
         if err:
             return None, self.process_error(err)
+
+        # Save inputs in logs file
+        self.logs_save(
+            self.logs_file_name,
+            self.headers,
+            to_diagnose_list,
+            wordlist_1,
+            wordlist_2,
+            "",
+            "",
+            "2d"
+        )
 
         fig = self.bias_word_explorer_2_spaces.calculate_bias(
             to_diagnose_list, 
@@ -188,6 +283,18 @@ class BiasWordExplorerConnector(Connector):
         if err:
             return None, self.process_error(err)
 
+        # Save inputs in logs file
+        self.logs_save(
+            self.logs_file_name,
+            self.headers,
+            to_diagnose_list, 
+            wordlist_1, 
+            wordlist_2, 
+            wordlist_3, 
+            wordlist_4,
+            "4d"
+        )
+
         fig = self.bias_word_explorer_4_spaces.calculate_bias(
             to_diagnose_list, 
             wordlist_1, 
@@ -204,10 +311,16 @@ class Word2ContextExplorerConnector(Connector):
         **kwargs
     ) -> None:
 
+        Connector.__init__(self)
         vocabulary = kwargs.get('vocabulary', None)
         context = kwargs.get('context', None)
+        self.logs_file_name = kwargs.get('logs_file_name', None)
+        self.headers = [
+            "word",
+            "subsets_choice"
+        ]
 
-        if vocabulary is None and context is None:
+        if vocabulary is None or context is None:
             raise KeyError
 
         self.word2context_explorer = Word2Context(
@@ -264,6 +377,14 @@ class Word2ContextExplorerConnector(Connector):
             err = self.process_error("Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!")
             return err, contexts
 
+        # Save inputs in logs file
+        self.logs_save(
+            self.logs_file_name, 
+            self.headers,
+            word,
+            subset_choice
+        )
+
         list_of_contexts = self.word2context_explorer.getContexts(word, n_context, ds)
 
         contexts = pd.DataFrame(list_of_contexts, columns=['#','contexto','conjunto'])
@@ -277,10 +398,16 @@ class PhraseBiasExplorerConnector(Connector):
         **kwargs
     ) -> None:
 
-        if 'language_model' in kwargs and 'lang' in kwargs:
-            language_model = kwargs.get('language_model')
-            lang =  kwargs.get('lang')
-        else:
+        Connector.__init__(self)
+        language_model = kwargs.get('language_model', None)
+        lang =  kwargs.get('lang', None)
+        self.logs_file_name = kwargs.get('logs_file_name', None)
+        self.headers = [
+            "sent",
+            "word_list"
+        ]
+
+        if language_model is None or lang is None:
             raise KeyError
 
         self.phrase_bias_explorer = RankSents(
@@ -307,6 +434,14 @@ class PhraseBiasExplorerConnector(Connector):
         word_list = self.parse_words(word_list)
         banned_word_list = self.parse_words(banned_word_list)
 
+        # Save inputs in logs file
+        self.logs_save(
+            self.logs_file_name, 
+            self.headers,
+            sent,
+            word_list
+        )
+
         all_plls_scores = self.phrase_bias_explorer.rank(
             sent, 
             word_list, 
@@ -319,16 +454,25 @@ class PhraseBiasExplorerConnector(Connector):
         all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)
         return self.process_error(err), all_plls_scores, ""
 
-
 class CrowsPairsExplorerConnector(Connector):
     def __init__(
         self, 
         **kwargs
     ) -> None:
 
-        if 'language_model' in kwargs:
-            language_model = kwargs.get('language_model')
-        else:
+        Connector.__init__(self)
+        language_model = kwargs.get('language_model', None)
+        self.logs_file_name = kwargs.get('logs_file_name', None)
+        self.headers = [
+            "sent_1",
+            "sent_2",
+            "sent_3",
+            "sent_4",
+            "sent_5",
+            "sent_6",
+        ]
+
+        if language_model is None:
             raise KeyError
         
         self.crows_pairs_explorer = CrowsPairs(
@@ -352,6 +496,13 @@ class CrowsPairsExplorerConnector(Connector):
 
         if err:
             return self.process_error(err), "", ""
+
+        # Save inputs in logs file
+        self.logs_save(
+            self.logs_file_name, 
+            self.headers,
+            sent_list
+        )
 
         all_plls_scores = self.crows_pairs_explorer.rank(
             sent_list

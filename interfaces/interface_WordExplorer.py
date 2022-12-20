@@ -1,10 +1,8 @@
 import gradio as gr 
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from modules.module_connection import WordExplorerConnector
-from modules.module_logsManager import HuggingFaceDatasetSaver
 from tool_info import TOOL_INFO
+from modules.module_connection import WordExplorerConnector
 
 plt.rcParams.update({'font.size': 14})
 
@@ -21,15 +19,11 @@ def interface(
     elif lang == 'en':
         from examples.examples_en import examples_explorar_relaciones_entre_palabras
 
-    # --- Init logs ---
-    log_callback = HuggingFaceDatasetSaver(
-        available_logs=available_logs,
-        dataset_name=f"logs_edia_we_{lang}"
-    )
 
     # --- Init vars ---
     connector = WordExplorerConnector(
-        embedding=embedding
+        embedding=embedding,
+        logs_file_name=f"logs_edia_we_wordexplorer_{lang}" if available_logs else None
     )
 
     # --- Load language ---
@@ -174,24 +168,6 @@ def interface(
                 n_neighbors
             ],
             outputs=[word_proyections, err_msg]
-        )
-
-        # --- Logs ---
-        save_field = [diagnose_list, wordlist_1, wordlist_2, wordlist_3, wordlist_4]
-        log_callback.setup(
-            components=save_field, 
-            flagging_dir="logs_word_explorer"
-        )
-        
-        btn_plot.click(
-            fn=lambda *args: log_callback.flag(
-                flag_data=args,
-                flag_option="word_explorer",
-                username="vialibre",
-            ),
-            inputs=save_field,
-            outputs=None, 
-            preprocess=False
         )
         
         return interface

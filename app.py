@@ -11,9 +11,9 @@ from modules.module_languageModel import LanguageModel
 
 
 # --- Imports interfaces ---
-from interfaces.interface_WordExplorer import interface as interface_explorar_palabras
-from interfaces.interface_BiasWordExplorer import interface as interface_sesgo_en_palabras
-from interfaces.interface_datos import interface as interface_datos
+from interfaces.interface_WordExplorer import interface as interface_wordExplorer
+from interfaces.interface_BiasWordExplorer import interface as interface_biasWordExplorer
+from interfaces.interface_data import interface as interface_data
 from interfaces.interface_biasPhrase import interface as interface_biasPhrase
 from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
@@ -52,16 +52,16 @@ labels = pd.read_json(f"language/{LANGUAGE}.json")["app"]
 
 # --- Main App ---
 INTERFACE_LIST = [
-    interface_sesgo_en_palabras(
+    interface_biasWordExplorer(
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE),
-    interface_explorar_palabras(
+    interface_wordExplorer(
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
         max_neighbors=MAX_NEIGHBORS,
         lang=LANGUAGE),
-    interface_datos(
+    interface_data(
         vocabulary=vocabulary,
         contexts=CONTEXTS_DATASET,
         available_logs=AVAILABLE_LOGS,

@@ -1,5 +1,30 @@
 import numpy as np
 import pandas as pd
+from datetime import datetime
+import pytz
+
+
+class DateLogs:
+    def __init__(
+        self, 
+        zone: str="America/Argentina/Cordoba"
+    ) -> None:
+
+        self.time_zone = pytz.timezone(zone)
+        
+    def full(
+        self
+    ) -> str:
+
+        now = datetime.now(self.time_zone)
+        return now.strftime("%H:%M:%S %d-%m-%Y")
+    
+    def day(
+        self
+    ) -> str:
+
+        now = datetime.now(self.time_zone)
+        return now.strftime("%d-%m-%Y")
 
 def take_two_sides_extreme_sorted(
     df: pd.DataFrame, 
