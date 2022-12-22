@@ -12,3 +12,4 @@ gensim==4.2.0
 seaborn
 annoy
 datasets
+gradio==3.12
