@@ -5,7 +5,7 @@ Language models and word representations obtained with machine learning contain 
 
 EDIA contains several functions that serve to detect and inspect biases in natural language processing systems based on language models or word embeddings. We have models in Spanish and English to work with and explore biases in different languages ​​at the user's request. Each of the following spaces contains different functions that bring us closer to a particular aspect of the problem of bias and they allow us to understand different but complementary parts of it.
 
-You can test and explore this functions with our live demo hosted on HuggingFace🤗 by clicking [here]((https://huggingface.co/spaces/vialibre/edia)).
+You can test and explore this functions with our live demo hosted on HuggingFace🤗 by clicking [here](https://huggingface.co/spaces/vialibre/edia).
 
 ## Installation
 
@@ -64,8 +64,8 @@ The file `tool.cfg` contains configuration parameters for the tool:
 * Data explorer: [[video]]() [[manual]](https://shorturl.at/CIVY6)
 * Crows-Pairs: [[video]]() [[manual]]()
 ### Interactive nooteboks
-* [How to use]("notebook/EDIA_ROAD_MAP.ipynb") (*road map*)
-* [Class hierarchy]("notebook/EDIANotebook")
+* [How to use](notebook/EDIA_ROAD_MAP.ipynb) (*road map*)
+* [Class hierarchy](notebook/#)
 
 ## Citation Information
 ```c
@@ -82,6 +82,6 @@ The file `tool.cfg` contains configuration parameters for the tool:
 }
 ```
 
-## Licensing Information 
-This project is under a [MIT license]([GITHUB_URL]/LICENSE).
+## License Information 
+This project is under a [MIT license](LICENSE).
 
