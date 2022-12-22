@@ -64,7 +64,7 @@ The file `tool.cfg` contains configuration parameters for the tool:
 * Data explorer: [[video]]() [[manual]](https://shorturl.at/CIVY6)
 * Crows-Pairs: [[video]]() [[manual]]()
 ### Interactive nooteboks
-* [How to use](notebook/EDIA_ROAD_MAP.ipynb) (*road map*)
+* [How to use](notebook/EDIA_Road_Map.ipynb) (*road map*)
 * [Class hierarchy](notebook/#)
 
 ## Citation Information
