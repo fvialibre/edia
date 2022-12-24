@@ -58,14 +58,14 @@ The file `tool.cfg` contains configuration parameters for the tool:
 
 ## Resources
 ### Videotutorials and user's manual
-* Word explorer: [[video]]() [manual: [es](https://shorturl.at/cgwxJ) | [en]()]
-* Word bias explorer: [[video]]() [manual: [es](https://shorturl.at/htuEI) | [en]()]
-* Phrase bias explorer: [[video]]() [manual: [es](https://shorturl.at/fkBL3) | [en]()]
-* Data explorer: [[video]]() [manual: [es](https://shorturl.at/CIVY6) | [en]()]
-* Crows-Pairs: [[video]]() [manual: [es]() | [en]()]
+* Word explorer: [[video]]() [manual: [es](https://shorturl.at/cgwxJ) | en]
+* Word bias explorer: [[video]]() [manual: [es](https://shorturl.at/htuEI) | en]
+* Phrase bias explorer: [[video]]() [manual: [es](https://shorturl.at/fkBL3) | en]
+* Data explorer: [[video]]() [manual: [es](https://shorturl.at/CIVY6) | en]
+* Crows-Pairs: [[video]]() [manual: es | en]
 ### Interactive nooteboks
-* [How to use (*road map*): [es](notebook/EDIA_Road_Map.ipynb) | [en]()]
-* [Class hierarchy: [es]() | [en]()]
+* [How to use (*road map*): [es](notebook/EDIA_Road_Map.ipynb) | en]
+* [Class hierarchy: es | en]
 
 ## Citation Information
 ```c
