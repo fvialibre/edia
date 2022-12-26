@@ -49,7 +49,7 @@ class WordExplorer:
 
     def check_oov(
         self, 
-        wordlists: List[str]
+        wordlists: List[List[str]]
     ) -> str:
 
         for wordlist in wordlists:
@@ -65,6 +65,10 @@ class WordExplorer:
         n_neighbors: int, 
         nn_method: str
     ) -> List[str]:
+
+        err = self.check_oov([[word]])
+        if err:
+            raise Exception(err)
         
         return self.embedding.getNearestNeighbors(word, n_neighbors, nn_method)
 
