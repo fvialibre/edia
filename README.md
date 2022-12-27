@@ -62,7 +62,7 @@ The file `tool.cfg` contains configuration parameters for the tool:
 * Word bias explorer: [[video]]() [manual: [es](https://shorturl.at/htuEI) | en]
 * Phrase bias explorer: [[video]]() [manual: [es](https://shorturl.at/fkBL3) | en]
 * Data explorer: [[video]]() [manual: [es](https://shorturl.at/CIVY6) | en]
-* Crows-Pairs: [[video]]() [manual: es | en]
+* Crows-Pairs: [[video]]() [manual: [es](https://shorturl.at/gJLTU) | en]
 ### Interactive nooteboks
 * [How to use (*road map*): [es](notebook/EDIA_Road_Map.ipynb) | en]
 * [Class hierarchy: es | en]

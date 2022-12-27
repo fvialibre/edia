@@ -47,7 +47,7 @@ class Ann:
         n_jobs: int=-1  # n_jobs=-1 Run over all CPU availables
     ) -> None:
 
-        assert(metric in self.availables_metrics), f"Error: The value of the parameter 'metric' can only be {availables_metrics}!"
+        assert(metric in self.availables_metrics), f"Error: The value of the parameter 'metric' can only be {self.availables_metrics}!"
 
         print("\tInit tree...")
         self.tt.start()
