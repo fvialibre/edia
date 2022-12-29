@@ -57,6 +57,10 @@ class Word2Context:
         figsize: Tuple[int,int]=(9,3)
     ) -> plt.Figure:
 
+        err = self.errorChecking(word)
+        if err:
+            raise Exception(err)
+
         freq_dic, l_group, g_group = self.vocab.getWordNeighbors(word, n_neighbors=10)
         wc = SegmentedWordCloud(freq_dic, l_group, g_group)
         return wc.plot(figsize)
@@ -66,6 +70,10 @@ class Word2Context:
         word: str, 
         figsize: Tuple[int,int]=(6,1)
     ) -> plt.Figure:
+
+        err = self.errorChecking(word)
+        if err:
+            raise Exception(err)
 
         x_values, y_values = self.vocab.distribution()
         w_percentile = self.vocab.getPercentile(word)
@@ -105,6 +113,10 @@ class Word2Context:
         word: str, 
         subsets_list: List[str]
     ):
+
+        err = self.errorChecking(word)
+        if err:
+            raise Exception(err)
 
         w_splits = self.vocab.getSplits(word)
 
@@ -151,6 +163,10 @@ class Word2Context:
         word: str
     ) -> Tuple:
 
+        err = self.errorChecking(word)
+        if err:
+            raise Exception(err)
+
         total_freq = self.vocab.getFreq(word)
         subsets_name_list = list(self.vocab.getSubsets(word).keys())
         subsets_freq_list = list(self.vocab.getSubsets(word).values())
@@ -171,6 +187,10 @@ class Word2Context:
         n_context: int, 
         ds
     ) -> List[Tuple]:
+
+        err = self.errorChecking(word)
+        if err:
+            raise Exception(err)
 
         ds_w_contexts = ds.map(lambda sample: self.findContexts(sample, word))
         only_contexts = ds_w_contexts.filter(lambda sample: sample['context'] != "")
