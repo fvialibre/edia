@@ -16,6 +16,7 @@ def interface(
     connector = Word2ContextExplorerConnector(
         vocabulary=vocabulary, 
         context=contexts,
+        lang=lang,
         logs_file_name=f"logs_edia_datos_{lang}" if available_logs else None
     )
 

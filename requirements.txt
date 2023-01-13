@@ -1,6 +1,6 @@
 regex
 torch
-sklearn
+scikit-learn
 transformers
 wordcloud
 matplotlib

@@ -14,7 +14,8 @@ class Word2Context:
     def __init__(
         self, 
         context_ds_name: str, 
-        vocabulary  # Vocabulary class instance
+        vocabulary,  # Vocabulary class instance
+        errors
     ) -> None:
 
         self.context_ds_name = context_ds_name
@@ -25,6 +26,8 @@ class Word2Context:
         # Custom Label component
         self.Label = CustomSubsetsLabel()
 
+        self.errors = errors
+
     def errorChecking(
         self, 
         word: str
@@ -33,10 +36,10 @@ class Word2Context:
         out_msj = ""
 
         if not word:
-            out_msj = "Error: Primero debe ingresar una palabra!"
+            out_msj = self.errors["EMBEDDING_NO_WORD_PROVIDED"]
         else:
             if word not in self.vocab:
-                out_msj = f"Error: La palabra '<b>{word}</b>' no se encuentra en el vocabulario!"
+                out_msj = str(self.errors['EMBEDDING_WORD_OOV']).format(word)
         
         return out_msj
 

@@ -23,6 +23,7 @@ def interface(
     # --- Init vars ---
     connector = WordExplorerConnector(
         embedding=embedding,
+        lang=lang,
         logs_file_name=f"logs_edia_we_wordexplorer_{lang}" if available_logs else None
     )
 

@@ -12,7 +12,8 @@ __all__ = ['WordBiasExplorer', 'WEBiasExplorer2Spaces', 'WEBiasExplorer4Spaces']
 class WordBiasExplorer:
     def __init__(
         self, 
-        embedding  # Embedding Class instance
+        embedding,  # Embedding Class instance
+        errors
     ) -> None:
 
         self.embedding = embedding
@@ -20,6 +21,7 @@ class WordBiasExplorer:
         self.positive_end = None
         self.negative_end = None
         self.DIRECTION_METHODS = ['single', 'sum', 'pca']
+        self.errors = errors
 
     def __copy__(
         self
@@ -245,10 +247,10 @@ class WordBiasExplorer:
         out_msj = ""
 
         if not word:
-            out_msj = "Error: Primero debe ingresar una palabra!"
+            out_msj = self.errors['EMBEDDING_NO_WORD_PROVIDED']
         else:
             if word not in self.embedding:
-                out_msj = f"Error: La palabra '<b>{word}</b>' no se encuentra en el vocabulario!"
+                out_msj = str(self.errors['EMBEDDING_WORD_OOV']).format(word)
 
         return out_msj
 
@@ -267,10 +269,11 @@ class WordBiasExplorer:
 class WEBiasExplorer2Spaces(WordBiasExplorer):
     def __init__(
         self, 
-        embedding   # Embedding class instance
+        embedding,   # Embedding class instance
+        errors
     ) -> None:
 
-        super().__init__(embedding)
+        super().__init__(embedding, errors)
 
     def calculate_bias(
         self,
@@ -381,10 +384,11 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
 class WEBiasExplorer4Spaces(WordBiasExplorer):
     def __init__(
         self, 
-        embedding   # Embedding Class instance
+        embedding,   # Embedding Class instance
+        errors
     ) -> None:
 
-        super().__init__(embedding)
+        super().__init__(embedding, errors)
 
     def calculate_bias(
         self,

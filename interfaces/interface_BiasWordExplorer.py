@@ -21,6 +21,7 @@ def interface(
     # --- Init vars ---
     connector = BiasWordExplorerConnector(
         embedding=embedding,
+        lang=lang,
         logs_file_name = f"logs_edia_we_wordbias_{lang}" if available_logs else None
     )
 

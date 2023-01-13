@@ -21,6 +21,7 @@ def interface(
     # --- Init vars ---
     connector = CrowsPairsExplorerConnector(
         language_model=language_model,
+        lang=lang,
         logs_file_name=f"logs_edia_lmodels_crowspairs_{lang}" if available_logs else None
     )
     
