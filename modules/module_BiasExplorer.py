@@ -13,7 +13,7 @@ class WordBiasExplorer:
     def __init__(
         self, 
         embedding,  # Embedding Class instance
-        errors
+        errorManager
     ) -> None:
 
         self.embedding = embedding
@@ -21,7 +21,7 @@ class WordBiasExplorer:
         self.positive_end = None
         self.negative_end = None
         self.DIRECTION_METHODS = ['single', 'sum', 'pca']
-        self.errors = errors
+        self.errorManager = errorManager
 
     def __copy__(
         self
@@ -247,10 +247,10 @@ class WordBiasExplorer:
         out_msj = ""
 
         if not word:
-            out_msj = self.errors['EMBEDDING_NO_WORD_PROVIDED']
+            out_msj = self.errorManager.process(['EMBEDDING_NO_WORD_PROVIDED'])
         else:
             if word not in self.embedding:
-                out_msj = str(self.errors['EMBEDDING_WORD_OOV']).format(word)
+                out_msj = self.errorManager.process(['EMBEDDING_WORD_OOV', word])
 
         return out_msj
 
@@ -270,10 +270,10 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
     def __init__(
         self, 
         embedding,   # Embedding class instance
-        errors
+        errorManager
     ) -> None:
 
-        super().__init__(embedding, errors)
+        super().__init__(embedding, errorManager)
 
     def calculate_bias(
         self,
@@ -286,7 +286,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         
         for wordlist in wordlists:
             if not wordlist:
-                raise Exception('Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2')
+                raise Exception('At least one word should be in the to diagnose list, bias 1 list and bias 2 list')
         
         err = self.check_oov(wordlists)
         if err:
@@ -385,10 +385,10 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
     def __init__(
         self, 
         embedding,   # Embedding Class instance
-        errors
+        errorManager
     ) -> None:
 
-        super().__init__(embedding, errors)
+        super().__init__(embedding, errorManager)
 
     def calculate_bias(
         self,
@@ -409,7 +409,7 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
 
         for wordlist in wordlists:
             if not wordlist:
-                raise Exception('¡Para graficar con 4 espacios, debe ingresar al menos 1 palabra en todas las listas!')
+                raise Exception('To plot with 4 spaces, you must enter at least one word in all lists')
 
         err = self.check_oov(wordlists)
         if err:

@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForMaskedLM
 import os
 
-# Disabling parallelism to tring avoid deadlocks in the hf tokenizer
+# Disabling parallelism to avoid deadlocks in the hf tokenizer
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class LanguageModel:

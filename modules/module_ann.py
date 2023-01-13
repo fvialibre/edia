@@ -1,7 +1,6 @@
 import time
 from tqdm import tqdm
 from annoy import AnnoyIndex
-from memory_profiler import profile
 from typing import List
 
 class TicToc:

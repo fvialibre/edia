@@ -28,11 +28,11 @@ class WordExplorer:
     def __init__(
         self,
         embedding,   # Embedding Class instance
-        errors
+        errorManager
     ) -> None:
 
         self.embedding = embedding
-        self.errors = errors
+        self.errorManager = errorManager
 
     def __errorChecking(
         self,
@@ -42,10 +42,10 @@ class WordExplorer:
         out_msj = ""
 
         if not word:
-            out_msj = self.errors['EMBEDDING_NO_WORD_PROVIDED']
+            out_msj = self.errorManager.process(['EMBEDDING_NO_WORD_PROVIDED'])
         else:
             if word not in self.embedding:
-                out_msj = str(self.errors['EMBEDDING_WORD_OOV']).format(word)
+                out_msj = self.errorManager.process(['EMBEDDING_WORD_OOV', word])
 
         return out_msj
 

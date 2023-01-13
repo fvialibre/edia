@@ -15,7 +15,7 @@ class Word2Context:
         self, 
         context_ds_name: str, 
         vocabulary,  # Vocabulary class instance
-        errors
+        errorManager
     ) -> None:
 
         self.context_ds_name = context_ds_name
@@ -26,7 +26,7 @@ class Word2Context:
         # Custom Label component
         self.Label = CustomSubsetsLabel()
 
-        self.errors = errors
+        self.errorManager = errorManager
 
     def errorChecking(
         self, 
@@ -36,10 +36,10 @@ class Word2Context:
         out_msj = ""
 
         if not word:
-            out_msj = self.errors["EMBEDDING_NO_WORD_PROVIDED"]
+            out_msj = self.errorManager.process(['EMBEDDING_NO_WORD_PROVIDED'])
         else:
             if word not in self.vocab:
-                out_msj = str(self.errors['EMBEDDING_WORD_OOV']).format(word)
+                out_msj = self.errorManager.process(['EMBEDDING_WORD_OOV', word])
         
         return out_msj
 
