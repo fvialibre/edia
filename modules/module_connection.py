@@ -16,18 +16,15 @@ class Connector(ABC):
 
     def __init__(
         self,
-        lang
+        lang: str
     ) -> None:
 
         self.datalog = DateLogs()
         self.log_folder = 'logs'
-        self.error2text = None
 
         if not hasattr(Connector, 'errorManager'):
             Connector.errorManager = ErrorManager(
-                path=f"modules/error_messages/{lang}.json",
-                str_to_prepend="<center><h3>",
-                str_to_append="</h3></center>"
+                path=f"modules/error_messages/{lang}.json"
             )
 
     def parse_word(
@@ -329,9 +326,9 @@ class Word2ContextExplorerConnector(Connector):
             raise KeyError
 
         self.word2context_explorer = Word2Context(
-            context,    # Context dataset HF name | path
-            vocabulary, # Vocabulary class instance
-            errorManager=self.errorManager # ErrorManager class instance
+            context,
+            vocabulary,
+            errorManager=self.errorManager
         )
 
     def get_word_info(

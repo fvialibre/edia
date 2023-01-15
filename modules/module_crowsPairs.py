@@ -6,7 +6,7 @@ class CrowsPairs:
     def __init__(
         self, 
         language_model, # LanguageModel class instance
-        errorManager
+        errorManager    # ErrorManager class instance
     ) -> None:
 
         self.Label = CustomPllLabel()
@@ -27,14 +27,14 @@ class CrowsPairs:
             c_sent = sent.strip()
             if c_sent:
                 if not self.pllScore.sentIsCorrect(c_sent):
-                    out_msj = self.errorManager.process(['CROWS-PAIRS_BAD_FORMATTED_SENTENCE', sent_id+1])
+                    out_msj = ['CROWS-PAIRS_BAD_FORMATTED_SENTENCE', sent_id+1]
                     break
             else:
                 if sent_id in mandatory_sents:
-                    out_msj = self.errorManager.process(['CROWS-PAIRS_MANDATORY_SENTENCE_MISSING', sent_id+1])
+                    out_msj = ['CROWS-PAIRS_MANDATORY_SENTENCE_MISSING', sent_id+1]
                     break
         
-        return out_msj
+        return self.errorManager.process(out_msj)
 
     def rank(
         self, 

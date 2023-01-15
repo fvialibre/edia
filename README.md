@@ -13,7 +13,7 @@ Setup the code in a virtualenv
 
 ```sh
 # Clone repo
-$ git clone https://github.com/git-lu/notebook_bias_tools && cd notebook_bias_tools
+$ git clone https://github.com/fvialibre/edia.git && cd edia
 # Create and activate virtualenv
 $ python3 -m venv venv  && source venv/bin/activate
 # Install requirements

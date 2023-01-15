@@ -5,11 +5,11 @@ class ErrorManager:
     def __init__(
         self, 
         path: str,
-        str_to_prepend: str='',
-        str_to_append: str=''
+        str_to_prepend: str="<center><h3>",
+        str_to_append: str="</h3></center>"
     ) -> None:
-        self.error2text = pd.read_json(path)["errors"]
 
+        self.error2text = pd.read_json(path)["errors"]
         self.str_to_prepend = str_to_prepend
         self.str_to_append  = str_to_append
 
@@ -17,6 +17,7 @@ class ErrorManager:
         self, 
         error_info: str
     ) -> str:
+
         error_code = error_info[0]
         error_args = error_info[1:]
         return str(self.error2text[error_code]).format(*error_args)
@@ -25,9 +26,9 @@ class ErrorManager:
         self, 
         error_info: List[str],
     ) -> str:
+
         if not error_info:
             return ""
         
         error = self.__get_text_from_code(error_info=error_info)
-        
         return self.str_to_prepend + error + self.str_to_append

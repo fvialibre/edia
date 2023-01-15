@@ -42,7 +42,7 @@ def interface(
         
         with gr.Row():
             with gr.Column(scale=3):
-                with gr.Row(equal_height=True):
+                with gr.Row():
                     with gr.Column(scale=5):
                         diagnose_list = gr.Textbox(
                             lines=2, 

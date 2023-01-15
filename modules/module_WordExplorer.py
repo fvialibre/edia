@@ -27,8 +27,8 @@ class WordToPlot:
 class WordExplorer:
     def __init__(
         self,
-        embedding,   # Embedding Class instance
-        errorManager
+        embedding,      # Embedding Class instance
+        errorManager    # ErrorManager class instance
     ) -> None:
 
         self.embedding = embedding
@@ -42,12 +42,12 @@ class WordExplorer:
         out_msj = ""
 
         if not word:
-            out_msj = self.errorManager.process(['EMBEDDING_NO_WORD_PROVIDED'])
+            out_msj = ['EMBEDDING_NO_WORD_PROVIDED']
         else:
             if word not in self.embedding:
-                out_msj = self.errorManager.process(['EMBEDDING_WORD_OOV', word])
+                out_msj = ['EMBEDDING_WORD_OOV', word]
 
-        return out_msj
+        return self.errorManager.process(out_msj)
 
     def check_oov(
         self, 

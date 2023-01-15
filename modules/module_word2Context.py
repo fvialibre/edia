@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 class Word2Context:
     def __init__(
         self, 
-        context_ds_name: str, 
-        vocabulary,  # Vocabulary class instance
-        errorManager
+        context_ds_name: str,       # Context dataset HF name | path 
+        vocabulary,                 # Vocabulary class instance
+        errorManager                # ErrorManager class instance
     ) -> None:
 
         self.context_ds_name = context_ds_name
@@ -36,12 +36,12 @@ class Word2Context:
         out_msj = ""
 
         if not word:
-            out_msj = self.errorManager.process(['EMBEDDING_NO_WORD_PROVIDED'])
+            out_msj = ['EMBEDDING_NO_WORD_PROVIDED']
         else:
             if word not in self.vocab:
-                out_msj = self.errorManager.process(['EMBEDDING_WORD_OOV', word])
+                out_msj = ['EMBEDDING_WORD_OOV', word]
         
-        return out_msj
+        return self.errorManager.process(out_msj)
 
     def genWebLink(
         self,

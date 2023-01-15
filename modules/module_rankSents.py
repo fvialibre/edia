@@ -9,7 +9,7 @@ class RankSents:
         self, 
         language_model, # LanguageModel class instance
         lang: str,
-        errorManager
+        errorManager    # ErrorManager class instance
     ) -> None:
         
         self.tokenizer = language_model.initTokenizer()
@@ -53,18 +53,18 @@ class RankSents:
 
         out_msj = ""
         if not sent:
-            out_msj = self.errorManager.process(['RANKSENTS_NO_SENTENCE_PROVIDED'])
+            out_msj = ['RANKSENTS_NO_SENTENCE_PROVIDED']
         elif sent.count("*") > 1:
-            out_msj = self.errorManager.process(['RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE'])
+            out_msj = ['RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE']
         elif sent.count("*") == 0:
-            out_msj = self.errorManager.process(['RANKSENTS_NO_MASK_IN_SENTENCE'])
+            out_msj = ['RANKSENTS_NO_MASK_IN_SENTENCE']
         else:
             sent_len = len(self.tokenizer.encode(sent.replace("*", self.tokenizer.mask_token)))
             max_len = self.tokenizer.max_len_single_sentence
             if sent_len > max_len:
-                out_msj = self.errorManager.process(['RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED', max_len])
+                out_msj = ['RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED', max_len]
         
-        return out_msj
+        return self.errorManager.process(out_msj)
 
     def getTop5Predictions(
         self, 
