@@ -3,7 +3,7 @@
 #   $ ./setup.sh
 
 WORKDIR=$(pwd)
-EDIA_DATA_DIR="$WORKDIR/data_test"
+EDIA_DATA_DIR="$WORKDIR/data"
 
 echo "* Creating app/data/ diretory ..."
 mkdir $EDIA_DATA_DIR
