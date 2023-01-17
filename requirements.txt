@@ -1,8 +1,8 @@
-regex
-torch
-scikit-learn
-transformers
-wordcloud
+regex==2022.10.31
+torch==1.13.1
+scikit-learn==0.24.2
+transformers==4.25.1
+wordcloud==1.8.2.2
 matplotlib
 numpy
 uuid
@@ -10,6 +10,6 @@ python-dotenv
 memory_profiler
 gensim==4.2.0
 seaborn
-annoy
-datasets
+annoy==1.17.1
+datasets==2.8.0
 gradio==3.12
