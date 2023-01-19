@@ -5,10 +5,13 @@
 WORKDIR=$(pwd)
 EDIA_DATA_DIR="$WORKDIR/data"
 
-echo "* Creating app/data/ diretory ..."
-mkdir $EDIA_DATA_DIR
+if [ ! -d $EDIA_DATA_DIR ]; 
+then 
+    echo "* Creating 'data/' directory ..."
+    mkdir $EDIA_DATA_DIR
+fi
 
-echo "* Download data files ..."
+echo "* Downloading files inside 'data/' directory ..."
 ID="1uI6HsBw1XWVvTEIs9goSpUVfeVJe-zEP"
 wget -q --show-progress "https://drive.google.com/uc?export=download&id=$ID&export=download&confirm=yes" -O "$EDIA_DATA_DIR/mini_vocab_v6.zip"
 ID="1T_pLFkUucP-NtPRCsO7RkOuhMqGi41pe"
