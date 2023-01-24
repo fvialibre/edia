@@ -98,13 +98,14 @@ class CustomPllLabel:
         pll_dict: Dict[str, float]
     ) -> str:
 
-        sorted_pll_dict = dict(sorted(pll_dict.items(), key=lambda x: x[1], reverse=True))
-        
-        sents = list(sorted_pll_dict.keys())
+        sorted_pll_dict = sorted(pll_dict.items(), key=lambda x: x[1], reverse=True)
+
+        sents = [k for k,_ in sorted_pll_dict]
+        scores  = [v for _,v in sorted_pll_dict]
+
         # Scape < and > marks from hightlight word/s
         sents = [s.replace("<","&#60;").replace(">","&#62;")for s in sents]
 
-        scores  = list(sorted_pll_dict.values())
         ratios = self.__getProportions(scores)
-
+        
         return self.__render(sents, scores, ratios)
