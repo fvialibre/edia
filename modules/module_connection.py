@@ -422,11 +422,12 @@ class PhraseBiasExplorerConnector(Connector):
     def rank_sentence_options(
         self,
         sent: str,
-        word_list: str,
+        interest_word_list: str,
         banned_word_list: str,
-        useArticles: bool,
-        usePrepositions: bool,
-        useConjunctions: bool
+        exclude_articles: bool,
+        exclude_prepositions: bool,
+        exclude_conjunctions: bool,
+        n_predictions: int=5
     ) -> Tuple:
 
         sent = " ".join(sent.strip().replace("*"," * ").split())
@@ -435,7 +436,7 @@ class PhraseBiasExplorerConnector(Connector):
         if err:
             return err, "", ""
 
-        word_list = self.parse_words(word_list)
+        interest_word_list = self.parse_words(interest_word_list)
         banned_word_list = self.parse_words(banned_word_list)
 
         # Save inputs in logs file
@@ -443,16 +444,17 @@ class PhraseBiasExplorerConnector(Connector):
             self.logs_file_name, 
             self.headers,
             sent,
-            word_list
+            interest_word_list
         )
 
         all_plls_scores = self.phrase_bias_explorer.rank(
             sent, 
-            word_list, 
+            interest_word_list, 
             banned_word_list, 
-            useArticles, 
-            usePrepositions, 
-            useConjunctions
+            exclude_articles, 
+            exclude_prepositions, 
+            exclude_conjunctions,
+            n_predictions
         )
         
         all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)

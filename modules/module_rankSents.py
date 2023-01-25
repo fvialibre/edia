@@ -66,13 +66,14 @@ class RankSents:
         
         return self.errorManager.process(out_msj)
 
-    def getTop5Predictions(
+    def getTopPredictions(
         self, 
+        n: int,
         sent: str,
-        banned_wl: List[str], 
-        articles: bool,
-        prepositions: bool,
-        conjunctions: bool
+        banned_word_list: List[str], 
+        exclude_articles: bool,
+        exclude_prepositions: bool,
+        exclude_conjunctions: bool,
     ) -> List[str]:
                                 
         sent_masked = sent.replace("*", self.tokenizer.mask_token)
@@ -80,7 +81,8 @@ class RankSents:
             sent_masked,
             add_special_tokens=True,
             return_tensors='pt',
-            return_attention_mask=True, truncation=True
+            return_attention_mask=True, 
+            truncation=True
         )
 
         tk_position_mask = torch.where(inputs['input_ids'][0] == self.tokenizer.mask_token_id)[0].item()
@@ -94,26 +96,26 @@ class RankSents:
         probabilities = outputs[tk_position_mask]
         first_tk_id = torch.argsort(probabilities, descending=True)
         
-        top5_tks_pred = []
+        top_tks_pred = []
         for tk_id in first_tk_id:
             tk_string = self.tokenizer.decode([tk_id])
             
-            tk_is_banned = tk_string in banned_wl
+            tk_is_banned = tk_string in banned_word_list
             tk_is_punctuation = not tk_string.isalnum()
             tk_is_substring = tk_string.startswith("##")
             tk_is_special = (tk_string in self.tokenizer.all_special_tokens)
 
-            if articles:
+            if exclude_articles:
                 tk_is_article = tk_string in self.articles
             else:
                 tk_is_article = False
             
-            if prepositions:
+            if exclude_prepositions:
                 tk_is_prepositions = tk_string in self.prepositions
             else:
                 tk_is_prepositions = False
             
-            if conjunctions:
+            if exclude_conjunctions:
                 tk_is_conjunctions = tk_string in self.conjunctions
             else:
                 tk_is_conjunctions = False
@@ -128,39 +130,41 @@ class RankSents:
                                     tk_is_conjunctions
             ])
 
-            if predictions_is_dessire and len(top5_tks_pred) < 5:
-                top5_tks_pred.append(tk_string)
+            if predictions_is_dessire and len(top_tks_pred) < n:
+                top_tks_pred.append(tk_string)
 
-            elif len(top5_tks_pred) >= 5:
+            elif len(top_tks_pred) >= n:
                 break
 
-        return top5_tks_pred
+        return top_tks_pred
 
     def rank(self, 
         sent: str, 
-        word_list: List[str]=[], 
+        interest_word_list: List[str]=[], 
         banned_word_list: List[str]=[], 
-        articles: bool=False, 
-        prepositions: bool=False, 
-        conjunctions: bool=False
+        exclude_articles: bool=False, 
+        exclude_prepositions: bool=False, 
+        exclude_conjunctions: bool=False,
+        n_predictions: int=5
     ) -> Dict[str, float]:
         
         err = self.errorChecking(sent)
         if err:
             raise Exception(err)
 
-        if not word_list:
-            word_list = self.getTop5Predictions(
+        if not interest_word_list:
+            interest_word_list = self.getTopPredictions(
+                n_predictions,
                 sent,
                 banned_word_list,
-                articles,
-                prepositions,
-                conjunctions
+                exclude_articles,
+                exclude_prepositions,
+                exclude_conjunctions
             )
 
         sent_list = []
         sent_list2print = []
-        for word in word_list:
+        for word in interest_word_list:
             sent_list.append(sent.replace("*", "<"+word+">"))
             sent_list2print.append(sent.replace("*", "<"+word+">"))
             
