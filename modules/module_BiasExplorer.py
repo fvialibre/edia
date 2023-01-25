@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from typing import List, Dict, Tuple, Optional, Any
-from modules.utils import normalize, cosine_similarity, project_params, take_two_sides_extreme_sorted
+from modules.utils import normalize, cosine_similarity, project_params, take_two_sides_extreme_sorted, axes_labels_format
 
 __all__ = ['WordBiasExplorer', 'WEBiasExplorer2Spaces', 'WEBiasExplorer4Spaces']
 
@@ -371,11 +371,16 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         plt.xticks(np.arange(-most_extream_projection,
                              most_extream_projection + axis_projection_step,
                              axis_projection_step))
-        xlabel = ('← {} {} {} →'.format(self.negative_end,
-                                        ' ' * 20,
-                                        self.positive_end))
 
-        plt.xlabel(xlabel)
+
+        xlabel = axes_labels_format(
+            left=self.negative_end,
+            right=self.positive_end,
+            sep=' ' * 20,
+            word_wrap=3
+        )
+
+        plt.xlabel(xlabel, loc='center')
         plt.ylabel('Words')
 
         return ax
@@ -515,13 +520,20 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
         for _, row in (projections_df.iterrows()):
             ax.annotate(
                 row['word'], (row['projection_x'], row['projection_y']))
-        x_label = '← {} {} {} →'.format(name_left,
-                                        ' ' * 20,
-                                        name_right)
 
-        y_label = '← {} {} {} →'.format(name_top,
-                                        ' ' * 20,
-                                        name_bottom)
+
+        x_label = axes_labels_format(
+            left=name_left,
+            right=name_right,
+            sep=' ' * 20,
+            word_wrap=3
+        )
+        y_label = axes_labels_format(
+            left=name_top,
+            right=name_bottom,
+            sep=' ' * 20,
+            word_wrap=3
+        )
 
         plt.xlabel(x_label)
         ax.xaxis.set_label_position('bottom')
