@@ -380,7 +380,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
             word_wrap=3
         )
 
-        plt.xlabel(xlabel, loc='center')
+        plt.xlabel(xlabel)
         plt.ylabel('Words')
 
         return ax
