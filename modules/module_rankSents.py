@@ -68,12 +68,12 @@ class RankSents:
 
     def getTopPredictions(
         self, 
-        n: int,
         sent: str,
-        banned_word_list: List[str], 
-        exclude_articles: bool,
-        exclude_prepositions: bool,
-        exclude_conjunctions: bool,
+        n: int=5,
+        banned_word_list: List[str]=[], 
+        exclude_articles: bool=False,
+        exclude_prepositions: bool=False,
+        exclude_conjunctions: bool=False,
     ) -> List[str]:
                                 
         sent_masked = sent.replace("*", self.tokenizer.mask_token)
@@ -154,8 +154,8 @@ class RankSents:
 
         if not interest_word_list:
             interest_word_list = self.getTopPredictions(
-                n_predictions,
                 sent,
+                n_predictions,
                 banned_word_list,
                 exclude_articles,
                 exclude_prepositions,
