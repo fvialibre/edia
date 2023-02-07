@@ -17,17 +17,19 @@ class FillMask:
 
     def automatic_compute(
         self,
-        sent: str
+        sent: str,
+        n: int = 5
     ) -> List[Tuple[str,float]]:
 
         sent_masked = sent.replace("*", self.tokenizer.mask_token)
         
-        outputs = pipeline(
+        classifier = pipeline(
             task="fill-mask", 
-            model=self.model_name
+            model=self.model_name,
+            top_k=n
         )
         
-        predictions = outputs(sent_masked)
+        predictions = classifier(sent_masked)
         predictions = [(dic['token_str'], dic['score']) for dic in predictions]
 
         predictions = sorted(predictions, key=lambda tup: tup[1], reverse=True)
@@ -76,9 +78,12 @@ class FillMask:
         n_predictions = sorted(n_predictions, key=lambda tup: tup[1], reverse=True)
         return n_predictions
 
+
 if __name__ == "__main__":
+    
     model_name = "dccuchile/bert-base-spanish-wwm-uncased"
     fillmask = FillMask(model_name)
+    
     sent = "El * es un animal muy inteligente"
-    print(fillmask.automatic_compute(sent))
-    print(fillmask.manual_compute(sent))
+    print(fillmask.automatic_compute(sent, 7))
+    print(fillmask.manual_compute(sent, 7))
