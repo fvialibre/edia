@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytz
 from datetime import datetime
-from typing import List
+from typing import List, Tuple, Dict
 
 
 
@@ -142,3 +142,10 @@ def axes_labels_format(
         labels += f"← {line} →\n" if i==0 else f"  {line}  \n"
 
     return labels
+
+def sort_pllScores(
+    pll_scores: Dict[str,int]
+) -> List[Tuple[str, int]]:
+
+    # Sorted pll scores in descending order
+    return  sorted(pll_scores.items(), key=lambda x: x[1], reverse=True)
