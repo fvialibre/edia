@@ -294,7 +294,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
 
         return self.get_bias_plot(
                 wordlist_to_diagnose,
-                definitional=(wordlist_left, wordlist_right),
+                definitional=(wordlist_right, wordlist_left),
                 method='sum',
                 n_extreme=10
             )
