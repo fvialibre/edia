@@ -13,7 +13,6 @@ from modules.module_ErrorManager import ErrorManager
 
 
 class Connector(ABC):
-
     def __init__(
         self,
         lang: str
@@ -336,6 +335,7 @@ class Word2ContextExplorerConnector(Connector):
         word: str
     ) -> Tuple:
     
+        word = self.parse_word(word)
         err = ""
         contexts = pd.DataFrame([], columns=[''])
         subsets_info = ""
@@ -346,8 +346,6 @@ class Word2ContextExplorerConnector(Connector):
         err = self.word2context_explorer.errorChecking(word)
         if err:
             return err, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
-
-        word = self.parse_word(word)
 
         subsets_info, subsets_origin_info = self.word2context_explorer.getSubsetsInfo(word)
 
