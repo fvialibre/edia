@@ -53,8 +53,7 @@ def normalize(
 
     """Normalize a 1-D vector."""
     if v.ndim != 1:
-        raise ValueError('v should be 1-D, {}-D was given'.format(
-            v.ndim))
+        raise ValueError(f'v should be 1-D, {v.ndim}-D was given')
     norm = np.linalg.norm(v)
     if norm == 0:
         return v

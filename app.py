@@ -1,4 +1,5 @@
 # --- Imports libs ---
+import os
 import gradio as gr
 import pandas as pd
 import configparser
@@ -47,7 +48,11 @@ vocabulary = Vocabulary(
 beto_lm = LanguageModel(
     model_name=LANGUAGE_MODEL
 )
-labels = pd.read_json(f"language/{LANGUAGE}.json")["app"]
+
+labels_path = f"language/{LANGUAGE}.json"
+if not os.path.isfile(labels_path):
+    raise FileNotFoundError(labels_path)
+labels = pd.read_json(labels_path)["app"]
 
 
 # --- Main App ---

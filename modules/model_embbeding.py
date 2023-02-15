@@ -44,8 +44,10 @@ class Embedding:
         self, 
     ) -> None:
 
-        assert(self.nn_method in self.availables_nn_methods), f"Error: The value of the parameter 'nn method' can only be {self.availables_nn_methods}!"
-
+        #assert(self.nn_method in self.availables_nn_methods), f"Error: The value of the parameter 'nn method' can only be {self.availables_nn_methods}!"
+        if self.nn_method not in self.availables_nn_methods:
+            raise ValueError(f"'nn method' parameter possible values are {self.availables_nn_methods}")
+        
         print(f"Preparing {os.path.basename(self.path)} embeddings...")
 
         # --- Prepare dataset ---
@@ -76,6 +78,9 @@ class Embedding:
         randomizedPCA: bool
     ) -> pd.DataFrame:
 
+        if not os.path.isfile(path):
+            raise FileNotFoundError(path)
+
         if randomizedPCA:
             pca = PCA(
                 n_components=2, 
@@ -98,7 +103,7 @@ class Embedding:
                     unicode_errors='ignore'
                 )
         except:
-            raise Exception(f"Can't load {path}. If it's a .bin extended file, only gensims c binary format are valid")
+            raise TypeError(f"Can't load {path} file. If it's .bin extended, only Gensim c binary format is valid")
 
         # Cased Vocab
         cased_words = model.index_to_key
@@ -193,10 +198,15 @@ class Embedding:
         nn_method: str='sklearn'
     ) -> List[str]:
 
-        assert(n_neighbors <= self.max_neighbors), f"Error: The value of the parameter 'n_neighbors:{n_neighbors}' must less than or equal to {self.max_neighbors}!."
+        #assert(n_neighbors <= self.max_neighbors), f"Error: The value of the parameter 'n_neighbors:{n_neighbors}' must less than or equal to {self.max_neighbors}!."
 
-        assert(nn_method in self.availables_nn_methods), f"Error: The value of the parameter 'nn method' can only be {self.availables_nn_methods}!"
+        #assert(nn_method in self.availables_nn_methods), f"Error: The value of the parameter 'nn method' can only be {self.availables_nn_methods}!"
         
+        if n_neighbors > self.max_neighbors:
+            raise ValueError(f"'n_neighbors: {n_neighbors}' parameter must less than or equal to {self.max_neighbors}")
+        elif nn_method not in self.availables_nn_methods:
+            raise ValueError(f"'nn method' parameter possible values are {self.availables_nn_methods}")
+
         neighbors_list = []
 
         if word not in self:

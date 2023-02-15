@@ -38,7 +38,7 @@ class Ann:
         self.tree = None
 
         self.tt = TicToc()
-        self.availables_metrics = ['angular','euclidean','manhattan','hamming','dot']
+        self.availables_metrics = ['angular', 'euclidean', 'manhattan', 'hamming', 'dot']
 
     def init(self, 
         n_trees: int=10, 
@@ -46,7 +46,10 @@ class Ann:
         n_jobs: int=-1  # n_jobs=-1 Run over all CPU availables
     ) -> None:
 
-        assert(metric in self.availables_metrics), f"Error: The value of the parameter 'metric' can only be {self.availables_metrics}!"
+        #assert(metric in self.availables_metrics), f"Error: The value of the parameter 'metric' can only be {self.availables_metrics}!"
+        
+        if metric not in self.availables_metrics:
+            raise ValueError(f"'metric' parameter possible values are {self.availables_metrics}")
 
         print("\tInit tree...")
         self.tt.start()

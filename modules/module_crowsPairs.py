@@ -43,7 +43,7 @@ class CrowsPairs:
 
         err = self.errorChecking(sent_list)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
         
         all_plls_scores = {}
         for sent in sent_list:

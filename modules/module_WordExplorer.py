@@ -70,7 +70,7 @@ class WordExplorer:
 
         err = self.check_oov([[word]])
         if err:
-            raise Exception(err)
+            raise ValueError(err)
         
         return self.embedding.getNearestNeighbors(word, n_neighbors, nn_method)
 
@@ -169,7 +169,7 @@ class WordExplorer:
 
         err = self.check_oov(wordlist_choice)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         color_dict = {
             0: kwargs.get('color_wordlist_0', '#000000'),
@@ -203,7 +203,7 @@ class WordExplorer:
                             )
 
         if not processed_word_list:
-            raise Exception('Only empty lists were passed')
+            raise ValueError(self.errorManager.process(['WORDEXPLORER_ONLY_EMPTY_LISTS']))
 
         words_embedded = np.array(
             [self.embedding.getPCA(wtp.word) for wtp in processed_word_list]
@@ -228,7 +228,6 @@ class WordExplorer:
         plt.show()
         return fig
 
-    # ToDo: No hay usos de este método. ¿Borrar?
     def doesnt_match(
         self, 
         wordlist: List[str]
@@ -236,7 +235,7 @@ class WordExplorer:
 
         err = self.check_oov([wordlist])
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         words_emb = np.array([self.embedding.getEmbedding(word)
                              for word in wordlist])
@@ -246,8 +245,7 @@ class WordExplorer:
         farthest_emb = 1.0
         for word in wordlist:
             word_emb = self.embedding.getEmbedding(word)
-            cos_sim = np.dot(mean_vec, word_emb) / \
-                (norm(mean_vec)*norm(word_emb))
+            cos_sim = np.dot(mean_vec, word_emb) / (norm(mean_vec)*norm(word_emb))
             if cos_sim <= farthest_emb:
                 farthest_emb = cos_sim
                 doesnt_match = word

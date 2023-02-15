@@ -76,7 +76,7 @@ class Word2Context:
 
         err = self.errorChecking(word)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         x_values, y_values = self.vocab.distribution()
         w_percentile = self.vocab.getPercentile(word)
@@ -119,7 +119,7 @@ class Word2Context:
 
         err = self.errorChecking(word)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         w_splits = self.vocab.getSplits(word)
 
@@ -168,7 +168,7 @@ class Word2Context:
 
         err = self.errorChecking(word)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         total_freq = self.vocab.getFreq(word)
         subsets_name_list = list(self.vocab.getSubsets(word).keys())
@@ -193,7 +193,7 @@ class Word2Context:
 
         err = self.errorChecking(word)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         ds_w_contexts = ds.map(lambda sample: self.findContexts(sample, word))
         only_contexts = ds_w_contexts.filter(lambda sample: sample['context'] != "")

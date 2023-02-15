@@ -286,11 +286,11 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         
         for wordlist in wordlists:
             if not wordlist:
-                raise Exception('At least one word should be in the to diagnose list, bias 1 list and bias 2 list')
+                raise ValueError(self.errorManager.process(['BIASEXPLORER_NOT_ENOUGH_WORD_2_KERNELS']))
         
         err = self.check_oov(wordlists)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         return self.get_bias_plot(
                 wordlist_to_diagnose,
@@ -414,11 +414,11 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
 
         for wordlist in wordlists:
             if not wordlist:
-                raise Exception('To plot with 4 spaces, you must enter at least one word in all lists')
+                raise ValueError(self.errorManager.process(['BIASEXPLORER_NOT_ENOUGH_WORD_4_KERNELS']))
 
         err = self.check_oov(wordlists)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         return self.get_bias_plot(
                 wordlist_to_diagnose,

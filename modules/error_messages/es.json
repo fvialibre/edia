@@ -1,21 +1,23 @@
 {
     "errors": {
-        "CONECTION_NO_WORD_ENTERED": "Error: Ingresa al menos 1 palabras para continuar",
+        "CONECTION_NO_WORD_ENTERED": "Ingresa al menos 1 palabras para continuar",
 
-        "EMBEDDING_NO_WORD_PROVIDED": "Error: Primero debes ingresar una palabra!",
-        "EMBEDDING_WORD_OOV": "Error: La palabra '<b>{}</b>' no se encuentra en el vocabulario!",
+        "EMBEDDING_NO_WORD_PROVIDED": "Primero debes ingresar una palabra!",
+        "EMBEDDING_WORD_OOV": "La palabra '<b>{}</b>' no se encuentra en el vocabulario!",
+
+        "WORDEXPLORER_ONLY_EMPTY_LISTS": "Todas las listas se encuentran vacias",
 
         "BIASEXPLORER_NOT_ENOUGH_WORD_2_KERNELS": "Debe ingresar al menos 1 palabra en las lista de palabras a diagnosticar, sesgo 1 y sesgo 2",
         "BIASEXPLORER_NOT_ENOUGH_WORD_4_KERNELS": "Debe ingresar al menos 1 palabra en todas las listas para graficar en 4 espacios",
 
-        "RANKSENTS_NO_SENTENCE_PROVIDED": "Error: Debe ingresar una frase!",
-        "RANKSENTS_NO_MASK_IN_SENTENCE": "Error: La frase ingresada necesita contener un ' * ' para poder inferir la palabra!",
-        "RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE": "Error: La frase ingresada debe contener solo un ' * '!",
-        "RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED": "Error: La frase ingresada posee mas de {} tokens!",
+        "RANKSENTS_NO_SENTENCE_PROVIDED": "Debe ingresar una frase!",
+        "RANKSENTS_NO_MASK_IN_SENTENCE": "La frase ingresada necesita contener un ' * ' para poder inferir la palabra!",
+        "RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE": "La frase ingresada debe contener solo un ' * '!",
+        "RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED": "La frase ingresada posee mas de {} tokens!",
 
-        "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "Error: La frase Nº {} no posee el formato correcto!.",
-        "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "Error: La frase Nº{} no puede ser vacia!",
+        "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "La frase Nº {} no posee el formato correcto!.",
+        "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "La frase Nº{} no puede ser vacia!",
 
-        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Error: Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
+        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
     }
 }

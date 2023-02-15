@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from typing import List
 
@@ -8,6 +9,9 @@ class ErrorManager:
         str_to_prepend: str="<center><h3>",
         str_to_append: str="</h3></center>"
     ) -> None:
+
+        if not os.path.isfile(path):
+            raise FileNotFoundError(path)
 
         self.error2text = pd.read_json(path)["errors"]
         self.str_to_prepend = str_to_prepend

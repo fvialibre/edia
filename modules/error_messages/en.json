@@ -1,21 +1,23 @@
 {
     "errors": {
-        "CONECTION_NO_WORD_ENTERED": "Error: Enter at least one word to continue",
+        "CONECTION_NO_WORD_ENTERED": "Enter at least one word to continue",
 
-        "EMBEDDING_NO_WORD_PROVIDED": "Error: First you most enter a word!",
-        "EMBEDDING_WORD_OOV": "Error: The word '<b>{}</b>' is not in the vocabulary!",
+        "EMBEDDING_NO_WORD_PROVIDED": "First you most enter a word!",
+        "EMBEDDING_WORD_OOV": "The word '<b>{}</b>' is not in the vocabulary!",
+
+        "WORDEXPLORER_ONLY_EMPTY_LISTS": "Only empty lists were passed",
 
         "BIASEXPLORER_NOT_ENOUGH_WORD_2_KERNELS": "At least one word should be in the to diagnose list, bias 1 list and bias 2 list",
         "BIASEXPLORER_NOT_ENOUGH_WORD_4_KERNELS": "To plot with 4 spaces, you must enter at least one word in all lists",
 
-        "RANKSENTS_NO_SENTENCE_PROVIDED": "Error: You most enter a sentence!",
-        "RANKSENTS_NO_MASK_IN_SENTENCE": "Error: The entered sentence needs to contain a ' * ' in order to predict the word!",
-        "RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE": "Error: The sentence entered must contain only one ' * '!",
-        "RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED": "Error: The sentence has more than {} tokens!",
+        "RANKSENTS_NO_SENTENCE_PROVIDED": "You most enter a sentence!",
+        "RANKSENTS_NO_MASK_IN_SENTENCE": "The entered sentence needs to contain a ' * ' in order to predict the word!",
+        "RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE": "The sentence entered must contain only one ' * '!",
+        "RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED": "The sentence has more than {} tokens!",
 
-        "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "Error: The sentence Nº {} does not have the correct format!",
-        "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "Error: The sentence Nº{} can not be empty!",
+        "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "The sentence Nº {} does not have the correct format!",
+        "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "The sentence Nº{} can not be empty!",
 
-        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Error: Word not entered and/or interest set(s) not selected!"
+        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Word not entered and/or interest set(s) not selected!"
     }
 }

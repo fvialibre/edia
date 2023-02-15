@@ -150,7 +150,7 @@ class RankSents:
         
         err = self.errorChecking(sent)
         if err:
-            raise Exception(err)
+            raise ValueError(err)
 
         if not interest_word_list:
             interest_word_list = self.getTopPredictions(

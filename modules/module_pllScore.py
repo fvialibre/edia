@@ -84,7 +84,9 @@ class PllScore:
         sent: str
     ) -> float:
 
-        assert(self.sentIsCorrect(sent)), f"Error: The sentence '{sent}' does not have the correct format!"
+        #assert(self.sentIsCorrect(sent)), f"Error: The sentence '{sent}' does not have the correct format!"
+        if not self.sentIsCorrect(sent):
+            raise ValueError(f"The sentence '{sent}' does not have the correct format")
 
         outside_words = re.sub("\<.*?\>", "", sent.replace("<", " < ").replace(">", " > "))
         outside_words = [w for w in outside_words.split() if w != ""]
