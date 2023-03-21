@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Tuple, Optional, Any, Callable
 from modules.utils import normalize, cosine_similarity, project_params, take_two_sides_extreme_sorted, axes_labels_format
 
 __all__ = ['WordBiasExplorer', 'WEBiasExplorer2Spaces', 'WEBiasExplorer4Spaces']
@@ -55,6 +55,11 @@ class WordBiasExplorer:
     ) -> bool:
 
         return item in self.embedding
+    
+    def get_direction(
+        self
+    ):
+        return self.direction
 
     def _is_direction_identified(
         self
@@ -69,7 +74,6 @@ class WordBiasExplorer:
         definitional_pairs: List[Tuple[str, str]], 
         n_components: int
     ) -> PCA:
-
         matrix = []
 
         for word1, word2 in definitional_pairs:
@@ -105,6 +109,7 @@ class WordBiasExplorer:
                              .format(positive_end))
         direction = None
 
+        # TODO: Examine this method
         if method == 'single':
             direction = normalize(normalize(self[definitional[0]])
                                   - normalize(self[definitional[1]]))
@@ -120,6 +125,7 @@ class WordBiasExplorer:
 
             direction = normalize(diff_vector)
 
+        # TODO: Examine this method that dont work with our parameters aligment
         elif method == 'pca':
             pca = self._identify_subspace_by_pca(definitional, 10)
             if pca.explained_variance_ratio_[0] < first_pca_threshold:
@@ -136,7 +142,7 @@ class WordBiasExplorer:
                                                       - self[negative_end]),
                                                      direction)
             if ends_diff_projection < 0:
-                direction = -direction  # pylint: disable=invalid-unary-operand-type
+                direction = abs(direction)
 
         self.direction = direction
         self.positive_end = positive_end
@@ -144,7 +150,7 @@ class WordBiasExplorer:
 
     def project_on_direction(
         self, 
-        word: str
+        word: str,
     ) -> float:
 
         """Project the normalized vector of the word on the direction.
@@ -161,16 +167,19 @@ class WordBiasExplorer:
 
     def _calc_projection_scores(
         self, 
-        words: List[str]
+        words: List[str],
+        projection_func: Callable[[str, np.ndarray], float]=None
     ) -> pd.DataFrame:
 
         self._is_direction_identified()
 
         df = pd.DataFrame({'word': words})
 
-        # TODO: maybe using cosine_similarities on all the vectors?
-        # it might be faster
-        df['projection'] = df['word'].apply(self.project_on_direction)
+        if projection_func is None:
+            df['projection'] = df['word'].apply(self.project_on_direction)
+        else:
+            df['projection'] = df['word'].apply(lambda word: projection_func(word, self.direction))
+        
         df = df.sort_values('projection', ascending=False)
 
         return df
@@ -279,7 +288,9 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         self,
         wordlist_to_diagnose: List[str],
         wordlist_right: List[str],
-        wordlist_left: List[str]
+        wordlist_left: List[str],
+        method: str='sum',
+        projection_func: Callable[[str, np.ndarray], float]=None
     ) -> plt.Figure:
 
         wordlists = [wordlist_to_diagnose, wordlist_right, wordlist_left] 
@@ -295,8 +306,9 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         return self.get_bias_plot(
                 wordlist_to_diagnose,
                 definitional=(wordlist_right, wordlist_left),
-                method='sum',
-                n_extreme=10
+                method=method,
+                n_extreme=10,
+                projection_func=projection_func
             )
 
     def get_bias_plot(
@@ -305,6 +317,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         definitional: Tuple[List[str], List[str]],
         method: str='sum',
         n_extreme: int=10,
+        projection_func: Callable[[str, np.ndarray], float]=None,
         figsize: Tuple[int, int]=(10, 10)
     ) -> plt.Figure:
 
@@ -312,7 +325,11 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         self.method = method
         self.plot_projection_scores(
             definitional,
-            wordlist_to_diagnose, n_extreme, ax=ax,)
+            wordlist_to_diagnose, 
+            n_extreme, 
+            ax=ax,
+            method=method,
+            projection_func=projection_func)
 
         fig.tight_layout()
         fig.canvas.draw()
@@ -325,7 +342,9 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         words: List[str], 
         n_extreme: int=10,
         ax: plt.Axes=None, 
-        axis_projection_step: float=None
+        axis_projection_step: float=None,
+        method: str='sum',
+        projection_func: Callable[[str, np.ndarray], float]=None
     ) -> plt.Axes:
 
         """Plot the projection scalar of words on the direction.
@@ -338,11 +357,11 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
 
         self._identify_direction(name_left, name_right,
                                  definitional=definitional,
-                                 method='sum')
+                                 method=method)
 
         self._is_direction_identified()
 
-        projections_df = self._calc_projection_scores(words)
+        projections_df = self._calc_projection_scores(words, projection_func)
         projections_df['projection'] = projections_df['projection'].round(2)
 
         if n_extreme is not None:
@@ -402,6 +421,8 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
         wordlist_left: List[str],
         wordlist_top: List[str],
         wordlist_bottom: List[str],
+        method: str='sum',
+        projection_func: Callable[[str, np.ndarray], float]=None
     ) -> plt.Figure:
 
         wordlists = [
@@ -424,8 +445,9 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
                 wordlist_to_diagnose,
                 definitional_1=(wordlist_right, wordlist_left),
                 definitional_2=(wordlist_top, wordlist_bottom),
-                method='sum',
-                n_extreme=10
+                method=method,
+                n_extreme=10,
+                projection_func=projection_func
             )
 
     def get_bias_plot(
@@ -435,6 +457,7 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
         definitional_2: Tuple[List[str], List[str]],
         method: str='sum',
         n_extreme: int=10,
+        projection_func: Callable[[str, np.ndarray], float]=None,
         figsize: Tuple[int, int]=(10, 10)
     ) -> plt.Figure:
 
@@ -443,7 +466,11 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
         self.plot_projection_scores(
             definitional_1,
             definitional_2,
-            wordlist_to_diagnose, n_extreme, ax=ax,)
+            wordlist_to_diagnose, 
+            n_extreme, 
+            ax=ax,
+            method=method,
+            projection_func=projection_func)
         fig.canvas.draw()
 
         return fig
@@ -455,7 +482,9 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
         words: List[str], 
         n_extreme: int=10,
         ax: plt.Axes=None, 
-        axis_projection_step: float=None
+        axis_projection_step: float=None,
+        method: str='sum',
+        projection_func: Callable[[str, np.ndarray], float]=None
     ) -> plt.Axes:
 
         """Plot the projection scalar of words on the direction.
@@ -469,22 +498,22 @@ class WEBiasExplorer4Spaces(WordBiasExplorer):
 
         self._identify_direction(name_left, name_right,
                                  definitional=definitional_1,
-                                 method='sum')
+                                 method=method)
 
         self._is_direction_identified()
 
-        projections_df = self._calc_projection_scores(words)
+        projections_df = self._calc_projection_scores(words, projection_func)
         projections_df['projection_x'] = projections_df['projection'].round(2)
 
         name_top = ', '.join(definitional_2[1])
         name_bottom = ', '.join(definitional_2[0])
         self._identify_direction(name_top, name_bottom,
                                  definitional=definitional_2,
-                                 method='sum')
+                                 method=method)
 
         self._is_direction_identified()
 
-        projections_df['projection_y'] = self._calc_projection_scores(words)[
+        projections_df['projection_y'] = self._calc_projection_scores(words, projection_func)[
             'projection'].round(2)
 
         if n_extreme is not None:
