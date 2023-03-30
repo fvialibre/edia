@@ -77,6 +77,31 @@ class FillMask:
         
         n_predictions = sorted(n_predictions, key=lambda tup: tup[1], reverse=True)
         return n_predictions
+    
+    def compute_for_token(self, sent: str, token: str):
+        sent_masked = sent.replace("*", self.tokenizer.mask_token)
+        
+        inputs = self.tokenizer.encode_plus( 
+            sent_masked,
+            add_special_tokens=True,
+            return_tensors='pt',
+            return_attention_mask=True, 
+            truncation=True
+        )
+        
+        token_position_mask = torch.where(
+            inputs['input_ids'][0] == self.tokenizer.mask_token_id
+        )[0].item()
+
+        with torch.no_grad():
+            out = self.model(**inputs)
+            logits = out.logits
+            outputs = self.softmax(logits)
+            outputs = torch.squeeze(outputs, dim=0)
+        
+        token_probabilities = outputs[token_position_mask]
+        return token_probabilities[self.tokenizer.encode(token)[0]].item()
+
 
 
 if __name__ == "__main__":

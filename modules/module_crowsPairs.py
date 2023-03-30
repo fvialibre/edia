@@ -1,12 +1,13 @@
 from modules.module_customPllLabel import CustomPllLabel
 from modules.module_pllScore import PllScore
-from typing import Dict, List
+from typing import Dict, List, Callable
 
 class CrowsPairs:
     def __init__(
         self, 
-        language_model, # LanguageModel class instance
-        errorManager    # ErrorManager class instance
+        language_model,                         # LanguageModel class instance
+        errorManager,                           # ErrorManager class instance
+        rank_func: Callable[[str], float]=None
     ) -> None:
 
         self.Label = CustomPllLabel()
@@ -14,6 +15,7 @@ class CrowsPairs:
             language_model=language_model
         )
         self.errorManager = errorManager
+        self.rank_func = rank_func
 
     def errorChecking(
         self, 
@@ -45,9 +47,16 @@ class CrowsPairs:
         if err:
             raise ValueError(err)
         
-        all_plls_scores = {}
-        for sent in sent_list:
-            if sent:
-                all_plls_scores[sent] = self.pllScore.compute(sent)
+        all_scores = {}
+        if self.rank_func is None:
+            for sent in sent_list:
+                if sent:
+                    all_scores[sent] = self.pllScore.compute(sent)
+        else:
+            for sent in sent_list:
+                if sent:
+                    all_scores[sent] = self.rank_func(sent)
 
-        return all_plls_scores
+        return all_scores
+        
+        
