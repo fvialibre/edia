@@ -1,6 +1,5 @@
 import sys
 sys.path.append("..")
-
 from modules.module_fillmask import FillMask
 
 def bleu_like(sent: str) -> float:
@@ -44,8 +43,4 @@ def bleu_like(sent: str) -> float:
 
         sent_prob += prob * (10 ** (i-1))
 
-    print(sent_prob)
     return sent_prob
-    
-
-bleu_like("El gato negro <come> pescado fresco .")
