@@ -109,10 +109,18 @@ class WordBiasExplorer:
                              .format(positive_end))
         direction = None
 
-        # TODO: Examine this method
         if method == 'single':
-            direction = normalize(normalize(self[definitional[0]])
-                                  - normalize(self[definitional[1]]))
+            left_word_definitional = definitional[0][0]
+            right_word_definitional = definitional[1][0]
+            if len(definitional[0]) > 1 or len(definitional[1]) > 1:
+                print('WARN: Using \'single\' method to identify direction',
+                    'but longer lists given to calculate bias aspect.',
+                    'Using only:',
+                    left_word_definitional,
+                    'and',
+                    right_word_definitional)
+            direction = normalize(normalize(self[left_word_definitional])
+                                  - normalize(self[right_word_definitional]))
 
         elif method == 'sum':
             group1_sum_vector = np.sum([self[word]
