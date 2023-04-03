@@ -76,7 +76,7 @@ class WordBiasExplorer:
     ) -> PCA:
         matrix = []
 
-        for word1, word2 in definitional_pairs:
+        for word1, word2 in zip(definitional_pairs[0], definitional_pairs[1]):
             vector1 = normalize(self[word1])
             vector2 = normalize(self[word2])
 
@@ -133,9 +133,8 @@ class WordBiasExplorer:
 
             direction = normalize(diff_vector)
 
-        # TODO: Examine this method that dont work with our parameters aligment
         elif method == 'pca':
-            pca = self._identify_subspace_by_pca(definitional, 10)
+            pca = self._identify_subspace_by_pca(definitional, 2)
             if pca.explained_variance_ratio_[0] < first_pca_threshold:
                 raise RuntimeError('The Explained variance'
                                    'of the first principal component should be'
@@ -146,9 +145,11 @@ class WordBiasExplorer:
 
             # if direction is opposite (e.g. we cannot control
             # what the PCA will return)
-            ends_diff_projection = cosine_similarity((self[positive_end]
-                                                      - self[negative_end]),
-                                                     direction)
+            group1_sum_vector = np.sum([self[word] for word in definitional[0]], axis=0)
+            group2_sum_vector = np.sum([self[word] for word in definitional[1]], axis=0)
+            diff_vector = (normalize(group1_sum_vector) - normalize(group2_sum_vector))
+            
+            ends_diff_projection = cosine_similarity(diff_vector, direction)
             if ends_diff_projection < 0:
                 direction = abs(direction)
 
