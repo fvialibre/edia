@@ -71,7 +71,7 @@ class WordBiasExplorer:
 
     def _identify_subspace_by_pca(
         self, 
-        definitional_pairs: List[Tuple[str, str]], 
+        definitional_pairs: Tuple[List[str], List[str]], 
         n_components: int
     ) -> PCA:
         matrix = []
@@ -94,7 +94,7 @@ class WordBiasExplorer:
         self, 
         positive_end: str, 
         negative_end: str,
-        definitional: Tuple[str, str], 
+        definitional: Tuple[List[str], List[str]], 
         method: str='pca',
         first_pca_threshold: float=0.5
     ) -> None:
