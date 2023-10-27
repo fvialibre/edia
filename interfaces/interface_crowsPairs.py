@@ -36,6 +36,12 @@ def interface(
     )
 
     with iface:
+        token_id = gr.Textbox(
+            label="TokenID",
+            placeholder='Ingrese su TokenID',
+            lines=1,
+            show_label=False
+        )
         with gr.Row():
             gr.Markdown(
                 value=labels["title"]
@@ -73,9 +79,14 @@ def interface(
                     )
 
         with gr.Row():  
-            btn = gr.Button(
-                value=labels["compareButton"]
-            )
+            with gr.Group():
+                btn = gr.Button(
+                    value=labels["compareButton"]
+                )
+                highlight_request = gr.Checkbox(
+                    label='Destacar consulta',
+                    value=False
+                )
         with gr.Row():  
             out_msj = gr.Markdown(
                 value=""
@@ -109,8 +120,9 @@ def interface(
 
         btn.click(  
             fn=connector.compare_sentences,
-            inputs=[sent0, sent1, sent2, sent3, sent4, sent5],
-            outputs=[out_msj, out, dummy]
+            inputs=[sent0, sent1, sent2, sent3, sent4, sent5, token_id, highlight_request],
+            outputs=[out_msj, out, dummy],
+            api_name="crows_pairs"
         )
-    
+
     return iface

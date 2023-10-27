@@ -1,7 +1,7 @@
 TOOL_INFO = """
 > ### A tool to overcome technical barriers for bias assessment in human language technologies
 
-* [Read Full Paper](https://arxiv.org/abs/2207.06591)
+* [Read Full Paper](https://arxiv.org/abs/2207.06591v2)
 
 > ### Licensing Information 
 * [MIT Licence](https://github.com/fvialibre/edia/blob/master/LICENSE)

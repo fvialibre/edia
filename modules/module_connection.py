@@ -106,9 +106,11 @@ class WordExplorerConnector(Connector):
             "word_list_1",
             "word_list_2",
             "word_list_3",
-            "word_list_4"
+            "word_list_4",
+            "token_id", 
+            "highlight_request"
         ]
-        
+
         if embedding is None:
             raise KeyError('embedding')
         
@@ -131,7 +133,9 @@ class WordExplorerConnector(Connector):
         color_wordlist_4: str,
         n_alpha: float,
         fontsize: int,
-        n_neighbors: int
+        n_neighbors: int,
+        token_id:str,
+        highlight_request: bool
     ) -> Tuple:
 
         err = ""
@@ -162,6 +166,8 @@ class WordExplorerConnector(Connector):
             wordlist_2,
             wordlist_3,
             wordlist_4,
+            token_id,
+            highlight_request
         )
 
         fig = self.word_explorer.plot_projections_2d(
@@ -199,7 +205,9 @@ class BiasWordExplorerConnector(Connector):
             "word_list_2",
             "word_list_3",
             "word_list_4",
-            "plot_space"
+            "plot_space",
+            "token_id", 
+            "highlight_request"
         ]
 
         if embedding is None:
@@ -218,7 +226,9 @@ class BiasWordExplorerConnector(Connector):
         self,
         wordlist_1: str,
         wordlist_2: str,
-        to_diagnose_list: str
+        to_diagnose_list: str,
+        token_id: str, 
+        highlight_request: bool
     ) -> Tuple:
 
         err = ""
@@ -246,7 +256,9 @@ class BiasWordExplorerConnector(Connector):
             wordlist_2,
             "",
             "",
-            "2d"
+            "2d",
+            token_id,
+            highlight_request
         )
 
         fig = self.bias_word_explorer_2_spaces.calculate_bias(
@@ -263,7 +275,9 @@ class BiasWordExplorerConnector(Connector):
         wordlist_2: str,
         wordlist_3: str,
         wordlist_4: str,
-        to_diagnose_list: str
+        to_diagnose_list: str,
+        token_id: str, 
+        highlight_request: bool
     ) -> Tuple:
 
         err = ""
@@ -293,7 +307,9 @@ class BiasWordExplorerConnector(Connector):
             wordlist_2, 
             wordlist_3, 
             wordlist_4,
-            "4d"
+            "4d",
+            token_id,
+            highlight_request
         )
 
         fig = self.bias_word_explorer_4_spaces.calculate_bias(
@@ -318,7 +334,9 @@ class Word2ContextExplorerConnector(Connector):
         self.logs_file_name = kwargs.get('logs_file_name', None)
         self.headers = [
             "word",
-            "subsets_choice"
+            "subsets_choice",
+            "token_id", 
+            "highlight_request"
         ]
 
         if vocabulary is None:
@@ -355,7 +373,7 @@ class Word2ContextExplorerConnector(Connector):
         subsets_choice = gr.CheckboxGroup.update(choices=clean_keys)
 
         distribution_plot = self.word2context_explorer.genDistributionPlot(word)
-        word_cloud_plot = self.word2context_explorer.genWordCloudPlot(word)
+        #word_cloud_plot = self.word2context_explorer.genWordCloudPlot(word)
 
         return err, contexts, subsets_info, distribution_plot, word_cloud_plot, subsets_choice
 
@@ -363,7 +381,9 @@ class Word2ContextExplorerConnector(Connector):
         self,
         word: str,
         n_context: int,
-        subset_choice: List[str]
+        subset_choice: List[str],
+        token_id: str, 
+        highlight_request: bool
     ) -> Tuple:
 
         word = self.parse_word(word)
@@ -385,7 +405,9 @@ class Word2ContextExplorerConnector(Connector):
             self.logs_file_name, 
             self.headers,
             word,
-            subset_choice
+            subset_choice,
+            token_id,
+            highlight_request
         )
 
         list_of_contexts = self.word2context_explorer.getContexts(word, n_context, ds)
@@ -407,7 +429,9 @@ class PhraseBiasExplorerConnector(Connector):
         self.logs_file_name = kwargs.get('logs_file_name', None)
         self.headers = [
             "sent",
-            "word_list"
+            "word_list",
+            "token_id",
+            "highlight_request"
         ]
 
         if language_model is None:
@@ -429,6 +453,8 @@ class PhraseBiasExplorerConnector(Connector):
         exclude_articles: bool,
         exclude_prepositions: bool,
         exclude_conjunctions: bool,
+        token_id: str,
+        highlight_request: bool,
         n_predictions: int=5
     ) -> Tuple:
 
@@ -446,7 +472,9 @@ class PhraseBiasExplorerConnector(Connector):
             self.logs_file_name, 
             self.headers,
             sent,
-            interest_word_list
+            interest_word_list,
+            token_id,
+            highlight_request
         )
 
         all_plls_scores = self.phrase_bias_explorer.rank(
@@ -478,6 +506,8 @@ class CrowsPairsExplorerConnector(Connector):
             "sent_4",
             "sent_5",
             "sent_6",
+            "token_id",
+            "highlight_request"
         ]
 
         if language_model is None:
@@ -495,7 +525,9 @@ class CrowsPairsExplorerConnector(Connector):
         sent2: str,
         sent3: str,
         sent4: str,
-        sent5: str
+        sent5: str,
+        token_id: str,
+        highlight_request: bool
     ) -> Tuple:
 
         sent_list = [sent0, sent1, sent2, sent3, sent4, sent5]
@@ -510,7 +542,9 @@ class CrowsPairsExplorerConnector(Connector):
         self.logs_save(
             self.logs_file_name, 
             self.headers,
-            sent_list
+            sent_list,
+            token_id,
+            highlight_request
         )
 
         all_plls_scores = self.crows_pairs_explorer.rank(

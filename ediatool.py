@@ -33,6 +33,12 @@ AVAILABLE_WORDCLOUD = cfg['DATA'].getboolean('available_wordcloud')
 LANGUAGE_MODEL      = cfg['LMODEL']['language_model']
 AVAILABLE_LOGS      = cfg['LOGS'].getboolean('available_logs')
 
+# Server 
+
+QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size'])
+REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
+
+
 
 # --- Init classes ---
 embedding = Embedding(
@@ -97,8 +103,13 @@ if LANGUAGE != 'es':
 
 iface = gr.TabbedInterface(
     interface_list= INTERFACE_LIST,
-    tab_names=TAB_NAMES
+    tab_names=TAB_NAMES,
+    title='EDIA Tool'
 )
 
-iface.queue(concurrency_count=8)
-iface.launch(debug=False)
+iface.queue(
+    max_size=QUEUE_MAX_SIZE, 
+    concurrency_count=REQUESTS_CONCURRENCY
+)
+
+iface.launch()

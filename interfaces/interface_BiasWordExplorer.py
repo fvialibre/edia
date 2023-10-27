@@ -34,6 +34,12 @@ def interface(
     interface = gr.Blocks()
 
     with interface:
+        token_id = gr.Textbox(
+            label="TokenID",
+            placeholder='Ingrese su TokenID',
+            lines=1,
+            show_label=False
+        )
         gr.Markdown(
             value=labels["step1"]
         )
@@ -72,14 +78,20 @@ def interface(
                     )
 
             with gr.Column():
-                with gr.Row():
-                    bias2d = gr.Button(
-                        value=labels["plot2SpacesButton"]
-                    )
-                with gr.Row():
-                    bias4d = gr.Button(
-                        value=labels["plot4SpacesButton"]
-                    )
+                with gr.Group():
+                    with gr.Row():
+                        bias2d = gr.Button(
+                            value=labels["plot2SpacesButton"]
+                        )
+                    with gr.Row():
+                        bias4d = gr.Button(
+                            value=labels["plot4SpacesButton"]
+                        )
+                    with gr.Row():
+                        highlight_request = gr.Checkbox(
+                            label='Destacar consulta',
+                            value=False
+                        )
                 with gr.Row():
                     err_msg = gr.Markdown(
                         label="", 
@@ -117,15 +129,24 @@ def interface(
 
         bias2d.click(
             fn=connector.calculate_bias_2d,
-            inputs=[wordlist_1, wordlist_2, diagnose_list],
-            outputs=[bias_plot, err_msg]
+            inputs=[wordlist_1, wordlist_2, diagnose_list, token_id, highlight_request],
+            outputs=[bias_plot, err_msg],
+            api_name="bias_we_2d"
         )
 
         bias4d.click(
             fn=connector.calculate_bias_4d,
-            inputs=[wordlist_1, wordlist_2,
-                    wordlist_3, wordlist_4, diagnose_list],
-            outputs=[bias_plot, err_msg]
+            inputs=[
+                wordlist_1, 
+                wordlist_2,
+                wordlist_3, 
+                wordlist_4, 
+                diagnose_list,
+                token_id, 
+                highlight_request
+            ],
+            outputs=[bias_plot, err_msg],
+            api_name="bias_we_4d"
         )
 
     return interface

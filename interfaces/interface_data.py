@@ -31,6 +31,12 @@ def interface(
     )
 
     with iface:
+        token_id = gr.Textbox(
+            label="TokenID",
+            placeholder='Ingrese su TokenID',
+            lines=1,
+            show_label=False
+        )
         with gr.Row():
             with gr.Column():
                 with gr.Group():
@@ -68,12 +74,18 @@ def interface(
                         interactive=True, 
                         visible=True
                     )
-                    with gr.Row(): 
+                with gr.Group():
+                    with gr.Row():
                         btn_get_contexts = gr.Button(
                             value=labels["wordContextButton"], 
                             visible=True
                         )
-                
+                    with gr.Row():
+                        highlight_request = gr.Checkbox(
+                            label='Destacar consulta',
+                            value=False
+                        )
+
                 with gr.Row(): 
                     out_msj = gr.Markdown(
                         label="", 
@@ -132,13 +144,15 @@ def interface(
                     dist_plot,
                     wc_plot,
                     subsets_choice
-            ]
+            ],
+            api_name='word_info'
         )
         
         btn_get_contexts.click(
             fn=connector.get_word_context, 
-            inputs=[input_word, n_context, subsets_choice], 
-            outputs=[out_msj, out_context]
+            inputs=[input_word, n_context, subsets_choice, token_id, highlight_request], 
+            outputs=[out_msj, out_context],
+            api_name='word_contexts'
         )
-    
+
     return iface

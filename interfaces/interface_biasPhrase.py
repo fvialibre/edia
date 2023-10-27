@@ -35,6 +35,12 @@ def interface(
     )
 
     with iface:
+        token_id = gr.Textbox(
+            label="TokenID",
+            placeholder='Ingrese su TokenID',
+            lines=1,
+            show_label=False
+        )
         with gr.Row():
             with gr.Column():
                 with gr.Group():
@@ -81,10 +87,15 @@ def interface(
                                     value=False
                                 )
 
-                with gr.Row(): 
-                    btn = gr.Button(
-                        value=labels["resultsButton"]
-                    )
+                with gr.Row():
+                    with gr.Group():
+                        btn = gr.Button(
+                            value=labels["resultsButton"]
+                        )
+                        highlight_request = gr.Checkbox(
+                            label='Destacar consulta',
+                            value=False
+                        )
 
             with gr.Column():
                 with gr.Group():
@@ -119,8 +130,18 @@ def interface(
 
         btn.click(  
             fn=connector.rank_sentence_options,
-            inputs=[sent, word_list, banned_word_list, articles, prepositions, conjunctions], 
-            outputs=[out_msj, out, dummy]
+            inputs=[
+                sent, 
+                word_list, 
+                banned_word_list, 
+                articles, 
+                prepositions, 
+                conjunctions,
+                token_id,
+                highlight_request
+            ], 
+            outputs=[out_msj, out, dummy],
+            api_name="bias_phrase"
         )
     
     return iface

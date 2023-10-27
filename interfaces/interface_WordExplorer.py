@@ -36,12 +36,17 @@ def interface(
     interface = gr.Blocks()
 
     with interface:
-        gr.Markdown(
-            value=labels["title"]
+        token_id = gr.Textbox(
+            label="TokenID",
+            placeholder='Ingrese su TokenID',
+            lines=1,
+            show_label=False
         )
-        
         with gr.Row():
             with gr.Column(scale=3):
+                gr.Markdown(
+                    value=labels["title"]
+                )
                 with gr.Row():
                     with gr.Column(scale=5):
                         diagnose_list = gr.Textbox(
@@ -99,32 +104,36 @@ def interface(
                             value='#6a3d9a'
                         )
             with gr.Column(scale=4):
+                gr.Markdown(
+                    value=labels["plotNeighbours"]["title"]
+                )
                 with gr.Row():
-                    with gr.Row():
-                        gr.Markdown(
-                            value=labels["plotNeighbours"]["title"]
-                        )
-                        n_neighbors = gr.Slider(
-                            minimum=0,
-                            maximum=max_neighbors,
-                            step=1,
-                            label=labels["plotNeighbours"]["quantity"]
-                        )
-                    with gr.Row():
-                        alpha = gr.Slider(
-                            minimum=0.1,
-                            maximum=0.9, 
-                            value=0.3, 
-                            step=0.1,
-                            label=labels["options"]["transparency"]
-                        )
-                        fontsize=gr.Number(
-                            value=25, 
-                            label=labels["options"]["font-size"]
-                        )
+                    n_neighbors = gr.Slider(
+                        minimum=0,
+                        maximum=max_neighbors,
+                        step=1,
+                        label=labels["plotNeighbours"]["quantity"]
+                    )
+                    alpha = gr.Slider(
+                        minimum=0.1,
+                        maximum=0.9, 
+                        value=0.3, 
+                        step=0.1,
+                        label=labels["options"]["transparency"]
+                    )
+                    fontsize=gr.Number(
+                        value=25, 
+                        label=labels["options"]["font-size"]
+                    )
+                with gr.Group():
                     with gr.Row():
                         btn_plot = gr.Button(
                             value=labels["plot_button"]
+                        )
+                    with gr.Row():
+                        highlight_request = gr.Checkbox(
+                            label='Destacar consulta',
+                            value=False
                         )
                 with gr.Row(): 
                     err_msg = gr.Markdown(
@@ -166,9 +175,11 @@ def interface(
                 color_wordlist_4,
                 alpha,
                 fontsize,
-                n_neighbors
+                n_neighbors,
+                token_id, highlight_request
             ],
-            outputs=[word_proyections, err_msg]
+            outputs=[word_proyections, err_msg],
+            api_name="word_explorer"
         )
         
         return interface
