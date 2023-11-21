@@ -113,7 +113,7 @@ def interface(
                         choices=[]
                     )
                     out = gr.HTML(
-                        label=""
+                        label="",
                     )
                     out_msj = gr.Markdown(
                         value=""

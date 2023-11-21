@@ -48,9 +48,11 @@ embedding = Embedding(
     max_neighbors=MAX_NEIGHBORS,
     nn_method=NN_METHOD
 )
+
 vocabulary = Vocabulary(
     subset_name=VOCABULARY_SUBSET
 )
+
 beto_lm = LanguageModel(
     model_name=LANGUAGE_MODEL
 )
@@ -113,6 +115,5 @@ iface.queue(
 )
 
 iface.launch(
-    server_port=cmd_line_args['port'],
-    debug=True
+    server_port=cmd_line_args['port']
 )

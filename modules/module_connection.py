@@ -146,16 +146,16 @@ class WordExplorerConnector(Connector):
         wordlist_3 = self.parse_words(wordlist_3)
         wordlist_4 = self.parse_words(wordlist_4)
 
-        # Check if word list not are empty
-        if not (wordlist_0 or wordlist_1 or wordlist_2 or wordlist_1 or wordlist_4):
-            err = self.errorManager.process(['CONECTION_NO_WORD_ENTERED'])
-            return None, err
-
-        # Check if the token id is not empty
+        # Check if the token id is empty
         if token_id.strip() == "":
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
             return None, err
         
+        # Check if word lists are empty
+        if not (wordlist_0 or wordlist_1 or wordlist_2 or wordlist_1 or wordlist_4):
+            err = self.errorManager.process(['CONECTION_NO_WORD_ENTERED'])
+            return None, err
+
         err = self.word_explorer.check_oov(
             [wordlist_0, wordlist_1, wordlist_2, wordlist_3, wordlist_4]
         )
@@ -242,8 +242,14 @@ class BiasWordExplorerConnector(Connector):
         wordlist_1 = self.parse_words(wordlist_1)
         wordlist_2 = self.parse_words(wordlist_2)
         to_diagnose_list = self.parse_words(to_diagnose_list)
-
         word_lists = [wordlist_1, wordlist_2, to_diagnose_list]
+
+        # Check if the token id is empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        # Check if word lists have at least one word
         for _list in word_lists:
             if not _list:
                 err = self.errorManager.process(['BIASEXPLORER_NOT_ENOUGH_WORD_2_KERNELS'])
@@ -254,11 +260,7 @@ class BiasWordExplorerConnector(Connector):
         if err:
             return None, err
         
-        # Check if the token id and bias type are not empty
-        if token_id.strip() == "":
-            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return None, err
-        
+        # Check if the type of bias is empty
         if type_of_bias_explored.strip() == "":
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
@@ -323,7 +325,7 @@ class BiasWordExplorerConnector(Connector):
         if err:
             return None, err
         
-        # Check if the token type is empty
+        # Check if the type of bias is empty
         if type_of_bias_explored.strip() == "":
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
@@ -421,16 +423,17 @@ class Word2ContextExplorerConnector(Connector):
         err = ""
         contexts = pd.DataFrame([], columns=[''])
 
+
+        # Check if the token id is empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return err, contexts
+        
         # Check other errors
         err = self.word2context_explorer.errorChecking(word)
         if err:
             return err, contexts
 
-        # Check if the token id is not empty
-        if token_id.strip() == "":
-            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, contexts
-        
         if len(subset_choice) > 0:
             ds = self.word2context_explorer.findSplits(word, subset_choice)
         else:
@@ -497,25 +500,22 @@ class PhraseBiasExplorerConnector(Connector):
         n_predictions: int=5
     ) -> Tuple:
 
-        print(sent, interest_word_list, token_id)
-        err = ""
         sent = " ".join(sent.strip().replace("*"," * ").split())
 
         # Check if the token id is empty
         if token_id.strip() == "":
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, None, ""
-        
+            return err, "", ""
+
         # Check format setns errors
         err = self.phrase_bias_explorer.errorChecking(sent)
         if err:
-            print("error de frase")
-            return err, None, ""
+            return err, "", ""
 
-        # Check if bias type is empty
+        # Check if the type of bias is empty
         if type_of_bias_explored.strip() == "":
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
-            return err, None, ""
+            return err, "", ""
         
         interest_word_list = self.parse_words(interest_word_list)
         banned_word_list = self.parse_words(banned_word_list)
@@ -586,6 +586,11 @@ class CrowsPairsExplorerConnector(Connector):
 
         sent_list = [sent0, sent1, sent2, sent3, sent4, sent5]
 
+        # Check if the token id is empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return err, "", ""
+        
         # Check sents format errors
         err = self.crows_pairs_explorer.errorChecking(
             sent_list
@@ -593,15 +598,6 @@ class CrowsPairsExplorerConnector(Connector):
 
         if err:
             return err, "", ""
-        
-        # Check if the token id and bias type are not empty
-        if not token_id.strip():
-            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, "", ""
-        
-        # if not bias_type.strip():
-        #     err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
-        #     return err, "", ""
 
         # Save inputs in logs file
         self.logs_save(

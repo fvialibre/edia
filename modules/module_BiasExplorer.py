@@ -393,13 +393,18 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
             .max(),
             decimals=1)
 
-        sns.barplot(x='projection', y='word', data=projections_df,
-                    palette=projections_df['color'])
+        sns.barplot(
+            x='projection', 
+            y='word', 
+            data=projections_df,
+            palette=projections_df['color'].tolist(),
+            hue='word',
+            legend=False
+        )
 
         plt.xticks(np.arange(-most_extream_projection,
                              most_extream_projection + axis_projection_step,
                              axis_projection_step))
-
 
         xlabel = axes_labels_format(
             left=self.negative_end,

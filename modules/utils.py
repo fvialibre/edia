@@ -10,7 +10,7 @@ def parse_cmd_line_args(
     Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description='Exension')
-    parser.add_argument('-p', '--port', type=int, default=7861, help='Config APP port(default: %(default)s)')
+    parser.add_argument('-p', '--port', type=int, default=7860, help='Config APP port(default: %(default)s)')
     return vars(parser.parse_args())
 
 class DateLogs:
