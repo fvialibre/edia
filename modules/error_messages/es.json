@@ -18,6 +18,9 @@
         "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "La frase Nº {} no posee el formato correcto!.",
         "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "La frase Nº{} no puede ser vacia!",
 
-        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!"
+        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!",
+        
+        "TOKEN_ID_EMPTY": "Ingrese su email para poder realizar la consulta!",
+        "TYPE_OF_BIAS_EXPLORED_EMPTY": "Es necesario especificar un tipo de sesgo para poder realizar la consulta!"
     }
 }

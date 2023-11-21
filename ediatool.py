@@ -9,6 +9,7 @@ import configparser
 from modules.model_embbeding import Embedding
 from modules.module_vocabulary import Vocabulary
 from modules.module_languageModel import LanguageModel
+from modules.utils import parse_cmd_line_args
 
 
 # --- Imports interfaces ---
@@ -16,10 +17,11 @@ from interfaces.interface_WordExplorer import interface as interface_wordExplore
 from interfaces.interface_BiasWordExplorer import interface as interface_biasWordExplorer
 from interfaces.interface_data import interface as interface_data
 from interfaces.interface_biasPhrase import interface as interface_biasPhrase
-from interfaces.interface_crowsPairs import interface as interface_crowsPairs
+# from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
 
 # --- Tool config ---
+cmd_line_args = parse_cmd_line_args()
 cfg = configparser.ConfigParser()
 cfg.read('tool.cfg')
 
@@ -33,11 +35,9 @@ AVAILABLE_WORDCLOUD = cfg['DATA'].getboolean('available_wordcloud')
 LANGUAGE_MODEL      = cfg['LMODEL']['language_model']
 AVAILABLE_LOGS      = cfg['LOGS'].getboolean('available_logs')
 
-# Server 
-
+# Server
 QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size'])
 REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
-
 
 
 # --- Init classes ---
@@ -63,6 +63,10 @@ labels = pd.read_json(labels_path)["app"]
 
 # --- Main App ---
 INTERFACE_LIST = [
+    interface_biasPhrase(
+        language_model=beto_lm,
+        available_logs=AVAILABLE_LOGS,
+        lang=LANGUAGE),
     interface_biasWordExplorer(
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
@@ -78,22 +82,18 @@ INTERFACE_LIST = [
         available_logs=AVAILABLE_LOGS,
         available_wordcloud=AVAILABLE_WORDCLOUD,
         lang=LANGUAGE),
-    interface_biasPhrase(
-        language_model=beto_lm,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE),
-    interface_crowsPairs(
-        language_model=beto_lm,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE),
+    # interface_crowsPairs(
+    #     language_model=beto_lm,
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE),
 ]
 
 TAB_NAMES = [
+    labels["phraseExplorer"],
     labels["biasWordExplorer"],
     labels["wordExplorer"],
     labels["dataExplorer"],
-    labels["phraseExplorer"],
-    labels["crowsPairsExplorer"]
+    # labels["crowsPairsExplorer"]
 ]
 
 if LANGUAGE != 'es':
@@ -104,12 +104,15 @@ if LANGUAGE != 'es':
 iface = gr.TabbedInterface(
     interface_list= INTERFACE_LIST,
     tab_names=TAB_NAMES,
-    title='EDIA Tool'
+    title='EDIA: Estereotipos y Discriminación en Inteligencia Artificial'
 )
 
 iface.queue(
-    max_size=QUEUE_MAX_SIZE, 
+    max_size=QUEUE_MAX_SIZE,
     concurrency_count=REQUESTS_CONCURRENCY
 )
 
-iface.launch()
+iface.launch(
+    server_port=cmd_line_args['port'],
+    debug=True
+)

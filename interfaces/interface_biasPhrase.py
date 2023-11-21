@@ -36,8 +36,7 @@ def interface(
 
     with iface:
         token_id = gr.Textbox(
-            label="TokenID",
-            placeholder='Ingrese su TokenID',
+            placeholder=labels['token_id'],
             lines=1,
             show_label=False
         )
@@ -92,10 +91,16 @@ def interface(
                         btn = gr.Button(
                             value=labels["resultsButton"]
                         )
-                        highlight_request = gr.Checkbox(
-                            label='Destacar consulta',
-                            value=False
-                        )
+                        with gr.Row():
+                            highlight_query = gr.Checkbox(
+                                label=labels['highlight_query'],
+                                value=False
+                            )
+                            type_of_bias_explored = gr.Textbox(
+                                placeholder=labels['type_of_bias_explored'],
+                                lines=2,
+                                show_label=False
+                            )
 
             with gr.Column():
                 with gr.Group():
@@ -116,9 +121,7 @@ def interface(
         
         with gr.Row():
             examples = gr.Examples(
-                fn=connector.rank_sentence_options,
                 inputs=[sent, word_list],
-                outputs=[out, out_msj],
                 examples=examples_sesgos_frases,
                 label=labels["examples"]
             )
@@ -128,7 +131,7 @@ def interface(
                 value=TOOL_INFO
             )
 
-        btn.click(  
+        btn.click(
             fn=connector.rank_sentence_options,
             inputs=[
                 sent, 
@@ -138,7 +141,8 @@ def interface(
                 prepositions, 
                 conjunctions,
                 token_id,
-                highlight_request
+                highlight_query,
+                type_of_bias_explored
             ], 
             outputs=[out_msj, out, dummy],
             api_name="bias_phrase"

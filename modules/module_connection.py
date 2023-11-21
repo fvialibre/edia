@@ -108,7 +108,7 @@ class WordExplorerConnector(Connector):
             "word_list_3",
             "word_list_4",
             "token_id", 
-            "highlight_request"
+            "highlight_query"
         ]
 
         if embedding is None:
@@ -135,7 +135,7 @@ class WordExplorerConnector(Connector):
         fontsize: int,
         n_neighbors: int,
         token_id:str,
-        highlight_request: bool
+        highlight_query: bool
     ) -> Tuple:
 
         err = ""
@@ -146,8 +146,14 @@ class WordExplorerConnector(Connector):
         wordlist_3 = self.parse_words(wordlist_3)
         wordlist_4 = self.parse_words(wordlist_4)
 
+        # Check if word list not are empty
         if not (wordlist_0 or wordlist_1 or wordlist_2 or wordlist_1 or wordlist_4):
             err = self.errorManager.process(['CONECTION_NO_WORD_ENTERED'])
+            return None, err
+
+        # Check if the token id is not empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
             return None, err
         
         err = self.word_explorer.check_oov(
@@ -167,7 +173,7 @@ class WordExplorerConnector(Connector):
             wordlist_3,
             wordlist_4,
             token_id,
-            highlight_request
+            highlight_query
         )
 
         fig = self.word_explorer.plot_projections_2d(
@@ -190,7 +196,6 @@ class WordExplorerConnector(Connector):
         return fig, err
 
 class BiasWordExplorerConnector(Connector):
-
     def __init__(
         self, 
         **kwargs
@@ -207,7 +212,8 @@ class BiasWordExplorerConnector(Connector):
             "word_list_4",
             "plot_space",
             "token_id", 
-            "highlight_request"
+            "highlight_query",
+            "type_of_bias_explored"
         ]
 
         if embedding is None:
@@ -228,7 +234,8 @@ class BiasWordExplorerConnector(Connector):
         wordlist_2: str,
         to_diagnose_list: str,
         token_id: str, 
-        highlight_request: bool
+        highlight_query: bool,
+        type_of_bias_explored: str
     ) -> Tuple:
 
         err = ""
@@ -246,6 +253,15 @@ class BiasWordExplorerConnector(Connector):
         err = self.bias_word_explorer_2_spaces.check_oov(word_lists)
         if err:
             return None, err
+        
+        # Check if the token id and bias type are not empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        if type_of_bias_explored.strip() == "":
+            err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
+            return None, err
 
         # Save inputs in logs file
         self.logs_save(
@@ -258,7 +274,8 @@ class BiasWordExplorerConnector(Connector):
             "",
             "2d",
             token_id,
-            highlight_request
+            highlight_query,
+            type_of_bias_explored
         )
 
         fig = self.bias_word_explorer_2_spaces.calculate_bias(
@@ -277,7 +294,8 @@ class BiasWordExplorerConnector(Connector):
         wordlist_4: str,
         to_diagnose_list: str,
         token_id: str, 
-        highlight_request: bool
+        highlight_query: bool,
+        type_of_bias_explored: str
     ) -> Tuple:
 
         err = ""
@@ -288,6 +306,13 @@ class BiasWordExplorerConnector(Connector):
         to_diagnose_list = self.parse_words(to_diagnose_list)
 
         wordlists = [wordlist_1, wordlist_2, wordlist_3, wordlist_4, to_diagnose_list]
+
+        # Check if the token id is empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        # Check words errors
         for _list in wordlists:
             if not _list:
                 err = self.errorManager.process(['BIASEXPLORER_NOT_ENOUGH_WORD_4_KERNELS'])
@@ -296,6 +321,11 @@ class BiasWordExplorerConnector(Connector):
 
         err = self.bias_word_explorer_4_spaces.check_oov(wordlists)
         if err:
+            return None, err
+        
+        # Check if the token type is empty
+        if type_of_bias_explored.strip() == "":
+            err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
 
         # Save inputs in logs file
@@ -309,7 +339,8 @@ class BiasWordExplorerConnector(Connector):
             wordlist_4,
             "4d",
             token_id,
-            highlight_request
+            highlight_query,
+            type_of_bias_explored
         )
 
         fig = self.bias_word_explorer_4_spaces.calculate_bias(
@@ -319,7 +350,7 @@ class BiasWordExplorerConnector(Connector):
             wordlist_3, 
             wordlist_4
         )
-        
+
         return fig, err
 
 class Word2ContextExplorerConnector(Connector):
@@ -336,7 +367,7 @@ class Word2ContextExplorerConnector(Connector):
             "word",
             "subsets_choice",
             "token_id", 
-            "highlight_request"
+            "highlight_query"
         ]
 
         if vocabulary is None:
@@ -383,17 +414,23 @@ class Word2ContextExplorerConnector(Connector):
         n_context: int,
         subset_choice: List[str],
         token_id: str, 
-        highlight_request: bool
+        highlight_query: bool
     ) -> Tuple:
 
         word = self.parse_word(word)
         err = ""
         contexts = pd.DataFrame([], columns=[''])
 
+        # Check other errors
         err = self.word2context_explorer.errorChecking(word)
         if err:
             return err, contexts
 
+        # Check if the token id is not empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return err, contexts
+        
         if len(subset_choice) > 0:
             ds = self.word2context_explorer.findSplits(word, subset_choice)
         else:
@@ -407,7 +444,7 @@ class Word2ContextExplorerConnector(Connector):
             word,
             subset_choice,
             token_id,
-            highlight_request
+            highlight_query
         )
 
         list_of_contexts = self.word2context_explorer.getContexts(word, n_context, ds)
@@ -431,7 +468,8 @@ class PhraseBiasExplorerConnector(Connector):
             "sent",
             "word_list",
             "token_id",
-            "highlight_request"
+            "highlight_query",
+            "type_of_bias_explored"
         ]
 
         if language_model is None:
@@ -454,16 +492,31 @@ class PhraseBiasExplorerConnector(Connector):
         exclude_prepositions: bool,
         exclude_conjunctions: bool,
         token_id: str,
-        highlight_request: bool,
+        highlight_query: bool,
+        type_of_bias_explored: str,
         n_predictions: int=5
     ) -> Tuple:
 
+        print(sent, interest_word_list, token_id)
+        err = ""
         sent = " ".join(sent.strip().replace("*"," * ").split())
 
+        # Check if the token id is empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return err, None, ""
+        
+        # Check format setns errors
         err = self.phrase_bias_explorer.errorChecking(sent)
         if err:
-            return err, "", ""
+            print("error de frase")
+            return err, None, ""
 
+        # Check if bias type is empty
+        if type_of_bias_explored.strip() == "":
+            err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
+            return err, None, ""
+        
         interest_word_list = self.parse_words(interest_word_list)
         banned_word_list = self.parse_words(banned_word_list)
 
@@ -474,15 +527,16 @@ class PhraseBiasExplorerConnector(Connector):
             sent,
             interest_word_list,
             token_id,
-            highlight_request
+            highlight_query,
+            type_of_bias_explored
         )
 
         all_plls_scores = self.phrase_bias_explorer.rank(
-            sent, 
-            interest_word_list, 
-            banned_word_list, 
-            exclude_articles, 
-            exclude_prepositions, 
+            sent,
+            interest_word_list,
+            banned_word_list,
+            exclude_articles,
+            exclude_prepositions,
             exclude_conjunctions,
             n_predictions
         )
@@ -507,7 +561,7 @@ class CrowsPairsExplorerConnector(Connector):
             "sent_5",
             "sent_6",
             "token_id",
-            "highlight_request"
+            "highlight_query"
         ]
 
         if language_model is None:
@@ -527,16 +581,27 @@ class CrowsPairsExplorerConnector(Connector):
         sent4: str,
         sent5: str,
         token_id: str,
-        highlight_request: bool
+        highlight_query: bool
     ) -> Tuple:
 
         sent_list = [sent0, sent1, sent2, sent3, sent4, sent5]
+
+        # Check sents format errors
         err = self.crows_pairs_explorer.errorChecking(
             sent_list
         )
 
         if err:
             return err, "", ""
+        
+        # Check if the token id and bias type are not empty
+        if not token_id.strip():
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return err, "", ""
+        
+        # if not bias_type.strip():
+        #     err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
+        #     return err, "", ""
 
         # Save inputs in logs file
         self.logs_save(
@@ -544,7 +609,7 @@ class CrowsPairsExplorerConnector(Connector):
             self.headers,
             sent_list,
             token_id,
-            highlight_request
+            highlight_query
         )
 
         all_plls_scores = self.crows_pairs_explorer.rank(

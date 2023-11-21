@@ -32,8 +32,7 @@ def interface(
 
     with iface:
         token_id = gr.Textbox(
-            label="TokenID",
-            placeholder='Ingrese su TokenID',
+            placeholder=labels['token_id'],
             lines=1,
             show_label=False
         )
@@ -81,8 +80,8 @@ def interface(
                             visible=True
                         )
                     with gr.Row():
-                        highlight_request = gr.Checkbox(
-                            label='Destacar consulta',
+                        highlight_query = gr.Checkbox(
+                            label=labels['highlight_query'],
                             value=False
                         )
 
@@ -150,7 +149,7 @@ def interface(
         
         btn_get_contexts.click(
             fn=connector.get_word_context, 
-            inputs=[input_word, n_context, subsets_choice, token_id, highlight_request], 
+            inputs=[input_word, n_context, subsets_choice, token_id, highlight_query], 
             outputs=[out_msj, out_context],
             api_name='word_contexts'
         )

@@ -37,8 +37,7 @@ def interface(
 
     with interface:
         token_id = gr.Textbox(
-            label="TokenID",
-            placeholder='Ingrese su TokenID',
+            placeholder=labels['token_id'],
             lines=1,
             show_label=False
         )
@@ -76,7 +75,7 @@ def interface(
                             lines=2, 
                             label=labels["wordList2"]
                         )
-                    with gr.Column(scale=1,min_width=10):     
+                    with gr.Column(scale=1,min_width=10):
                         color_wordlist_2 = gr.ColorPicker(
                             label="",
                             value='#33a02c'
@@ -131,8 +130,8 @@ def interface(
                             value=labels["plot_button"]
                         )
                     with gr.Row():
-                        highlight_request = gr.Checkbox(
-                            label='Destacar consulta',
+                        highlight_query = gr.Checkbox(
+                            label=labels['highlight_query'],
                             value=False
                         )
                 with gr.Row(): 
@@ -176,7 +175,7 @@ def interface(
                 alpha,
                 fontsize,
                 n_neighbors,
-                token_id, highlight_request
+                token_id, highlight_query
             ],
             outputs=[word_proyections, err_msg],
             api_name="word_explorer"

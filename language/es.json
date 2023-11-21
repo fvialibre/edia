@@ -1,13 +1,14 @@
 {
     "app": {
         "wordExplorer": "Explorar palabras",
-        "biasWordExplorer": "Sesgo en palabras",
-        "dataExplorer": "Datos",
         "phraseExplorer": "Sesgo en frases",
+        "biasWordExplorer": "Sesgo en palabras",
+        "dataExplorer": "Explorar contextos",
         "crowsPairsExplorer": "Crows-Pairs"
     },
     "WordExplorer_interface": {
-        "title": "Escribi algunas palabras para visualizar sus palabras relacionadas",
+        "token_id": "(*) Ingrese su correo electrónico ...",
+        "title": "Escriba algunas palabras para visualizar sus palabras relacionadas",
         "wordList1": "Lista de palabras 1",
         "wordList2": "Lista de palabras 2",
         "wordList3": "Lista de palabras 3",
@@ -22,12 +23,14 @@
             "transparency": "Transparencia"
         },
         "plot_button": "¡Graficar en el espacio!",
-        "examples": "Ejemplos"
+        "examples": "Ejemplos",
+        "highlight_query": "Destacar consulta"
     },
     "BiasWordExplorer_interface": {
-        "step1": "1. Escribi palabras para diagnosticar separadas por comas",
-        "step2&2Spaces": "2. Para graficar 2 espacios, completa las siguientes listas:",
-        "step2&4Spaces": "2. Para graficar 4 espacios, además completa las siguientes listas:",
+        "token_id": "(*) Ingrese su correo electrónico ...",
+        "step1": "1. Escriba palabras para diagnosticar separadas por comas",
+        "step2&2Spaces": "2. Para graficar 2 espacios, complete las siguientes listas:",
+        "step2&4Spaces": "2. Para graficar 4 espacios, además complete las siguientes listas:",
         "plot2SpacesButton": "¡Graficar 2 estereotipos!",
         "plot4SpacesButton": "¡Graficar 4 estereotipos!",
         "wordList1": "Lista de palabras 1",
@@ -36,9 +39,12 @@
         "wordList4": "Lista de palabras 4",
         "wordListToDiagnose": "Lista de palabras a diagnosticar",
         "examples2Spaces": "Ejemplos en 2 espacios",
-        "examples4Spaces": "Ejemplos en 4 espacios"
+        "examples4Spaces": "Ejemplos en 4 espacios",
+        "highlight_query": "Destacar consulta",
+        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ..."
     },
     "PhraseExplorer_interface": {
+        "token_id": "(*) Ingrese su correo electrónico ...",
         "step1": "1. Ingrese una frase",
         "step2": "2. Ingrese palabras de interés (Opcional)",
         "step3": "3. Ingrese palabras no deseadas (En caso de no completar punto 2)",
@@ -59,9 +65,12 @@
         "excludeConjunctions": "Excluir Conjunciones",
         "resultsButton": "Obtener",
         "plot": "Visualización de proporciones",
-        "examples": "Ejemplos"
+        "examples": "Ejemplos",
+        "highlight_query": "Destacar consulta",
+        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ..."
     },
     "DataExplorer_interface": {
+        "token_id": "(*) Ingrese su correo electrónico ...",
         "step1": "1. Ingrese una palabra de interés",
         "step2": "2. Seleccione cantidad máxima de contextos a recuperar",
         "step3": "3. Seleccione conjuntos de interés",
@@ -73,9 +82,11 @@
         "wordContextButton": "Buscar contextos",
         "wordDistributionTitle": "Distribución de palabra en vocabulario",
         "frequencyPerSetTitle": "Frecuencias de aparición por conjunto",
-        "contextList": "Lista de contextos"
+        "contextList": "Lista de contextos",
+        "highlight_query": "Destacar consulta"
     },
     "CrowsPairs_interface": {
+        "token_id": "(*) Ingrese su correo electrónico ...",
         "title": "1. Ingrese frases a comparar",
         "sent0": "Frase Nº 1 (*)",
         "sent1": "Frase Nº 2 (*)",
@@ -86,6 +97,8 @@
         "commonPlacholder": "Utilice los simbolos < y > para destacar palabra/as de interés",
         "compareButton": "Comparar",
         "plot": "Visualización de proporciones",
-        "examples": "Ejemplos"
+        "examples": "Ejemplos",
+        "highlight_query": "Destacar consulta",
+        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ..."
     }
 }

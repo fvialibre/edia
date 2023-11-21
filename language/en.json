@@ -7,6 +7,7 @@
         "crowsPairsExplorer": "Crows-Pairs"
     },
     "WordExplorer_interface": {
+        "token_id": "(*) Enter your E-mail ...",
         "title": "Write some words to visualize their related ones",
         "wordList1": "Word list 1",
         "wordList2": "Word list 2",
@@ -22,9 +23,11 @@
             "transparency": "Transparency"
         },
         "plot_button": "Plot in the space!",
-        "examples": "Examples"
+        "examples": "Examples",
+        "highlight_query": "Highlight query"
     },
     "BiasWordExplorer_interface": {
+        "token_id": "(*) Enter your E-mail ...",
         "step1": "1. Write comma separated words to be diagnosed",
         "step2&2Spaces": "2. For plotting 2 spaces, fill in the following lists:",
         "step2&4Spaces": "2. For plotting 4 spaces, also fill in the following lists:",
@@ -36,9 +39,12 @@
         "wordList4": "Word list 4",
         "wordListToDiagnose": "List of words to be diagnosed",
         "examples2Spaces": "Examples in 2 spaces",
-        "examples4Spaces": "Examples in 4 spaces"
+        "examples4Spaces": "Examples in 4 spaces",
+        "highlight_query": "Highlight query",
+        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ..."
     },
     "PhraseExplorer_interface": {
+        "token_id": "(*) Enter your E-mail ...",
         "step1": "1. Enter a sentence",
         "step2": "2. Enter words of interest (Optional)",
         "step3": "3. Enter unwanted words (If item 2 is not completed)",
@@ -59,9 +65,12 @@
         "excludeConjunctions": "Excluir Conjunctions",
         "resultsButton": "Get",
         "plot": "Display of proportions",
-        "examples": "Examples"
+        "examples": "Examples",
+        "highlight_query": "Highlight query",
+        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ..."
     },
     "DataExplorer_interface": {
+        "token_id": "(*) Enter your E-mail ...",
         "step1": "1. Enter a word of interest",
         "step2": "2. Select maximum number of contexts to retrieve",
         "step3": "3. Select sets of interest",
@@ -73,9 +82,11 @@
         "wordContextButton": "Search contexts",
         "wordDistributionTitle": "Word distribution in vocabulary",
         "frequencyPerSetTitle": "Frequencies of occurrence per set",
-        "contextList": "Context list"
+        "contextList": "Context list",
+        "highlight_query": "Highlight query"
     },
     "CrowsPairs_interface": {
+        "token_id": "(*) Enter your E-mail ...",
         "title": "1. Enter sentences to compare",
         "sent0": "Sentence Nº 1 (*)",
         "sent1": "Sentence Nº 2 (*)",
@@ -86,6 +97,8 @@
         "commonPlacholder": "Use < and > to highlight word(s) of interest",
         "compareButton": "Compare",
         "plot": "Display of proportions",
-        "examples": "Examples"
+        "examples": "Examples",
+        "highlight_query": "Highlight query",
+        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ..."
     }
 }

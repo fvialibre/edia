@@ -35,8 +35,7 @@ def interface(
 
     with interface:
         token_id = gr.Textbox(
-            label="TokenID",
-            placeholder='Ingrese su TokenID',
+            placeholder=labels['token_id'],
             lines=1,
             show_label=False
         )
@@ -88,10 +87,18 @@ def interface(
                             value=labels["plot4SpacesButton"]
                         )
                     with gr.Row():
-                        highlight_request = gr.Checkbox(
-                            label='Destacar consulta',
-                            value=False
-                        )
+                        with gr.Row():
+                            highlight_query = gr.Checkbox(
+                                label=labels['highlight_query'],
+                                value=False
+                            )
+                        with gr.Row():
+                            type_of_bias_explored = gr.Textbox(
+                                placeholder=labels['type_of_bias_explored'],
+                                lines=2,
+                                show_label=False
+                            )
+
                 with gr.Row():
                     err_msg = gr.Markdown(
                         label="", 
@@ -105,19 +112,13 @@ def interface(
 
         with gr.Row():
             examples = gr.Examples(
-                fn=connector.calculate_bias_2d,
                 inputs=[wordlist_1, wordlist_2, diagnose_list],
-                outputs=[bias_plot, err_msg],
                 examples=examples1_explorar_sesgo_en_palabras,
                 label=labels["examples2Spaces"]
             )
         with gr.Row():
             examples = gr.Examples(
-                fn=connector.calculate_bias_4d,
                 inputs=[wordlist_1, wordlist_2,wordlist_3, wordlist_4, diagnose_list],
-                outputs=[
-                    bias_plot, err_msg
-                ],
                 examples=examples2_explorar_sesgo_en_palabras,
                 label=labels["examples4Spaces"]
             )
@@ -129,7 +130,7 @@ def interface(
 
         bias2d.click(
             fn=connector.calculate_bias_2d,
-            inputs=[wordlist_1, wordlist_2, diagnose_list, token_id, highlight_request],
+            inputs=[wordlist_1, wordlist_2, diagnose_list, token_id, highlight_query, type_of_bias_explored],
             outputs=[bias_plot, err_msg],
             api_name="bias_we_2d"
         )
@@ -143,7 +144,8 @@ def interface(
                 wordlist_4, 
                 diagnose_list,
                 token_id, 
-                highlight_request
+                highlight_query,
+                type_of_bias_explored
             ],
             outputs=[bias_plot, err_msg],
             api_name="bias_we_4d"

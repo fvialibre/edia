@@ -1,26 +1,33 @@
 import numpy as np
 import pandas as pd
-import pytz
+import pytz, argparse
 from datetime import datetime
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 
-
+def parse_cmd_line_args(
+) -> Dict[str, Any]:
+    """
+    Parse command line arguments.
+    """
+    parser = argparse.ArgumentParser(description='Exension')
+    parser.add_argument('-p', '--port', type=int, default=7861, help='Config APP port(default: %(default)s)')
+    return vars(parser.parse_args())
 
 class DateLogs:
     def __init__(
-        self, 
+        self,
         zone: str = "America/Argentina/Cordoba"
     ) -> None:
 
         self.time_zone = pytz.timezone(zone)
-        
+
     def full(
         self
     ) -> str:
 
         now = datetime.now(self.time_zone)
         return now.strftime("%H:%M:%S %d-%m-%Y")
-    
+
     def day(
         self
     ) -> str:
@@ -29,7 +36,7 @@ class DateLogs:
         return now.strftime("%d-%m-%Y")
 
 def take_two_sides_extreme_sorted(
-    df: pd.DataFrame, 
+    df: pd.DataFrame,
     n_extreme: int,
     part_column: str=None,
     head_value: str='',

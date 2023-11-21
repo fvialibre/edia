@@ -18,6 +18,9 @@
         "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "The sentence Nº {} does not have the correct format!",
         "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "The sentence Nº{} can not be empty!",
 
-        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Word not entered and/or interest set(s) not selected!"
+        "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Word not entered and/or interest set(s) not selected!",
+
+        "TOKEN_ID_EMPTY": "Enter your email to make your query!",
+        "TYPE_OF_BIAS_EXPLORED_EMPTY": "It is necessary to specify a type of bias in order to make your query!"
     }
 }
