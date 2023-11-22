@@ -119,6 +119,13 @@ def interface(
                         value=""
                     )
 
+        with gr.Row():
+            examples = gr.Examples(
+                inputs=[sent, word_list],
+                examples=examples_sesgos_frases,
+                label=labels["examples"]
+            )
+
         with gr.Group():
             with gr.Row():
                 btn_get_logs = gr.Button(
@@ -130,13 +137,6 @@ def interface(
                     label=None
                 )
 
-        with gr.Row():
-            examples = gr.Examples(
-                inputs=[sent, word_list],
-                examples=examples_sesgos_frases,
-                label=labels["examples"]
-            )
-            
         with gr.Row(): 
             gr.Markdown(
                 value=TOOL_INFO
@@ -163,9 +163,11 @@ def interface(
             fn=connector.get_logs,
             inputs=[
                 token_id,
-                gr.Textbox(value=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None)
+                gr.Textbox(
+                    value=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None, visible=False
+                )
             ],
-            outputs=df_get_logs,
+            outputs=[out_msj, df_get_logs]
         )
 
     return iface

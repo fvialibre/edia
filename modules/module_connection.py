@@ -96,21 +96,26 @@ class Connector(ABC):
         self, 
         token_id: str,
         log_file_name: str
-    ) -> pd.DataFrame:
+    ) -> Tuple[str, pd.DataFrame]:
 
         empty_df = pd.DataFrame([], columns=[''])
 
+        # Check if the token id is empty
+        if token_id.strip() == "":
+            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return err, empty_df
+
         path = os.path.join(self.log_folder, log_file_name+'.csv')
-        if not os.path.exists(path) or path is None or token_id == "":
-            return empty_df
+        if not os.path.exists(path) or path is None:
+            return "", empty_df
 
         df = pd.read_csv(path)
         if token_id not in df.token_id.to_list():
-            return empty_df
+            return "", empty_df
 
         df = df[df['token_id'] == token_id]
         df = df.drop(columns=['token_id'])
-        return df
+        return "", df
 
 class WordExplorerConnector(Connector):
     def __init__(
@@ -133,7 +138,7 @@ class WordExplorerConnector(Connector):
 
         if embedding is None:
             raise KeyError('embedding')
-        
+
         self.word_explorer = WordExplorer(
             embedding=embedding,
             errorManager=self.errorManager
@@ -443,7 +448,6 @@ class Word2ContextExplorerConnector(Connector):
         err = ""
         contexts = pd.DataFrame([], columns=[''])
 
-
         # Check if the token id is empty
         if token_id.strip() == "":
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
@@ -520,7 +524,6 @@ class PhraseBiasExplorerConnector(Connector):
         n_predictions: int=5
     ) -> Tuple:
 
-        print("SOPAAA")
         sent = " ".join(sent.strip().replace("*"," * ").split())
 
         # Check if the token id is empty
@@ -537,7 +540,7 @@ class PhraseBiasExplorerConnector(Connector):
         if type_of_bias_explored.strip() == "":
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return err, "", ""
-        
+
         interest_word_list = self.parse_words(interest_word_list)
         banned_word_list = self.parse_words(banned_word_list)
 

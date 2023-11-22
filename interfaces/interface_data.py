@@ -169,9 +169,12 @@ def interface(
             fn=connector.get_logs,
             inputs=[
                 token_id,
-                gr.Textbox(value=f"logs_edia_datos_{lang}" if available_logs else None)
+                gr.Textbox(
+                    value=f"logs_edia_datos_{lang}" if available_logs else None,
+                    visible=False
+                )
             ],
-            outputs=df_get_logs,
+            outputs=[out_msj, df_get_logs],
         )
 
     return iface

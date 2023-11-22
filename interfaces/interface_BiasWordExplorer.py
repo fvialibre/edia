@@ -110,17 +110,6 @@ def interface(
                         show_label=False
                     )
 
-        with gr.Group():
-            with gr.Row():
-                btn_get_logs = gr.Button(
-                    value="Ver consultas anteriores"
-                )
-            with gr.Row():
-                df_get_logs = gr.DataFrame(
-                    value=pd.DataFrame([], columns=['']),
-                    label=None
-                )
-
         with gr.Row():
             examples = gr.Examples(
                 inputs=[wordlist_1, wordlist_2, diagnose_list],
@@ -133,6 +122,17 @@ def interface(
                 examples=examples2_explorar_sesgo_en_palabras,
                 label=labels["examples4Spaces"]
             )
+
+        with gr.Group():
+            with gr.Row():
+                btn_get_logs = gr.Button(
+                    value="Ver consultas anteriores"
+                )
+            with gr.Row():
+                df_get_logs = gr.DataFrame(
+                    value=pd.DataFrame([], columns=['']),
+                    label=None
+                )
 
         with gr.Row():
             gr.Markdown(
@@ -166,9 +166,12 @@ def interface(
             fn=connector.get_logs,
             inputs=[
                 token_id,
-                gr.Textbox(value=f"logs_edia_we_wordbias_{lang}" if available_logs else None)
+                gr.Textbox(
+                    value=f"logs_edia_we_wordbias_{lang}" if available_logs else None,
+                    visible=False
+                )
             ],
-            outputs=df_get_logs,
+            outputs=[err_msg, df_get_logs],
         )
 
     return interface

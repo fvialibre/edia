@@ -145,6 +145,16 @@ def interface(
                         show_label=False
                     )
 
+
+        with gr.Row():
+            gr.Examples(
+                fn=connector.plot_proyection_2d,
+                inputs=[diagnose_list,wordlist_1,wordlist_2,wordlist_3,wordlist_4],
+                outputs=[word_proyections,err_msg],
+                examples=examples_explorar_relaciones_entre_palabras,
+                label=labels["examples"]
+            )
+
         with gr.Group():
             with gr.Row():
                 btn_get_logs = gr.Button(
@@ -155,15 +165,6 @@ def interface(
                     value=pd.DataFrame([], columns=['']),
                     label=None
                 )
-
-        with gr.Row():
-            gr.Examples(
-                fn=connector.plot_proyection_2d,
-                inputs=[diagnose_list,wordlist_1,wordlist_2,wordlist_3,wordlist_4],
-                outputs=[word_proyections,err_msg],
-                examples=examples_explorar_relaciones_entre_palabras,
-                label=labels["examples"]
-            )
 
         with gr.Row():
             gr.Markdown(
@@ -196,9 +197,12 @@ def interface(
             fn=connector.get_logs,
             inputs=[
                 token_id,
-                gr.Textbox(value=f"logs_edia_we_wordexplorer_{lang}" if available_logs else None)
+                gr.Textbox(
+                    value=f"logs_edia_we_wordexplorer_{lang}" if available_logs else None,
+                    visible=False
+                )
             ],
-            outputs=df_get_logs,
+            outputs=[err_msg, df_get_logs],
         )
 
         return interface
