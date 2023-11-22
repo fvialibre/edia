@@ -115,5 +115,6 @@ iface.queue(
 )
 
 iface.launch(
-    server_port=cmd_line_args['port']
+    server_port=cmd_line_args['port'],
+    debug=True
 )

@@ -118,14 +118,25 @@ def interface(
                     out_msj = gr.Markdown(
                         value=""
                     )
-        
+
+        with gr.Group():
+            with gr.Row():
+                btn_get_logs = gr.Button(
+                    value="Ver consultas anteriores"
+                )
+            with gr.Row():
+                df_get_logs = gr.DataFrame(
+                    value=pd.DataFrame([], columns=['']),
+                    label=None
+                )
+
         with gr.Row():
             examples = gr.Examples(
                 inputs=[sent, word_list],
                 examples=examples_sesgos_frases,
                 label=labels["examples"]
             )
-
+            
         with gr.Row(): 
             gr.Markdown(
                 value=TOOL_INFO
@@ -147,5 +158,14 @@ def interface(
             outputs=[out_msj, out, dummy],
             api_name="bias_phrase"
         )
-    
+        
+        btn_get_logs.click(
+            fn=connector.get_logs,
+            inputs=[
+                token_id,
+                gr.Textbox(value=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None)
+            ],
+            outputs=df_get_logs,
+        )
+
     return iface

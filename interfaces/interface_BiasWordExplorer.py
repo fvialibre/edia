@@ -110,6 +110,17 @@ def interface(
                         show_label=False
                     )
 
+        with gr.Group():
+            with gr.Row():
+                btn_get_logs = gr.Button(
+                    value="Ver consultas anteriores"
+                )
+            with gr.Row():
+                df_get_logs = gr.DataFrame(
+                    value=pd.DataFrame([], columns=['']),
+                    label=None
+                )
+
         with gr.Row():
             examples = gr.Examples(
                 inputs=[wordlist_1, wordlist_2, diagnose_list],
@@ -149,6 +160,15 @@ def interface(
             ],
             outputs=[bias_plot, err_msg],
             api_name="bias_we_4d"
+        )
+        
+        btn_get_logs.click(
+            fn=connector.get_logs,
+            inputs=[
+                token_id,
+                gr.Textbox(value=f"logs_edia_we_wordbias_{lang}" if available_logs else None)
+            ],
+            outputs=df_get_logs,
         )
 
     return interface

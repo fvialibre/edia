@@ -128,8 +128,19 @@ def interface(
                         wrap=True,
                         datatype=['str','markdown','str','markdown']
                     )
-
+        
         with gr.Group():
+            with gr.Row():
+                btn_get_logs = gr.Button(
+                    value="Ver consultas anteriores"
+                )
+            with gr.Row():
+                df_get_logs = gr.DataFrame(
+                    value=pd.DataFrame([], columns=['']),
+                    label=None
+                )
+
+        with gr.Row():
             gr.Markdown(
                 value=TOOL_INFO
             )
@@ -152,6 +163,15 @@ def interface(
             inputs=[input_word, n_context, subsets_choice, token_id, highlight_query], 
             outputs=[out_msj, out_context],
             api_name='word_contexts'
+        )
+
+        btn_get_logs.click(
+            fn=connector.get_logs,
+            inputs=[
+                token_id,
+                gr.Textbox(value=f"logs_edia_datos_{lang}" if available_logs else None)
+            ],
+            outputs=df_get_logs,
         )
 
     return iface

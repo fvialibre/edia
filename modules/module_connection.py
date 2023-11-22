@@ -30,7 +30,7 @@ class Connector(ABC):
         self, 
         word: str
     ) -> str:
-        
+
         return word.lower().strip()
 
     def parse_words(
@@ -91,6 +91,26 @@ class Connector(ABC):
             writer.writerow(data)
 
             print(f"Logs: '{file_path}' successfully saved!")
+
+    def get_logs(
+        self, 
+        token_id: str,
+        log_file_name: str
+    ) -> pd.DataFrame:
+
+        empty_df = pd.DataFrame([], columns=[''])
+
+        path = os.path.join(self.log_folder, log_file_name+'.csv')
+        if not os.path.exists(path) or path is None or token_id == "":
+            return empty_df
+
+        df = pd.read_csv(path)
+        if token_id not in df.token_id.to_list():
+            return empty_df
+
+        df = df[df['token_id'] == token_id]
+        df = df.drop(columns=['token_id'])
+        return df
 
 class WordExplorerConnector(Connector):
     def __init__(
@@ -172,7 +192,7 @@ class WordExplorerConnector(Connector):
             wordlist_2,
             wordlist_3,
             wordlist_4,
-            token_id,
+            token_id.strip(),
             highlight_query
         )
 
@@ -275,7 +295,7 @@ class BiasWordExplorerConnector(Connector):
             "",
             "",
             "2d",
-            token_id,
+            token_id.strip(),
             highlight_query,
             type_of_bias_explored
         )
@@ -340,7 +360,7 @@ class BiasWordExplorerConnector(Connector):
             wordlist_3, 
             wordlist_4,
             "4d",
-            token_id,
+            token_id.strip(),
             highlight_query,
             type_of_bias_explored
         )
@@ -446,7 +466,7 @@ class Word2ContextExplorerConnector(Connector):
             self.headers,
             word,
             subset_choice,
-            token_id,
+            token_id.strip(),
             highlight_query
         )
 
@@ -500,6 +520,7 @@ class PhraseBiasExplorerConnector(Connector):
         n_predictions: int=5
     ) -> Tuple:
 
+        print("SOPAAA")
         sent = " ".join(sent.strip().replace("*"," * ").split())
 
         # Check if the token id is empty
@@ -526,7 +547,7 @@ class PhraseBiasExplorerConnector(Connector):
             self.headers,
             sent,
             interest_word_list,
-            token_id,
+            token_id.strip(),
             highlight_query,
             type_of_bias_explored
         )
@@ -604,7 +625,7 @@ class CrowsPairsExplorerConnector(Connector):
             self.logs_file_name, 
             self.headers,
             sent_list,
-            token_id,
+            token_id.strip(),
             highlight_query
         )
 
