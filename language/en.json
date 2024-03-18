@@ -24,7 +24,17 @@
         },
         "plot_button": "Plot in the space!",
         "examples": "Examples",
-        "highlight_query": "Highlight query"
+        "highlight_query": "Highlight query",
+        "see_queries_made": "See queries made",
+        "headers_name": [
+            "word_list_to_diagnose",
+            "word_list_1",
+            "word_list_2",
+            "word_list_3",
+            "word_list_4",
+            "token_id", 
+            "highlight_query"
+        ]
     },
     "BiasWordExplorer_interface": {
         "token_id": "(*) Enter your E-mail ...",
@@ -41,7 +51,19 @@
         "examples2Spaces": "Examples in 2 spaces",
         "examples4Spaces": "Examples in 4 spaces",
         "highlight_query": "Highlight query",
-        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ..."
+        "see_queries_made": "See queries made",
+        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ...",
+        "headers_name":[
+            "word_list_to_diagnose",
+            "word_list_1",
+            "word_list_2",
+            "word_list_3",
+            "word_list_4",
+            "plot_space",
+            "token_id", 
+            "highlight_query",
+            "type_of_bias_explored"
+        ]
     },
     "PhraseExplorer_interface": {
         "token_id": "(*) Enter your E-mail ...",
@@ -67,7 +89,15 @@
         "plot": "Display of proportions",
         "examples": "Examples",
         "highlight_query": "Highlight query",
-        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ..."
+        "see_queries_made": "See queries made",
+        "type_of_bias_explored": "(*) Enter the type of bias you are exploring ...",
+        "headers_name": [
+            "sent",
+            "word_list",
+            "token_id",
+            "highlight_query",
+            "type_of_bias_explored"
+        ]
     },
     "DataExplorer_interface": {
         "token_id": "(*) Enter your E-mail ...",
@@ -83,7 +113,14 @@
         "wordDistributionTitle": "Word distribution in vocabulary",
         "frequencyPerSetTitle": "Frequencies of occurrence per set",
         "contextList": "Context list",
-        "highlight_query": "Highlight query"
+        "highlight_query": "Highlight query",
+        "see_queries_made": "See queries made",
+        "headers_name": [
+            "word",
+            "subsets_choice",
+            "token_id", 
+            "highlight_query"
+        ]
     },
     "CrowsPairs_interface": {
         "token_id": "(*) Enter your E-mail ...",
@@ -99,6 +136,7 @@
         "plot": "Display of proportions",
         "examples": "Examples",
         "highlight_query": "Highlight query",
+        "see_queries_made": "See queries made",
         "type_of_bias_explored": "(*) Enter the type of bias you are exploring ..."
     }
 }

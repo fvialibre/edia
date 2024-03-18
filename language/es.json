@@ -24,7 +24,17 @@
         },
         "plot_button": "¡Graficar en el espacio!",
         "examples": "Ejemplos",
-        "highlight_query": "Destacar consulta"
+        "highlight_query": "Destacar consulta",
+        "see_queries_made": "Ver consultas realizadas",
+        "headers_name": [
+            "lista_de_palabras_a_diagnosticar",
+            "lista_de_palabras_1",
+            "lista_de_palabras_2",
+            "lista_de_palabras_3",
+            "lista_de_palabras_4",
+            "token_id",
+            "destacar_consulta"
+        ]
     },
     "BiasWordExplorer_interface": {
         "token_id": "(*) Ingrese su correo electrónico ...",
@@ -41,7 +51,19 @@
         "examples2Spaces": "Ejemplos en 2 espacios",
         "examples4Spaces": "Ejemplos en 4 espacios",
         "highlight_query": "Destacar consulta",
-        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ..."
+        "see_queries_made": "Ver consultas realizadas",
+        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ...",
+        "headers_name":[
+            "lista_de_palabras_a_diagnosticar",
+            "lista_de_palabras_1",
+            "lista_de_palabras_2",
+            "lista_de_palabras_3",
+            "lista_de_palabras_4",
+            "espacio_graficado",
+            "token_id", 
+            "destacar_consulta",
+            "tipo_de_sesgo_explorado"
+        ]
     },
     "PhraseExplorer_interface": {
         "token_id": "(*) Ingrese su correo electrónico ...",
@@ -67,7 +89,15 @@
         "plot": "Visualización de proporciones",
         "examples": "Ejemplos",
         "highlight_query": "Destacar consulta",
-        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ..."
+        "see_queries_made": "Ver consultas realizadas",
+        "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ...",
+        "headers_name": [
+            "frase",
+            "lista_de_palabras",
+            "token_id",
+            "destacar_consulta",
+            "tipo_de_sesgo_explorado"
+        ]
     },
     "DataExplorer_interface": {
         "token_id": "(*) Ingrese su correo electrónico ...",
@@ -83,7 +113,14 @@
         "wordDistributionTitle": "Distribución de palabra en vocabulario",
         "frequencyPerSetTitle": "Frecuencias de aparición por conjunto",
         "contextList": "Lista de contextos",
-        "highlight_query": "Destacar consulta"
+        "highlight_query": "Destacar consulta",
+        "see_queries_made": "Ver consultas realizadas",
+        "headers_name": [
+            "palabra",
+            "conjuntos_de_interes",
+            "token_id", 
+            "consulta_destacada"
+        ]
     },
     "CrowsPairs_interface": {
         "token_id": "(*) Ingrese su correo electrónico ...",
@@ -99,6 +136,7 @@
         "plot": "Visualización de proporciones",
         "examples": "Ejemplos",
         "highlight_query": "Destacar consulta",
+        "see_queries_made": "Ver consultas realizadas",
         "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ..."
     }
 }

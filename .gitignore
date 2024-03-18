@@ -4,3 +4,4 @@ data/
 logs/
 ngrok_server/
 extensions/
+nohup.out

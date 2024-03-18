@@ -129,7 +129,7 @@ def interface(
         with gr.Group():
             with gr.Row():
                 btn_get_logs = gr.Button(
-                    value="Ver consultas anteriores"
+                    value=labels["see_queries_made"]
                 )
             with gr.Row():
                 df_get_logs = gr.DataFrame(

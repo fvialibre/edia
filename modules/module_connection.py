@@ -78,7 +78,7 @@ class Connector(ABC):
                         "input_" + str(ith)  
                         for ith,_ in enumerate(data)
                     ]
-                headers = headers + ["datatime"]
+                headers = headers + ["datetime"]
 
                 writer.writerow(headers)
                     
@@ -114,7 +114,7 @@ class Connector(ABC):
             return "", empty_df
 
         df = df[df['token_id'] == token_id]
-        df = df.drop(columns=['token_id'])
+        df = df.drop(columns=['token_id', 'datetime'])
         return "", df
 
 class WordExplorerConnector(Connector):
@@ -125,16 +125,20 @@ class WordExplorerConnector(Connector):
 
         Connector.__init__(self, kwargs.get('lang', 'en'))
         embedding = kwargs.get('embedding', None)
+        lang = kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
-        self.headers = [
-            "word_list_to_diagnose",
-            "word_list_1",
-            "word_list_2",
-            "word_list_3",
-            "word_list_4",
-            "token_id", 
-            "highlight_query"
-        ]
+        self.headers = pd.read_json(
+            f"language/{lang}.json"
+        )["WordExplorer_interface"]['headers_name']
+        # self.headers = [
+        #     "word_list_to_diagnose",
+        #     "word_list_1",
+        #     "word_list_2",
+        #     "word_list_3",
+        #     "word_list_4",
+        #     "token_id", 
+        #     "highlight_query"
+        # ]
 
         if embedding is None:
             raise KeyError('embedding')
@@ -228,18 +232,22 @@ class BiasWordExplorerConnector(Connector):
 
         Connector.__init__(self, kwargs.get('lang', 'en'))
         embedding = kwargs.get('embedding', None)
+        lang =  kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
-        self.headers = [
-            "word_list_to_diagnose",
-            "word_list_1",
-            "word_list_2",
-            "word_list_3",
-            "word_list_4",
-            "plot_space",
-            "token_id", 
-            "highlight_query",
-            "type_of_bias_explored"
-        ]
+        self.headers = pd.read_json(
+            f"language/{lang}.json"
+        )["BiasWordExplorer_interface"]['headers_name']
+        # self.headers = [
+        #     "word_list_to_diagnose",
+        #     "word_list_1",
+        #     "word_list_2",
+        #     "word_list_3",
+        #     "word_list_4",
+        #     "plot_space",
+        #     "token_id", 
+        #     "highlight_query",
+        #     "type_of_bias_explored"
+        # ]
 
         if embedding is None:
             raise KeyError('embedding')
@@ -389,13 +397,17 @@ class Word2ContextExplorerConnector(Connector):
         Connector.__init__(self, kwargs.get('lang', 'en'))
         vocabulary = kwargs.get('vocabulary', None)
         context = kwargs.get('context', None)
+        lang =  kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
-        self.headers = [
-            "word",
-            "subsets_choice",
-            "token_id", 
-            "highlight_query"
-        ]
+        self.headers = pd.read_json(
+            f"language/{lang}.json"
+        )["DataExplorer_interface"]['headers_name']
+        # self.headers = [
+        #     "word",
+        #     "subsets_choice",
+        #     "token_id", 
+        #     "highlight_query"
+        # ]
 
         if vocabulary is None:
             raise KeyError('vocabulary')
@@ -491,13 +503,16 @@ class PhraseBiasExplorerConnector(Connector):
         language_model = kwargs.get('language_model', None)
         lang =  kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
-        self.headers = [
-            "sent",
-            "word_list",
-            "token_id",
-            "highlight_query",
-            "type_of_bias_explored"
-        ]
+        self.headers = pd.read_json(
+            f"language/{lang}.json"
+        )["PhraseExplorer_interface"]['headers_name']
+        # self.headers = [
+        #     "sent",
+        #     "word_list",
+        #     "token_id",
+        #     "highlight_query",
+        #     "type_of_bias_explored"
+        # ]
 
         if language_model is None:
             raise KeyError('language_model')
