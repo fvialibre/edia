@@ -7,7 +7,8 @@ from modules.module_connection import PhraseBiasExplorerConnector
 def interface(
     language_model: str, 
     available_logs: bool, 
-    lang: str="es"
+    lang: str="es",
+    user_email: str="",
 ) -> gr.Blocks:
 
     # -- Load examples --
@@ -36,55 +37,59 @@ def interface(
 
     with iface:
         token_id = gr.Textbox(
-            placeholder=labels['token_id'],
-            lines=1,
-            show_label=False
+            value=user_email,
+            visible=False
         )
         with gr.Row():
             with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step1"]
-                    )
-                    sent = gr.Textbox(
-                        label=labels["sent"]["title"],
-                        placeholder=labels["sent"]["placeholder"],
-                        show_label=False
-                    )
-                    
-                    gr.Markdown(
-                        value=labels["step2"]
-                    )
-                    word_list = gr.Textbox( 
-                        label=labels["wordList"]["title"], 
-                        placeholder=labels["wordList"]["placeholder"],
-                        show_label=False
-                    )
-                    
-                    with gr.Group():
-                        gr.Markdown(
-                            value=labels["step3"]
+                gr.Markdown(
+                    value=labels["step1"]
+                )
+                sent = gr.Textbox(
+                    label=labels["sent"]["title"],
+                    placeholder=labels["sent"]["placeholder"],
+                    show_label=False,
+                    container=False
+                )
+                
+                gr.Markdown(
+                    value=labels["step2"]
+                )
+                word_list = gr.Textbox( 
+                    label=labels["wordList"]["title"], 
+                    placeholder=labels["wordList"]["placeholder"],
+                    show_label=False,
+                    container=False
+                )
+                
+                gr.Markdown(
+                    value=labels["step3"],
+                    visible=False,
+                )
+                banned_word_list = gr.Textbox( 
+                    label=labels["bannedWordList"]["title"], 
+                    placeholder=labels["bannedWordList"]["placeholder"],
+                    visible=False,
+                )
+                with gr.Row():
+                    with gr.Row(): 
+                        articles = gr.Checkbox(
+                            label=labels["excludeArticles"], 
+                            value=False,
+                            visible=False,
                         )
-                        banned_word_list = gr.Textbox( 
-                            label=labels["bannedWordList"]["title"], 
-                            placeholder=labels["bannedWordList"]["placeholder"]
+                    with gr.Row(): 
+                        prepositions = gr.Checkbox(
+                            label=labels["excludePrepositions"], 
+                            value=False,
+                            visible=False,
                         )
-                        with gr.Row():
-                            with gr.Row(): 
-                                articles = gr.Checkbox(
-                                    label=labels["excludeArticles"], 
-                                    value=False
-                                )
-                            with gr.Row(): 
-                                prepositions = gr.Checkbox(
-                                    label=labels["excludePrepositions"], 
-                                    value=False
-                                )
-                            with gr.Row(): 
-                                conjunctions = gr.Checkbox(
-                                    label=labels["excludeConjunctions"], 
-                                    value=False
-                                )
+                    with gr.Row(): 
+                        conjunctions = gr.Checkbox(
+                            label=labels["excludeConjunctions"], 
+                            value=False,
+                            visible=False,
+                        )
 
                 with gr.Row():
                     with gr.Group():
@@ -94,30 +99,43 @@ def interface(
                         with gr.Row():
                             highlight_query = gr.Checkbox(
                                 label=labels['highlight_query'],
-                                value=False
+                                value=False,
+                                visible=False
                             )
-                            type_of_bias_explored = gr.Textbox(
-                                placeholder=labels['type_of_bias_explored'],
-                                lines=2,
-                                show_label=False
+                            type_of_bias_explored = gr.Dropdown(
+                                choices=[
+                                    "Apariencia Física",
+                                    "Discapacidad",
+                                    "Edad",
+                                    "Etnia",
+                                    "Estado Socioeconómico",
+                                    "Género",
+                                    "Nacionalidad",
+                                    "Orientación sexual",
+                                    "Profesión",
+                                    "Religión",
+                                ],
+                                label=labels["type_of_bias_explored"],
+                                multiselect=True,
+                                allow_custom_value=True
                             )
 
             with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["plot"]
-                    )
-                    dummy = gr.CheckboxGroup(
-                        value="", 
-                        show_label=False, 
-                        choices=[]
-                    )
-                    out = gr.HTML(
-                        label="",
-                    )
-                    out_msj = gr.Markdown(
-                        value=""
-                    )
+                gr.Markdown(
+                    value=labels["plot"]
+                )
+                dummy = gr.CheckboxGroup(
+                    value="", 
+                    show_label=False, 
+                    choices=[],
+                    visible=False
+                )
+                out = gr.HTML(
+                    label="",
+                )
+                out_msj = gr.Markdown(
+                    value=""
+                )
 
         with gr.Row():
             examples = gr.Examples(

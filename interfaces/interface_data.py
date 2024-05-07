@@ -9,7 +9,8 @@ def interface(
     contexts: str,
     available_logs: bool,
     available_wordcloud: bool,
-    lang: str="es"
+    lang: str="es",
+    user_email: str="",
 ) -> gr.Blocks:
 
     # --- Init Class ---
@@ -32,47 +33,45 @@ def interface(
 
     with iface:
         token_id = gr.Textbox(
-            placeholder=labels['token_id'],
-            lines=1,
-            show_label=False
+            value=user_email,
+            visible=False
         )
         with gr.Row():
             with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step1"]
+                gr.Markdown(
+                    value=labels["step1"]
+                )
+                with gr.Row(): 
+                    input_word = gr.Textbox(
+                        label=labels["inputWord"]["title"], 
+                        show_label=False, 
+                        placeholder=labels["inputWord"]["placeholder"],
+                        container=False,
                     )
-                    with gr.Row(): 
-                        input_word = gr.Textbox(
-                            label=labels["inputWord"]["title"], 
-                            show_label=False, 
-                            placeholder=labels["inputWord"]["placeholder"]
-                        )
-                    with gr.Row(): 
-                        btn_get_w_info = gr.Button(
-                            value=labels["wordInfoButton"]
-                        )
+                with gr.Row(): 
+                    btn_get_w_info = gr.Button(
+                        value=labels["wordInfoButton"]
+                    )
 
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step2"]
-                    )
-                    n_context = gr.Slider(
-                        label="", 
-                        step=1, minimum=1, maximum=30, value=5, 
-                        visible=True, 
-                        interactive=True
-                    )
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step3"]
-                    )
-                    subsets_choice = gr.CheckboxGroup(
-                        label="Conjuntos",
-                        show_label=False,
-                        interactive=True, 
-                        visible=True
-                    )
+                gr.Markdown(
+                    value=labels["step2"]
+                )
+                n_context = gr.Slider(
+                    label="", 
+                    step=1, minimum=1, maximum=30, value=5, 
+                    visible=True, 
+                    interactive=True,
+                    container=False,
+                )
+                gr.Markdown(
+                    value=labels["step3"]
+                )
+                subsets_choice = gr.CheckboxGroup(
+                    label="Conjuntos",
+                    show_label=False,
+                    interactive=True, 
+                    visible=True
+                )
                 with gr.Group():
                     with gr.Row():
                         btn_get_contexts = gr.Button(
@@ -82,7 +81,8 @@ def interface(
                     with gr.Row():
                         highlight_query = gr.Checkbox(
                             label=labels['highlight_query'],
-                            value=False
+                            value=False,
+                            visible=False
                         )
 
                 with gr.Row(): 
@@ -91,36 +91,11 @@ def interface(
                         visible=True
                     )
 
-            with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["wordDistributionTitle"]
-                    )
-                    dist_plot = gr.Plot(
-                        label="", 
-                        show_label=False
-                    )
-                    wc_plot = gr.Plot(
-                        label="", 
-                        show_label=False, 
-                        visible=available_wordcloud
-                    )
-
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["frequencyPerSetTitle"]
-                    )
-                    subsets_freq = gr.HTML(
-                        label=""
-                    )
-    
-        with gr.Row():
-            with gr.Group():
-                with gr.Row(): 
+                with gr.Row():
                     gr.Markdown(
                         value=labels["contextList"]
                     )
-                with gr.Row(): 
+                with gr.Row():
                     out_context = gr.Dataframe(
                         label="", 
                         interactive=False, 
@@ -128,6 +103,27 @@ def interface(
                         wrap=True,
                         datatype=['str','markdown','str','markdown']
                     )
+
+            with gr.Column():
+                gr.Markdown(
+                    value=labels["wordDistributionTitle"]
+                )
+                dist_plot = gr.Plot(
+                    label="", 
+                    show_label=False
+                )
+                wc_plot = gr.Plot(
+                    label="", 
+                    show_label=False, 
+                    visible=available_wordcloud
+                )
+
+                gr.Markdown(
+                    value=labels["frequencyPerSetTitle"]
+                )
+                subsets_freq = gr.HTML(
+                    label=""
+                )
         
         with gr.Group():
             with gr.Row():

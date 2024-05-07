@@ -20,6 +20,13 @@ from interfaces.interface_biasPhrase import interface as interface_biasPhrase
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
 
+# --- Imports FastAPI ---
+from fastapi import FastAPI
+import uvicorn
+from starlette.responses import HTMLResponse, RedirectResponse
+from starlette.requests import Request
+
+
 # --- Tool config ---
 cmd_line_args = parse_cmd_line_args()
 cfg = configparser.ConfigParser()
@@ -64,57 +71,78 @@ labels = pd.read_json(labels_path)["app"]
 
 
 # --- Main App ---
-INTERFACE_LIST = [
-    interface_biasPhrase(
-        language_model=beto_lm,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE),
-    interface_biasWordExplorer(
-        embedding=embedding,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE),
-    interface_wordExplorer(
-        embedding=embedding,
-        available_logs=AVAILABLE_LOGS,
-        max_neighbors=MAX_NEIGHBORS,
-        lang=LANGUAGE),
-    interface_data(
-        vocabulary=vocabulary,
-        contexts=CONTEXTS_DATASET,
-        available_logs=AVAILABLE_LOGS,
-        available_wordcloud=AVAILABLE_WORDCLOUD,
-        lang=LANGUAGE),
-    # interface_crowsPairs(
-    #     language_model=beto_lm,
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE),
-]
 
-TAB_NAMES = [
-    labels["phraseExplorer"],
-    labels["biasWordExplorer"],
-    labels["wordExplorer"],
-    labels["dataExplorer"],
-    # labels["crowsPairsExplorer"]
-]
+app = FastAPI()
 
-if LANGUAGE != 'es':
-    # Skip data tab when using other than spanish language
-    INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
-    TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
+@app.get('/')
+async def root(request: Request):
+    global app
+    user_email = request.headers['ngrok-auth-user-email']
 
-iface = gr.TabbedInterface(
-    interface_list= INTERFACE_LIST,
-    tab_names=TAB_NAMES,
-    title='EDIA: Estereotipos y Discriminación en Inteligencia Artificial'
-)
+    INTERFACE_LIST = [
+        interface_biasPhrase(
+            language_model=beto_lm,
+            available_logs=AVAILABLE_LOGS,
+            lang=LANGUAGE,
+            user_email=user_email),
+        interface_biasWordExplorer(
+            embedding=embedding,
+            available_logs=AVAILABLE_LOGS,
+            lang=LANGUAGE,
+            user_email=user_email),
+        interface_wordExplorer(
+            embedding=embedding,
+            available_logs=AVAILABLE_LOGS,
+            max_neighbors=MAX_NEIGHBORS,
+            lang=LANGUAGE,
+            user_email=user_email),
+        interface_data(
+            vocabulary=vocabulary,
+            contexts=CONTEXTS_DATASET,
+            available_logs=AVAILABLE_LOGS,
+            available_wordcloud=AVAILABLE_WORDCLOUD,
+            lang=LANGUAGE,
+            user_email=user_email),
+        # interface_crowsPairs(
+        #     language_model=beto_lm,
+        #     available_logs=AVAILABLE_LOGS,
+        #     lang=LANGUAGE,
+        #     user_email=user_email),
+    ]
 
-iface.queue(
-    max_size=QUEUE_MAX_SIZE,
-    concurrency_count=REQUESTS_CONCURRENCY
-)
+    TAB_NAMES = [
+        labels["phraseExplorer"],
+        labels["biasWordExplorer"],
+        labels["wordExplorer"],
+        labels["dataExplorer"],
+        # labels["crowsPairsExplorer"]
+    ]
 
-iface.launch(
-    server_port=cmd_line_args['port'],
-    debug=True
-)
+    if LANGUAGE != 'es':
+        # Skip data tab when using other than spanish language
+        INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
+        TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
+
+    HEADER_HTML = """
+        <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; text-align: center; width: 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: flex-start;">
+            <a href="https://www.vialibre.org.ar/" style="color: white; padding: 5px 10px; font-weight: bold; text-decoration: none; background-color: #333; border: none; border-radius: 5px; cursor: pointer; margin-right: auto;">VOLVER</a>
+            <div style="flex: 1; text-align: center; color: white; font-weight: bold">EDIA: Estereotipos y Discriminación en Inteligencia Artificial</div>
+        </div>
+    """
+
+    with gr.Blocks(theme='snehilsanyal/scikit-learn') as iface:
+        _ = gr.TabbedInterface(
+            interface_list= INTERFACE_LIST,
+            tab_names=TAB_NAMES,
+            title=HEADER_HTML,
+        )
+
+    # iface.queue(
+    #     max_size=QUEUE_MAX_SIZE,
+    #     concurrency_count=REQUESTS_CONCURRENCY
+    # )   
+    app = gr.mount_gradio_app(app, iface, "/home")
+    return RedirectResponse(url='/home')
+
+if __name__ == '__main__':
+    uvicorn.run(app)

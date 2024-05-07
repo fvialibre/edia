@@ -8,7 +8,7 @@
     },
     "WordExplorer_interface": {
         "token_id": "(*) Enter your E-mail ...",
-        "title": "Write some words to visualize their related ones",
+        "title": "1. Write some words to visualize their related ones",
         "wordList1": "Word list 1",
         "wordList2": "Word list 2",
         "wordList3": "Word list 3",
@@ -50,6 +50,7 @@
         "wordListToDiagnose": "List of words to be diagnosed",
         "examples2Spaces": "Examples in 2 spaces",
         "examples4Spaces": "Examples in 4 spaces",
+        "plot": "Display of proportions",
         "highlight_query": "Highlight query",
         "see_queries_made": "See queries made",
         "type_of_bias_explored": "(*) Enter the type of bias you are exploring ...",

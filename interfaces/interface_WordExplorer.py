@@ -11,6 +11,7 @@ def interface(
     available_logs: bool, 
     max_neighbors: int,
     lang: str="es",
+    user_email: str="",
 ) -> gr.Blocks:
 
     # -- Load examples ---
@@ -37,9 +38,8 @@ def interface(
 
     with interface:
         token_id = gr.Textbox(
-            placeholder=labels['token_id'],
-            lines=1,
-            show_label=False
+            value=user_email,
+            visible=False
         )
         with gr.Row():
             with gr.Column(scale=3):
@@ -50,7 +50,8 @@ def interface(
                     with gr.Column(scale=5):
                         diagnose_list = gr.Textbox(
                             lines=2, 
-                            label=labels["wordListToDiagnose"]
+                            label=labels["wordListToDiagnose"],
+                            container=False,
                         )
                     with gr.Column(scale=1,min_width=10):
                         color_wordlist = gr.ColorPicker(
@@ -62,7 +63,8 @@ def interface(
                     with gr.Column(scale=5): 
                         wordlist_1 = gr.Textbox(
                             lines=2, 
-                            label=labels["wordList1"]
+                            label=labels["wordList1"],
+                            container=False,
                         )
                     with gr.Column(scale=1,min_width=10): 
                         color_wordlist_1 = gr.ColorPicker(
@@ -73,7 +75,8 @@ def interface(
                     with gr.Column(scale=5): 
                         wordlist_2 = gr.Textbox(
                             lines=2, 
-                            label=labels["wordList2"]
+                            label=labels["wordList2"],
+                            container=False,
                         )
                     with gr.Column(scale=1,min_width=10):
                         color_wordlist_2 = gr.ColorPicker(
@@ -84,7 +87,8 @@ def interface(
                     with gr.Column(scale=5):    
                         wordlist_3 = gr.Textbox(
                             lines=2, 
-                            label=labels["wordList3"]
+                            label=labels["wordList3"],
+                            container=False,
                         )
                     with gr.Column(scale=1,min_width=10): 
                         color_wordlist_3 = gr.ColorPicker(
@@ -95,7 +99,8 @@ def interface(
                     with gr.Column(scale=5):    
                         wordlist_4 = gr.Textbox(
                             lines=2, 
-                            label=labels["wordList4"]
+                            label=labels["wordList4"],
+                            container=False,
                         )
                     with gr.Column(scale=1,min_width=10): 
                         color_wordlist_4 = gr.ColorPicker(

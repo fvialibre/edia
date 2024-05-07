@@ -8,7 +8,7 @@
     },
     "WordExplorer_interface": {
         "token_id": "(*) Ingrese su correo electrónico ...",
-        "title": "Escriba algunas palabras para visualizar sus palabras relacionadas",
+        "title": "1. Escriba algunas palabras para visualizar sus palabras relacionadas",
         "wordList1": "Lista de palabras 1",
         "wordList2": "Lista de palabras 2",
         "wordList3": "Lista de palabras 3",
@@ -38,7 +38,10 @@
     },
     "BiasWordExplorer_interface": {
         "token_id": "(*) Ingrese su correo electrónico ...",
-        "step1": "1. Escriba palabras para diagnosticar separadas por comas",
+        "step1": "1. Escriba palabras para diagnosticar",
+        "step1_placeholder": "La lista de palabras deberán estar separadas por ,",
+        "conceptA": "2. Escriba palabras que describan al concepto A",
+        "conceptB": "3. Escriba palabras que describan al concepto B",
         "step2&2Spaces": "2. Para graficar 2 espacios, complete las siguientes listas:",
         "step2&4Spaces": "2. Para graficar 4 espacios, además complete las siguientes listas:",
         "plot2SpacesButton": "¡Graficar 2 estereotipos!",
@@ -50,6 +53,7 @@
         "wordListToDiagnose": "Lista de palabras a diagnosticar",
         "examples2Spaces": "Ejemplos en 2 espacios",
         "examples4Spaces": "Ejemplos en 4 espacios",
+        "plot": "Visualización de proporciones",
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
         "type_of_bias_explored": "(*) Ingrese el tipo de sesgo que está explorando ...",

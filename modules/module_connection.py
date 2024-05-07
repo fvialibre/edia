@@ -268,7 +268,7 @@ class BiasWordExplorerConnector(Connector):
         to_diagnose_list: str,
         token_id: str, 
         highlight_query: bool,
-        type_of_bias_explored: str
+        type_of_bias_explored: List[str],
     ) -> Tuple:
 
         err = ""
@@ -294,7 +294,7 @@ class BiasWordExplorerConnector(Connector):
             return None, err
         
         # Check if the type of bias is empty
-        if type_of_bias_explored.strip() == "":
+        if len(type_of_bias_explored) == 0:
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
 
@@ -310,7 +310,7 @@ class BiasWordExplorerConnector(Connector):
             "2d",
             token_id.strip(),
             highlight_query,
-            type_of_bias_explored
+            type_of_bias_explored,
         )
 
         fig = self.bias_word_explorer_2_spaces.calculate_bias(
@@ -330,7 +330,7 @@ class BiasWordExplorerConnector(Connector):
         to_diagnose_list: str,
         token_id: str, 
         highlight_query: bool,
-        type_of_bias_explored: str
+        type_of_bias_explored: List[str],
     ) -> Tuple:
 
         err = ""
@@ -359,7 +359,7 @@ class BiasWordExplorerConnector(Connector):
             return None, err
         
         # Check if the type of bias is empty
-        if type_of_bias_explored.strip() == "":
+        if len(type_of_bias_explored) == 0:
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
 
@@ -375,7 +375,7 @@ class BiasWordExplorerConnector(Connector):
             "4d",
             token_id.strip(),
             highlight_query,
-            type_of_bias_explored
+            type_of_bias_explored,
         )
 
         fig = self.bias_word_explorer_4_spaces.calculate_bias(
@@ -535,7 +535,7 @@ class PhraseBiasExplorerConnector(Connector):
         exclude_conjunctions: bool,
         token_id: str,
         highlight_query: bool,
-        type_of_bias_explored: str,
+        type_of_bias_explored: List[str],
         n_predictions: int=5
     ) -> Tuple:
 
@@ -552,7 +552,7 @@ class PhraseBiasExplorerConnector(Connector):
             return err, "", ""
 
         # Check if the type of bias is empty
-        if type_of_bias_explored.strip() == "":
+        if len(type_of_bias_explored) == 0:
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return err, "", ""
 
@@ -567,7 +567,7 @@ class PhraseBiasExplorerConnector(Connector):
             interest_word_list,
             token_id.strip(),
             highlight_query,
-            type_of_bias_explored
+            type_of_bias_explored,
         )
 
         all_plls_scores = self.phrase_bias_explorer.rank(

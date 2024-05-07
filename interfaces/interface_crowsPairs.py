@@ -8,7 +8,8 @@ from modules.module_connection import CrowsPairsExplorerConnector
 def interface(
     language_model: str, 
     available_logs: bool, 
-    lang: str="es"
+    lang: str="es",
+    user_email: str="",
 ) -> gr.Blocks:
 
     # -- Load examples --
@@ -37,9 +38,8 @@ def interface(
 
     with iface:
         token_id = gr.Textbox(
-            placeholder=labels['token_id'],
-            lines=1,
-            show_label=False
+            value=user_email,
+            visible=False
         )
         with gr.Row():
             gr.Markdown(
