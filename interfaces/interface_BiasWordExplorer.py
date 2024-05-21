@@ -1,6 +1,5 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import BiasWordExplorerConnector
 
 
@@ -41,37 +40,58 @@ def interface(
         )
         with gr.Row():
             with gr.Column():
-                gr.Markdown(
-                    value=labels["step1"]
+                model_name = gr.Radio(
+                    [
+                        "Modelo en español",
+                        "Modelo Multilenguaje",
+                    ],
+                    value="Modelo en español",
+                    info="Elegí un modelo de lenguaje.",
+                    container=False,
+                    interactive=True,
                 )
+                with gr.Row():
+                    with gr.Column():
+                        wordlist_1 = gr.Textbox(
+                            lines=2,
+                            label=labels["conceptA"],
+                            info=labels["conceptA_info"],
+                            placeholder=labels["conceptA_placeholder"],
+                        )
+                    with gr.Column():
+                        wordlist_2 = gr.Textbox(
+                            lines=2,
+                            label=labels["conceptB"],
+                            info=labels["conceptB_info"],
+                            container=True,
+                            placeholder=labels["conceptB_placeholder"],
+                        )
                 with gr.Row():
                     diagnose_list = gr.Textbox(
                         lines=2,
-                        show_label=False, 
-                        placeholder=labels["step1_placeholder"],
-                        container=False,
+                        label=labels["step3"],
+                        info=labels["step3_info"],
+                        placeholder=labels["step3_placeholder"],
                     )
                 with gr.Row():
-                    with gr.Column():
-                        gr.Markdown(
-                            value=labels["conceptA"]
-                        )
-                        wordlist_1 = gr.Textbox(
-                            lines=2,
-                            label=labels["wordList1"],
-                            placeholder=labels["step1_placeholder"],
-                            container=False,
-                        )
-                    with gr.Column():
-                        gr.Markdown(
-                            value=labels["conceptB"]
-                        )
-                        wordlist_2 = gr.Textbox(
-                            lines=2, 
-                            label=labels["wordList2"],
-                            placeholder=labels["step1_placeholder"],
-                            container=False,
-                        )
+                    type_of_bias_explored = gr.Dropdown(
+                        choices=[
+                            "Apariencia Física",
+                            "Discapacidad",
+                            "Edad",
+                            "Etnia",
+                            "Estado Socioeconómico",
+                            "Género",
+                            "Nacionalidad",
+                            "Orientación sexual",
+                            "Profesión",
+                            "Religión",
+                        ],
+                        label=labels["type_of_bias_explored_label"],
+                        info=labels["type_of_bias_explored_info"],
+                        multiselect=True,
+                        allow_custom_value=True
+                    )
                 with gr.Row():
                     gr.Markdown(
                         value=labels["step2&4Spaces"],
@@ -108,23 +128,6 @@ def interface(
                                     value=False,
                                     visible=False
                                 )
-                                type_of_bias_explored = gr.Dropdown(
-                                    choices=[
-                                        "Apariencia Física",
-                                        "Discapacidad",
-                                        "Edad",
-                                        "Etnia",
-                                        "Estado Socioeconómico",
-                                        "Género",
-                                        "Nacionalidad",
-                                        "Orientación sexual",
-                                        "Profesión",
-                                        "Religión",
-                                    ],
-                                    label=labels["type_of_bias_explored"],
-                                    multiselect=True,
-                                    allow_custom_value=True
-                                )
             with gr.Column():
                 gr.Markdown(
                     value=labels["plot"]
@@ -144,12 +147,6 @@ def interface(
                 examples=examples1_explorar_sesgo_en_palabras,
                 label=labels["examples2Spaces"]
             )
-        with gr.Row():
-            examples = gr.Examples(
-                inputs=[wordlist_1, wordlist_2,wordlist_3, wordlist_4, diagnose_list],
-                examples=examples2_explorar_sesgo_en_palabras,
-                label=labels["examples4Spaces"]
-            )
 
         with gr.Group():
             with gr.Row():
@@ -162,14 +159,9 @@ def interface(
                     label=None
                 )
 
-        with gr.Row():
-            gr.Markdown(
-                value=TOOL_INFO
-            )
-
         bias2d.click(
             fn=connector.calculate_bias_2d,
-            inputs=[wordlist_1, wordlist_2, diagnose_list, token_id, highlight_query, type_of_bias_explored],
+            inputs=[wordlist_1, wordlist_2, diagnose_list, token_id, highlight_query, type_of_bias_explored, model_name],
             outputs=[bias_plot, err_msg],
             api_name="bias_we_2d"
         )

@@ -9,6 +9,7 @@ import configparser
 from modules.model_embbeding import Embedding
 from modules.module_vocabulary import Vocabulary
 from modules.module_languageModel import LanguageModel
+from modules.module_generativeLanguageModel import GenerativeLanguageModel
 from modules.utils import parse_cmd_line_args
 
 
@@ -64,6 +65,10 @@ beto_lm = LanguageModel(
     model_name=LANGUAGE_MODEL
 )
 
+generative_lm = GenerativeLanguageModel(
+    model_name="facebook/xglm-564M"
+)
+
 labels_path = f"language/{LANGUAGE}.json"
 if not os.path.isfile(labels_path):
     raise FileNotFoundError(labels_path)
@@ -72,7 +77,15 @@ labels = pd.read_json(labels_path)["app"]
 
 # --- Main App ---
 
-app = FastAPI()
+async def not_found(request, exc):
+    return RedirectResponse(url="/")
+
+
+exceptions = {
+    404: not_found,
+}
+
+app = FastAPI(exception_handlers=exceptions)
 
 @app.get('/')
 async def root(request: Request):
@@ -82,6 +95,7 @@ async def root(request: Request):
     INTERFACE_LIST = [
         interface_biasPhrase(
             language_model=beto_lm,
+            generative_language_model=generative_lm,
             available_logs=AVAILABLE_LOGS,
             lang=LANGUAGE,
             user_email=user_email),
@@ -123,26 +137,50 @@ async def root(request: Request):
         INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
         TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
 
-    HEADER_HTML = """
-        <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; text-align: center; width: 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: flex-start;">
-            <a href="https://www.vialibre.org.ar/" style="color: white; padding: 5px 10px; font-weight: bold; text-decoration: none; background-color: #333; border: none; border-radius: 5px; cursor: pointer; margin-right: auto;">VOLVER</a>
-            <div style="flex: 1; text-align: center; color: white; font-weight: bold">EDIA: Estereotipos y Discriminación en Inteligencia Artificial</div>
+    NAVBAR_HTML = """
+        <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; top: 0; left: 0; display: flex; justify-content: space-between; align-items: center;">
+            <a href="https://ia.vialibre.org.ar/" style="width: 11em; max-width:20vw; height: auto;">
+                <img src="https://i.imgur.com/t6e2xWz.png">
+            </a>
+            
+            <a href="https://edia.ngrok.app/" style="width: 11em; max-width:20vw; height: auto;">
+                <img src="https://i.imgur.com/kC1Reex.png">
+            </a>
+            
+            <a href="https://edia.ngrok.app/auth/authn" style="width: 11em; max-width:20vw; height: auto;">
+                <img src="https://i.imgur.com/xyagOy2.png">
+            </a>
         </div>
     """
 
-    with gr.Blocks(theme='snehilsanyal/scikit-learn') as iface:
+    FOOTER_HTML = """
+        <div style="width: 100%; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center;">
+            <img src="https://i.imgur.com/2BUN2jL.png">
+        </div>
+    """
+
+    css = """
+    #small span{
+    font-size: 8em;
+    }
+    """
+
+    edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
+
+    with gr.Blocks(theme=edia_theme, css=css) as iface:
+        _ = gr.HTML(NAVBAR_HTML)
         _ = gr.TabbedInterface(
             interface_list= INTERFACE_LIST,
             tab_names=TAB_NAMES,
-            title=HEADER_HTML,
         )
+        _ = gr.HTML(FOOTER_HTML)
 
     # iface.queue(
     #     max_size=QUEUE_MAX_SIZE,
     #     concurrency_count=REQUESTS_CONCURRENCY
     # )   
-    app = gr.mount_gradio_app(app, iface, "/home")
-    return RedirectResponse(url='/home')
+    app = gr.mount_gradio_app(app, iface, f"/{user_email}")
+    return RedirectResponse(url=f"/{user_email}")
 
 if __name__ == '__main__':
     uvicorn.run(app)

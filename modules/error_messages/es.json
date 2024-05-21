@@ -15,6 +15,8 @@
         "RANKSENTS_TOO_MANY_MASKS_IN_SENTENCE": "La frase ingresada debe contener solo un ' * '!",
         "RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED": "La frase ingresada posee mas de {} tokens!",
 
+        "INTEREST_WORDS_NOT_ENOUGH_WORDS": "Debe ingresar al menos 2 palabras de interés!",
+
         "CROWS-PAIRS_BAD_FORMATTED_SENTENCE": "La frase Nº {} no posee el formato correcto!.",
         "CROWS-PAIRS_MANDATORY_SENTENCE_MISSING": "La frase Nº{} no puede ser vacia!",
 

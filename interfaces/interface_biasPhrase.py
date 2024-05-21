@@ -1,11 +1,11 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import PhraseBiasExplorerConnector
 
 
 def interface(
-    language_model: str, 
+    language_model: str,
+    generative_language_model: str, 
     available_logs: bool, 
     lang: str="es",
     user_email: str="",
@@ -21,6 +21,7 @@ def interface(
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(
         language_model=language_model,
+        generative_language_model=generative_language_model,
         lang=lang,
         logs_file_name=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None
     )
@@ -42,25 +43,52 @@ def interface(
         )
         with gr.Row():
             with gr.Column():
-                gr.Markdown(
-                    value=labels["step1"]
+                model_name = gr.Radio(
+                    ["Modelo en español", "Modelo Multilenguaje"],
+                    value="Modelo en español",
+                    info="Elegí un modelo de lenguaje.",
+                    container=False,
+                    interactive=True,
                 )
-                sent = gr.Textbox(
-                    label=labels["sent"]["title"],
-                    placeholder=labels["sent"]["placeholder"],
-                    show_label=False,
-                    container=False
+                with gr.Row():
+                    sent = gr.Textbox(
+                        lines=2,
+                        label=labels["step1"],
+                        info=labels["step1_info"],
+                        placeholder=labels["step1_placeholder"],
+                    )
+                with gr.Row():
+                    word_list = gr.Textbox( 
+                        lines=2,
+                        label=labels["step2"],
+                        info=labels["step2_info"],
+                        placeholder=labels["step2_placeholder"],
+                    )
+
+                highlight_query = gr.Checkbox(
+                    label=labels['highlight_query'],
+                    value=False,
+                    visible=False
                 )
-                
-                gr.Markdown(
-                    value=labels["step2"]
-                )
-                word_list = gr.Textbox( 
-                    label=labels["wordList"]["title"], 
-                    placeholder=labels["wordList"]["placeholder"],
-                    show_label=False,
-                    container=False
-                )
+                with gr.Row():
+                    type_of_bias_explored = gr.Dropdown(
+                        choices=[
+                            "Apariencia Física",
+                            "Discapacidad",
+                            "Edad",
+                            "Etnia",
+                            "Estado Socioeconómico",
+                            "Género",
+                            "Nacionalidad",
+                            "Orientación sexual",
+                            "Profesión",
+                            "Religión",
+                        ],
+                        label=labels["type_of_bias_explored_label"],
+                        info=labels["type_of_bias_explored_info"],
+                        multiselect=True,
+                        allow_custom_value=True
+                    )
                 
                 gr.Markdown(
                     value=labels["step3"],
@@ -96,49 +124,20 @@ def interface(
                         btn = gr.Button(
                             value=labels["resultsButton"]
                         )
-                        with gr.Row():
-                            highlight_query = gr.Checkbox(
-                                label=labels['highlight_query'],
-                                value=False,
-                                visible=False
-                            )
-                            type_of_bias_explored = gr.Dropdown(
-                                choices=[
-                                    "Apariencia Física",
-                                    "Discapacidad",
-                                    "Edad",
-                                    "Etnia",
-                                    "Estado Socioeconómico",
-                                    "Género",
-                                    "Nacionalidad",
-                                    "Orientación sexual",
-                                    "Profesión",
-                                    "Religión",
-                                ],
-                                label=labels["type_of_bias_explored"],
-                                multiselect=True,
-                                allow_custom_value=True
-                            )
 
             with gr.Column():
                 gr.Markdown(
                     value=labels["plot"]
                 )
-                dummy = gr.CheckboxGroup(
-                    value="", 
-                    show_label=False, 
-                    choices=[],
-                    visible=False
-                )
                 out = gr.HTML(
                     label="",
                 )
                 out_msj = gr.Markdown(
-                    value=""
+                    value="",
                 )
 
         with gr.Row():
-            examples = gr.Examples(
+            _ = gr.Examples(
                 inputs=[sent, word_list],
                 examples=examples_sesgos_frases,
                 label=labels["examples"]
@@ -155,11 +154,6 @@ def interface(
                     label=None
                 )
 
-        with gr.Row(): 
-            gr.Markdown(
-                value=TOOL_INFO
-            )
-
         btn.click(
             fn=connector.rank_sentence_options,
             inputs=[
@@ -171,9 +165,10 @@ def interface(
                 conjunctions,
                 token_id,
                 highlight_query,
-                type_of_bias_explored
+                type_of_bias_explored,
+                model_name,
             ], 
-            outputs=[out_msj, out, dummy],
+            outputs=[out_msj, out],
             api_name="bias_phrase"
         )
         

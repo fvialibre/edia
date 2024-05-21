@@ -14,9 +14,12 @@ class CustomPllLabel:
                     progress {
                         -webkit-appearance: none;
                     }
+                    progress::-webkit-progress-value {
+                        background-color: #ffdea2;
+                        border-radius: 0.5em;
+                    }
                     progress::-webkit-progress-bar {
-                        background-color: #666;
-                        border-radius: 7px;
+                        background-color: white;
                     }
                     #myturn span {
                         position: absolute;
@@ -48,15 +51,22 @@ class CustomPllLabel:
         self, 
         percentage: int, 
         sent: str, 
-        ratio: float, 
+        ratio: float,
+        min_ratio: float,
+        max_ratio: float,
         score: float, 
         size: int=15
     ) -> str:
 
+        if ratio == min_ratio:
+            incremental_value = "0%"
+        else:
+            incremental_value = f"+{int(100*ratio/min_ratio-100)}%"
+
         html = f"""
         <div id="myturn">
             <span data-value="{percentage/2}" style="width:{percentage/2}%;">
-                <strong>x{round(ratio,3)}</strong>
+                <strong style="color:black;padding-left: 0.7em;">{incremental_value}</strong>
             </span>
             <progress value="{percentage}" max="100"></progress>
             <p style='font-size:22px; padding:2px;'>{sent}</p>
@@ -70,9 +80,13 @@ class CustomPllLabel:
         scores: List[float], 
         ratios: List[float]
     ) -> str:
-
+        
         max_ratio = max(ratios)
-        ratio2percentage = lambda ratio: int(ratio*100/max_ratio)
+        min_ratio = min(ratios)
+        if max_ratio == min_ratio:
+            ratio2percentage = lambda ratio: 1
+        else:
+            ratio2percentage = lambda ratio: int(12 + 88*((ratio - min_ratio) / (max_ratio - min_ratio)))
 
         html = ""
         for sent, ratio, score in zip(sents, ratios, scores):
@@ -80,6 +94,8 @@ class CustomPllLabel:
                 percentage=ratio2percentage(ratio), 
                 sent=sent,
                 ratio=ratio, 
+                min_ratio=min_ratio,
+                max_ratio=max_ratio,
                 score=score
             )
 
@@ -87,15 +103,20 @@ class CustomPllLabel:
     
     def __getProportions(
         self, 
-        scores: List[float], 
+        scores: List[float],
+        model_name: str,
     ) -> List[float]:
     
         min_score = min(scores)
-        return [min_score/s for s in scores]
+        if model_name == "BETO":
+            return [min_score/s for s in scores]
+        elif model_name == "generative_lm":
+            return [s/min_score for s in scores]
 
     def compute(
         self, 
-        pll_dict: Dict[str, float]
+        pll_dict: Dict[str, float],
+        model_name: str,
     ) -> str:
 
         sorted_pll_dict = sorted(pll_dict.items(), key=lambda x: x[1], reverse=True)
@@ -104,8 +125,8 @@ class CustomPllLabel:
         scores  = [v for _,v in sorted_pll_dict]
 
         # Scape < and > marks from hightlight word/s
-        sents = [s.replace("<","&#60;").replace(">","&#62;")for s in sents]
-
-        ratios = self.__getProportions(scores)
+        translation_table = str.maketrans({"<": "<b><i>", ">": "</i></b>"})
+        sents = [f"{i+1}. {s.translate(translation_table)}" for i, s in enumerate(sents)]
+        ratios = self.__getProportions(scores, model_name)
         
         return self.__render(sents, scores, ratios)

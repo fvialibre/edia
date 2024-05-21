@@ -46,6 +46,10 @@ class Connector(ABC):
             self.parse_word(word) 
             for word in words.split(',') if word.strip() != ''
         ]
+
+        # remove duplicates
+        words = list(set(words))
+
         return words
     
     def logs_save(
@@ -114,7 +118,32 @@ class Connector(ABC):
             return "", empty_df
 
         df = df[df['token_id'] == token_id]
-        df = df.drop(columns=['token_id', 'datetime'])
+        df = df.drop(columns=[
+            'token_id',
+            'datetime',
+            'destacar_consulta',
+            "model_name",
+            "lista_de_palabras_3",
+            "lista_de_palabras_4",
+            "espacio_graficado",
+        ], errors='ignore')
+
+        # remove python list notation from displayed columns
+        columns_with_list_notation = [
+            "lista_de_palabras",
+            "tipo_de_sesgo_explorado",
+            "lista_de_palabras_a_diagnosticar",
+            "lista_de_palabras_1",
+            "lista_de_palabras_2",
+            "conjuntos_de_interes",
+        ]
+
+        for col in columns_with_list_notation:
+            if col in df.columns:
+                df[col] = df[col].apply(
+                    lambda x: x.replace('"', '').replace("'", '').replace("[", '').replace("]", '') if isinstance(x, str) else x
+                )
+
         return "", df
 
 class WordExplorerConnector(Connector):
@@ -164,7 +193,8 @@ class WordExplorerConnector(Connector):
         fontsize: int,
         n_neighbors: int,
         token_id:str,
-        highlight_query: bool
+        highlight_query: bool,
+        model_name: str,
     ) -> Tuple:
 
         err = ""
@@ -202,7 +232,8 @@ class WordExplorerConnector(Connector):
             wordlist_3,
             wordlist_4,
             token_id.strip(),
-            highlight_query
+            highlight_query,
+            model_name
         )
 
         fig = self.word_explorer.plot_projections_2d(
@@ -269,7 +300,15 @@ class BiasWordExplorerConnector(Connector):
         token_id: str, 
         highlight_query: bool,
         type_of_bias_explored: List[str],
+        model_name: str
     ) -> Tuple:
+
+        model_name_dict = {
+            "Modelo en español": "BETO",
+            "Modelo Multilenguaje": "Cohere Multilingual"
+        }
+
+        model_name = model_name_dict[model_name]
 
         err = ""
         wordlist_1 = self.parse_words(wordlist_1)
@@ -311,12 +350,14 @@ class BiasWordExplorerConnector(Connector):
             token_id.strip(),
             highlight_query,
             type_of_bias_explored,
+            model_name
         )
 
         fig = self.bias_word_explorer_2_spaces.calculate_bias(
             to_diagnose_list, 
             wordlist_1, 
-            wordlist_2
+            wordlist_2,
+            model_name
         )
 
         return fig, err
@@ -453,7 +494,8 @@ class Word2ContextExplorerConnector(Connector):
         n_context: int,
         subset_choice: List[str],
         token_id: str, 
-        highlight_query: bool
+        highlight_query: bool,
+        model_name: str
     ) -> Tuple:
 
         word = self.parse_word(word)
@@ -483,7 +525,8 @@ class Word2ContextExplorerConnector(Connector):
             word,
             subset_choice,
             token_id.strip(),
-            highlight_query
+            highlight_query,
+            model_name,
         )
 
         list_of_contexts = self.word2context_explorer.getContexts(word, n_context, ds)
@@ -501,6 +544,7 @@ class PhraseBiasExplorerConnector(Connector):
 
         Connector.__init__(self, kwargs.get('lang', 'en'))
         language_model = kwargs.get('language_model', None)
+        generative_language_model = kwargs.get('generative_language_model', None)
         lang =  kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
         self.headers = pd.read_json(
@@ -514,13 +558,14 @@ class PhraseBiasExplorerConnector(Connector):
         #     "type_of_bias_explored"
         # ]
 
-        if language_model is None:
+        if language_model is None or generative_language_model is None:
             raise KeyError('language_model')
         elif lang is None:
             raise KeyError('lang')
 
         self.phrase_bias_explorer = RankSents(
             language_model=language_model,
+            generative_language_model=generative_language_model,
             lang=lang,
             errorManager=self.errorManager
         )
@@ -536,28 +581,39 @@ class PhraseBiasExplorerConnector(Connector):
         token_id: str,
         highlight_query: bool,
         type_of_bias_explored: List[str],
+        model_name: str,
         n_predictions: int=5
     ) -> Tuple:
+        
+        model_name_dict = {
+            "Modelo en español": "BETO",
+            "Modelo Multilenguaje": "generative_lm"
+        }
+
+        model_name = model_name_dict[model_name]
 
         sent = " ".join(sent.strip().replace("*"," * ").split())
+        interest_word_list = self.parse_words(interest_word_list)
+        banned_word_list = self.parse_words(banned_word_list)
 
         # Check if the token id is empty
         if token_id.strip() == "":
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, "", ""
+            return err, ""
 
         # Check format setns errors
         err = self.phrase_bias_explorer.errorChecking(sent)
         if err:
-            return err, "", ""
+            return err, ""
+
+        err = self.phrase_bias_explorer.errorInterestWords(interest_word_list)
+        if err:
+            return err, ""
 
         # Check if the type of bias is empty
         if len(type_of_bias_explored) == 0:
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
-            return err, "", ""
-
-        interest_word_list = self.parse_words(interest_word_list)
-        banned_word_list = self.parse_words(banned_word_list)
+            return err, ""
 
         # Save inputs in logs file
         self.logs_save(
@@ -568,6 +624,7 @@ class PhraseBiasExplorerConnector(Connector):
             token_id.strip(),
             highlight_query,
             type_of_bias_explored,
+            model_name
         )
 
         all_plls_scores = self.phrase_bias_explorer.rank(
@@ -577,11 +634,12 @@ class PhraseBiasExplorerConnector(Connector):
             exclude_articles,
             exclude_prepositions,
             exclude_conjunctions,
-            n_predictions
+            n_predictions,
+            model_name
         )
         
-        all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)
-        return err, all_plls_scores, ""
+        all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores, model_name)
+        return err, all_plls_scores
 
 class CrowsPairsExplorerConnector(Connector):
     def __init__(

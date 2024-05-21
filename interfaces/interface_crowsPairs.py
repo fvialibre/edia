@@ -1,6 +1,5 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import CrowsPairsExplorerConnector
 
 
@@ -110,11 +109,6 @@ def interface(
                 inputs=[sent0, sent1, sent2, sent3, sent4, sent5],
                 examples=examples_crows_pairs,
                 label=labels["examples"]
-            )
-
-        with gr.Row(): 
-            gr.Markdown(
-                value=TOOL_INFO
             )
 
         btn.click(  

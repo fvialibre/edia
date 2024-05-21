@@ -1,7 +1,6 @@
 import gradio as gr 
 import pandas as pd
 import matplotlib.pyplot as plt
-from tool_info import TOOL_INFO
 from modules.module_connection import WordExplorerConnector
 
 plt.rcParams.update({'font.size': 14})
@@ -43,6 +42,13 @@ def interface(
         )
         with gr.Row():
             with gr.Column(scale=3):
+                model_name = gr.Radio(
+                    ["Modelo en español"],
+                    value="Modelo en español",
+                    info="Elegí un modelo de lenguaje.",
+                    container=False,
+                    interactive=True,
+                )
                 gr.Markdown(
                     value=labels["title"]
                 )
@@ -50,8 +56,9 @@ def interface(
                     with gr.Column(scale=5):
                         diagnose_list = gr.Textbox(
                             lines=2, 
-                            label=labels["wordListToDiagnose"],
-                            container=False,
+                            label=labels["wordList0"],
+                            info=labels["wordLists_info"],
+                            placeholder=labels["wordList0_placeholder"],
                         )
                     with gr.Column(scale=1,min_width=10):
                         color_wordlist = gr.ColorPicker(
@@ -64,7 +71,8 @@ def interface(
                         wordlist_1 = gr.Textbox(
                             lines=2, 
                             label=labels["wordList1"],
-                            container=False,
+                            info=labels["wordLists_info"],
+                            placeholder=labels["wordList1_placeholder"],
                         )
                     with gr.Column(scale=1,min_width=10): 
                         color_wordlist_1 = gr.ColorPicker(
@@ -76,7 +84,8 @@ def interface(
                         wordlist_2 = gr.Textbox(
                             lines=2, 
                             label=labels["wordList2"],
-                            container=False,
+                            info=labels["wordLists_info"],
+                            placeholder=labels["wordList2_placeholder"],
                         )
                     with gr.Column(scale=1,min_width=10):
                         color_wordlist_2 = gr.ColorPicker(
@@ -88,24 +97,29 @@ def interface(
                         wordlist_3 = gr.Textbox(
                             lines=2, 
                             label=labels["wordList3"],
-                            container=False,
+                            info=labels["wordLists_info"],
+                            placeholder=labels["wordList3_placeholder"],
                         )
                     with gr.Column(scale=1,min_width=10): 
                         color_wordlist_3 = gr.ColorPicker(
                             label="",
-                            value='#e31a1c'
+                            value='#e31a1c',
                         )
                 with gr.Row():
                     with gr.Column(scale=5):    
                         wordlist_4 = gr.Textbox(
                             lines=2, 
                             label=labels["wordList4"],
-                            container=False,
+                            info=labels["wordLists_info"],
+                            placeholder=labels["wordList4_placeholder"],
+                            visible=False,
+
                         )
                     with gr.Column(scale=1,min_width=10): 
                         color_wordlist_4 = gr.ColorPicker(
                             label="",
-                            value='#6a3d9a'
+                            value='#6a3d9a',
+                            visible=False,
                         )
             with gr.Column(scale=4):
                 gr.Markdown(
@@ -137,7 +151,8 @@ def interface(
                     with gr.Row():
                         highlight_query = gr.Checkbox(
                             label=labels['highlight_query'],
-                            value=False
+                            value=False,
+                            visible=False
                         )
                 with gr.Row(): 
                     err_msg = gr.Markdown(
@@ -154,7 +169,7 @@ def interface(
         with gr.Row():
             gr.Examples(
                 fn=connector.plot_proyection_2d,
-                inputs=[diagnose_list,wordlist_1,wordlist_2,wordlist_3,wordlist_4],
+                inputs=[diagnose_list,wordlist_1,wordlist_2,wordlist_3],
                 outputs=[word_proyections,err_msg],
                 examples=examples_explorar_relaciones_entre_palabras,
                 label=labels["examples"]
@@ -170,11 +185,6 @@ def interface(
                     value=pd.DataFrame([], columns=['']),
                     label=None
                 )
-
-        with gr.Row():
-            gr.Markdown(
-                value=TOOL_INFO
-            )
 
         btn_plot.click(
             fn=connector.plot_proyection_2d,
@@ -192,7 +202,7 @@ def interface(
                 alpha,
                 fontsize,
                 n_neighbors,
-                token_id, highlight_query
+                token_id, highlight_query, model_name
             ],
             outputs=[word_proyections, err_msg],
             api_name="word_explorer"

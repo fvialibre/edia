@@ -1,6 +1,5 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import Word2ContextExplorerConnector
 
 
@@ -38,40 +37,38 @@ def interface(
         )
         with gr.Row():
             with gr.Column():
-                gr.Markdown(
-                    value=labels["step1"]
+                model_name = gr.Radio(
+                    ["Modelo en español"],
+                    value="Modelo en español",
+                    info="Elegí un modelo de lenguaje.",
+                    container=False,
+                    interactive=True,
                 )
                 with gr.Row(): 
                     input_word = gr.Textbox(
-                        label=labels["inputWord"]["title"], 
-                        show_label=False, 
+                        label=labels["step1"], 
+                        info=labels["step1_info"],
                         placeholder=labels["inputWord"]["placeholder"],
-                        container=False,
                     )
                 with gr.Row(): 
                     btn_get_w_info = gr.Button(
                         value=labels["wordInfoButton"]
                     )
-
-                gr.Markdown(
-                    value=labels["step2"]
-                )
-                n_context = gr.Slider(
-                    label="", 
-                    step=1, minimum=1, maximum=30, value=5, 
-                    visible=True, 
-                    interactive=True,
-                    container=False,
-                )
-                gr.Markdown(
-                    value=labels["step3"]
-                )
-                subsets_choice = gr.CheckboxGroup(
-                    label="Conjuntos",
-                    show_label=False,
-                    interactive=True, 
-                    visible=True
-                )
+                with gr.Row():
+                    n_context = gr.Slider(
+                        label=labels["step2"], 
+                        info=labels["step2_info"],
+                        step=1, minimum=1, maximum=30, value=5, 
+                        visible=True, 
+                        interactive=True,
+                    )
+                with gr.Row():
+                    subsets_choice = gr.CheckboxGroup(
+                        label=labels["step3"],
+                        info=labels["step3_info"],
+                        interactive=True, 
+                        visible=True
+                    )
                 with gr.Group():
                     with gr.Row():
                         btn_get_contexts = gr.Button(
@@ -136,11 +133,6 @@ def interface(
                     label=None
                 )
 
-        with gr.Row():
-            gr.Markdown(
-                value=TOOL_INFO
-            )
-
         btn_get_w_info.click( 
             fn=connector.get_word_info, 
             inputs=[input_word], 
@@ -156,7 +148,7 @@ def interface(
         
         btn_get_contexts.click(
             fn=connector.get_word_context, 
-            inputs=[input_word, n_context, subsets_choice, token_id, highlight_query], 
+            inputs=[input_word, n_context, subsets_choice, token_id, highlight_query, model_name], 
             outputs=[out_msj, out_context],
             api_name='word_contexts'
         )
