@@ -1,9 +1,10 @@
 import copy
+import cohere
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import cohere
+from matplotlib.colors import LinearSegmentedColormap
 from dotenv import dotenv_values
 from sklearn.decomposition import PCA
 from typing import List, Dict, Tuple, Optional, Any, Callable
@@ -415,7 +416,12 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         if axis_projection_step is None:
             axis_projection_step = 0.1
 
-        cmap = plt.get_cmap('RdBu')
+        # Define the colors
+        colors = ['#A79E3F','#FAFAFA','#4B3887']
+
+        # Create the colormap
+        cmap_name = 'custom_cmap'
+        cmap = LinearSegmentedColormap.from_list(cmap_name, colors)
         projections_df['color'] = ((projections_df['projection'] + 0.5)
                                    .apply(cmap))
 

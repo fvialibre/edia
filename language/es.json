@@ -29,7 +29,7 @@
             "transparency": "Transparencia"
         },
         "plot_button": "Obtené gráfico",
-        "examples": "Ejemplos",
+        "examples": "Ejemplos. Podés clickear en alguno para que se complete automáticamente.",
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
         "headers_name": [
@@ -62,8 +62,8 @@
         "wordList3": "Lista de palabras 3",
         "wordList4": "Lista de palabras 4",
         "wordListToDiagnose": "Lista de palabras a diagnosticar",
-        "examples2Spaces": "Ejemplos en 2 espacios",
-        "examples4Spaces": "Ejemplos en 4 espacios",
+        "examples2Spaces": "Ejemplos. Podés clickear en alguno para que se complete automáticamente.",
+        "examples4Spaces": "Ejemplos. Podés clickear en alguno para que se complete automáticamente.",
         "plot": "Visualización de proporciones",
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
@@ -107,7 +107,7 @@
         "excludeConjunctions": "Excluir Conjunciones",
         "resultsButton": "Obtené sesgo en frases",
         "plot": "¡Resultados! Lo que vas a ver es un listado de preferencias de un modelo sobre el otro.\nEl % indica cuánto suma desde la palabra menos probable a la más probable.",
-        "examples": "Ejemplos",
+        "examples": "Ejemplos. Podés clickear en alguno para que se complete automáticamente.",
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
         "type_of_bias_explored_label": "3. Ingresá el tipo de sesgo que estás explorando.",
@@ -158,7 +158,7 @@
         "commonPlacholder": "Utilice los simbolos < y > para destacar palabra/as de interés",
         "compareButton": "Comparar",
         "plot": "Visualización de proporciones",
-        "examples": "Ejemplos",
+        "examples": "Ejemplos. Podés clickear en alguno para que se complete automáticamente.",
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
         "type_of_bias_explored": "3. Ingrese el tipo de sesgo que está explorando. Puede elegir de una lista o completar si considera que falta. Además puede elegir varios sesgos."

@@ -132,7 +132,7 @@ def interface(
                 out = gr.HTML(
                     label="",
                 )
-                out_msj = gr.Markdown(
+                out_msj = gr.HTML(
                     value="",
                 )
 
@@ -140,7 +140,8 @@ def interface(
             _ = gr.Examples(
                 inputs=[sent, word_list],
                 examples=examples_sesgos_frases,
-                label=labels["examples"]
+                label=labels["examples"],
+                elem_id="examples"
             )
 
         with gr.Group():

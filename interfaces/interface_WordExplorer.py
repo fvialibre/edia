@@ -155,7 +155,7 @@ def interface(
                             visible=False
                         )
                 with gr.Row(): 
-                    err_msg = gr.Markdown(
+                    err_msg = gr.HTML(
                         label="", 
                         visible=True
                     )
@@ -172,7 +172,8 @@ def interface(
                 inputs=[diagnose_list,wordlist_1,wordlist_2,wordlist_3],
                 outputs=[word_proyections,err_msg],
                 examples=examples_explorar_relaciones_entre_palabras,
-                label=labels["examples"]
+                label=labels["examples"],
+                elem_id="examples",
             )
 
         with gr.Group():

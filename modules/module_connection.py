@@ -610,9 +610,8 @@ class PhraseBiasExplorerConnector(Connector):
         if err:
             return err, ""
 
-        # Check if the type of bias is empty
-        if len(type_of_bias_explored) == 0:
-            err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
+        err = self.phrase_bias_explorer.errorTypeOfBiasExplored(type_of_bias_explored)
+        if err:
             return err, ""
 
         # Save inputs in logs file

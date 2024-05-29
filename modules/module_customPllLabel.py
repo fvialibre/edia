@@ -15,7 +15,7 @@ class CustomPllLabel:
                         -webkit-appearance: none;
                     }
                     progress::-webkit-progress-value {
-                        background-color: #ffdea2;
+                        background-color: #4B3887;
                         border-radius: 0.5em;
                     }
                     progress::-webkit-progress-bar {
@@ -66,7 +66,7 @@ class CustomPllLabel:
         html = f"""
         <div id="myturn">
             <span data-value="{percentage/2}" style="width:{percentage/2}%;">
-                <strong style="color:black;padding-left: 0.7em;">{incremental_value}</strong>
+                <strong style="color:white;padding-left: 0.7em;">{incremental_value}</strong>
             </span>
             <progress value="{percentage}" max="100"></progress>
             <p style='font-size:22px; padding:2px;'>{sent}</p>

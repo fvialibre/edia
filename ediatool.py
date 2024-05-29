@@ -147,7 +147,7 @@ async def root(request: Request):
                 <img src="https://i.imgur.com/kC1Reex.png">
             </a>
             
-            <a href="https://edia.ngrok.app/auth/authn" style="width: 11em; max-width:20vw; height: auto;">
+            <a href="https://edia.ngrok.app/auth/logout" style="width: 11em; max-width:20vw; height: auto;">
                 <img src="https://i.imgur.com/xyagOy2.png">
             </a>
         </div>
@@ -163,6 +163,7 @@ async def root(request: Request):
     #small span{
     font-size: 8em;
     }
+    #examples {color: black !important}
     """
 
     edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
@@ -178,9 +179,15 @@ async def root(request: Request):
     # iface.queue(
     #     max_size=QUEUE_MAX_SIZE,
     #     concurrency_count=REQUESTS_CONCURRENCY
-    # )   
-    app = gr.mount_gradio_app(app, iface, f"/{user_email}")
-    return RedirectResponse(url=f"/{user_email}")
+    # ) 
+    user_path = f"/{user_email}"
+    app = gr.mount_gradio_app(
+        app=app,
+        blocks=iface,
+        path=user_path,
+        # root_path=user_path,
+    )
+    return RedirectResponse(url=user_path)
 
 if __name__ == '__main__':
-    uvicorn.run(app)
+    uvicorn.run(app, port=cmd_line_args['port'])

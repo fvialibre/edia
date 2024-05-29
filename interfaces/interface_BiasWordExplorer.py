@@ -132,7 +132,7 @@ def interface(
                 gr.Markdown(
                     value=labels["plot"]
                 )
-                err_msg = gr.Markdown(
+                err_msg = gr.HTML(
                     label="", 
                     visible=True
                 )
@@ -145,7 +145,8 @@ def interface(
             examples = gr.Examples(
                 inputs=[wordlist_1, wordlist_2, diagnose_list],
                 examples=examples1_explorar_sesgo_en_palabras,
-                label=labels["examples2Spaces"]
+                label=labels["examples2Spaces"],
+                elem_id="examples",
             )
 
         with gr.Group():

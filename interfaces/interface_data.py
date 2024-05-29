@@ -83,7 +83,7 @@ def interface(
                         )
 
                 with gr.Row(): 
-                    out_msj = gr.Markdown(
+                    out_msj = gr.HTML(
                         label="", 
                         visible=True
                     )

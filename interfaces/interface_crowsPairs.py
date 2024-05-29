@@ -86,7 +86,7 @@ def interface(
                     value=False
                 )
         with gr.Row():  
-            out_msj = gr.Markdown(
+            out_msj = gr.HTML(
                 value=""
             )
         
@@ -108,7 +108,8 @@ def interface(
             examples = gr.Examples(
                 inputs=[sent0, sent1, sent2, sent3, sent4, sent5],
                 examples=examples_crows_pairs,
-                label=labels["examples"]
+                label=labels["examples"],
+                elem_id="examples",
             )
 
         btn.click(  

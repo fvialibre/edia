@@ -90,6 +90,19 @@ class RankSents:
             out_msj = ['INTEREST_WORDS_NOT_ENOUGH_WORDS']
         
         return self.errorManager.process(out_msj)
+    
+    def errorTypeOfBiasExplored(
+        self, 
+        type_of_bias_explored: List[str]
+    ) -> str:
+        
+        print (f"type_of_bias_explored: {type_of_bias_explored}")
+        out_msj = ""
+        if len(type_of_bias_explored) == 0:
+            print("TYPE_OF_BIAS_EXPLORED_EMPTY")
+            out_msj = ['TYPE_OF_BIAS_EXPLORED_EMPTY']
+        
+        return self.errorManager.process(out_msj)
 
     # def getTopPredictionsBETO(
     #     self, 
@@ -192,8 +205,9 @@ class RankSents:
             softmaxed_distr = torch.nn.functional.softmax(distr, dim=-1)
 
             next_token = s_tokenized['input_ids'][0][i].item()
-            next_tokens_scores.append(1+softmaxed_distr[0][next_token].item())
-
+            
+            # add 1 to avoid multiplying by 0
+            next_tokens_scores.append(1 + softmaxed_distr[0][next_token].item())
             final_metric_score = np.prod(next_tokens_scores)
         return final_metric_score
 
@@ -212,7 +226,6 @@ class RankSents:
         all_scores = {}
         for sent, sent_bracket in sent_list:
             all_scores[sent_bracket] = self.get_generative_metric(sent)
-        print("all_scores", all_scores)
         return all_scores
 
     def rank(self, 
