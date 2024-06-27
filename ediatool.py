@@ -3,6 +3,8 @@ import os
 import gradio as gr
 import pandas as pd
 import configparser
+import json
+from datetime import datetime
 
 
 # --- Imports modules ---
@@ -18,6 +20,7 @@ from interfaces.interface_WordExplorer import interface as interface_wordExplore
 from interfaces.interface_BiasWordExplorer import interface as interface_biasWordExplorer
 from interfaces.interface_data import interface as interface_data
 from interfaces.interface_biasPhrase import interface as interface_biasPhrase
+from interfaces.interface_chatActivity1 import interface as interface_chatActivity1
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
 
@@ -26,6 +29,9 @@ from fastapi import FastAPI
 import uvicorn
 from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
+
+# --- Imports Constants ---
+from html_constants import NAVBAR_HTML, FOOTER_HTML, css
 
 
 # --- Tool config ---
@@ -91,8 +97,20 @@ app = FastAPI(exception_handlers=exceptions)
 async def root(request: Request):
     global app
     user_email = request.headers['ngrok-auth-user-email']
+    user_name = request.headers['ngrok-auth-user-name']
+
+    with open("./logs/logs_logins.jsonl", "a+", encoding='utf-8') as f:
+        f.write(json.dumps({
+            "timestamp": datetime.now().isoformat(),
+            "user_email": user_email,
+            "user_name": user_name,
+            "headers": str(request.headers),
+        }, ensure_ascii=False) + "\n")
 
     INTERFACE_LIST = [
+        interface_chatActivity1(
+            user_email=user_email,
+        ),
         interface_biasPhrase(
             language_model=beto_lm,
             generative_language_model=generative_lm,
@@ -125,6 +143,7 @@ async def root(request: Request):
     ]
 
     TAB_NAMES = [
+        "Actividad asincrónica 1",
         labels["phraseExplorer"],
         labels["biasWordExplorer"],
         labels["wordExplorer"],
@@ -137,38 +156,9 @@ async def root(request: Request):
         INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
         TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
 
-    NAVBAR_HTML = """
-        <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; top: 0; left: 0; display: flex; justify-content: space-between; align-items: center;">
-            <a href="https://ia.vialibre.org.ar/" style="width: 11em; max-width:20vw; height: auto;">
-                <img src="https://i.imgur.com/t6e2xWz.png">
-            </a>
-            
-            <a href="https://edia.ngrok.app/" style="width: 11em; max-width:20vw; height: auto;">
-                <img src="https://i.imgur.com/kC1Reex.png">
-            </a>
-            
-            <a href="https://edia.ngrok.app/auth/logout" style="width: 11em; max-width:20vw; height: auto;">
-                <img src="https://i.imgur.com/xyagOy2.png">
-            </a>
-        </div>
-    """
-
-    FOOTER_HTML = """
-        <div style="width: 100%; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center;">
-            <img src="https://i.imgur.com/2BUN2jL.png">
-        </div>
-    """
-
-    css = """
-    #small span{
-    font-size: 8em;
-    }
-    #examples {color: black !important}
-    """
-
     edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
-    with gr.Blocks(theme=edia_theme, css=css) as iface:
+    with gr.Blocks(theme=edia_theme, css=css, title="E.D.I.A.") as iface:
         _ = gr.HTML(NAVBAR_HTML)
         _ = gr.TabbedInterface(
             interface_list= INTERFACE_LIST,
