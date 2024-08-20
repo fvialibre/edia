@@ -11,7 +11,6 @@ from datetime import datetime
 from modules.model_embbeding import Embedding
 from modules.module_vocabulary import Vocabulary
 from modules.module_languageModel import LanguageModel
-from modules.module_generativeLanguageModel import GenerativeLanguageModel
 from modules.utils import parse_cmd_line_args
 
 
@@ -23,15 +22,9 @@ from interfaces.interface_biasPhrase import interface as interface_biasPhrase
 from interfaces.interface_chatActivity1 import interface as interface_chatActivity1
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
-
-# --- Imports FastAPI ---
-from fastapi import FastAPI
-import uvicorn
-from starlette.responses import HTMLResponse, RedirectResponse
-from starlette.requests import Request
-
 # --- Imports Constants ---
 from html_constants import NAVBAR_HTML, FOOTER_HTML, css
+from auth import authorized_emails
 
 
 # --- Tool config ---
@@ -71,113 +64,71 @@ beto_lm = LanguageModel(
     model_name=LANGUAGE_MODEL
 )
 
-generative_lm = GenerativeLanguageModel(
-    model_name="facebook/xglm-564M"
-)
-
 labels_path = f"language/{LANGUAGE}.json"
 if not os.path.isfile(labels_path):
     raise FileNotFoundError(labels_path)
 labels = pd.read_json(labels_path)["app"]
 
 
-# --- Main App ---
+# # --- Main App ---
 
-async def not_found(request, exc):
-    return RedirectResponse(url="/")
+INTERFACE_LIST = [
+    interface_chatActivity1(),
+    interface_biasPhrase(
+        language_model=beto_lm,
+        available_logs=AVAILABLE_LOGS,
+        lang=LANGUAGE,),
+    interface_biasWordExplorer(
+        embedding=embedding,
+        available_logs=AVAILABLE_LOGS,
+        lang=LANGUAGE,),
+    interface_wordExplorer(
+        embedding=embedding,
+        available_logs=AVAILABLE_LOGS,
+        max_neighbors=MAX_NEIGHBORS,
+        lang=LANGUAGE,),
+    interface_data(
+        vocabulary=vocabulary,
+        contexts=CONTEXTS_DATASET,
+        available_logs=AVAILABLE_LOGS,
+        available_wordcloud=AVAILABLE_WORDCLOUD,
+        lang=LANGUAGE,),
+    # interface_crowsPairs(
+    #     language_model=beto_lm,
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE,
+    #     user_email=user_email),
+]
 
+TAB_NAMES = [
+    "ChatGPT vía EDIA",
+    labels["phraseExplorer"],
+    labels["biasWordExplorer"],
+    labels["wordExplorer"],
+    labels["dataExplorer"],
+    # labels["crowsPairsExplorer"]
+]
 
-exceptions = {
-    404: not_found,
-}
+if LANGUAGE != 'es':
+    # Skip data tab when using other than spanish language
+    INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
+    TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
 
-app = FastAPI(exception_handlers=exceptions)
+edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
-@app.get('/')
-async def root(request: Request):
-    global app
-    user_email = request.headers['ngrok-auth-user-email']
-    user_name = request.headers['ngrok-auth-user-name']
-
-    with open("./logs/logs_logins.jsonl", "a+", encoding='utf-8') as f:
-        f.write(json.dumps({
-            "timestamp": datetime.now().isoformat(),
-            "user_email": user_email,
-            "user_name": user_name,
-            "headers": str(request.headers),
-        }, ensure_ascii=False) + "\n")
-
-    INTERFACE_LIST = [
-        interface_chatActivity1(
-            user_email=user_email,
-        ),
-        interface_biasPhrase(
-            language_model=beto_lm,
-            generative_language_model=generative_lm,
-            available_logs=AVAILABLE_LOGS,
-            lang=LANGUAGE,
-            user_email=user_email),
-        interface_biasWordExplorer(
-            embedding=embedding,
-            available_logs=AVAILABLE_LOGS,
-            lang=LANGUAGE,
-            user_email=user_email),
-        interface_wordExplorer(
-            embedding=embedding,
-            available_logs=AVAILABLE_LOGS,
-            max_neighbors=MAX_NEIGHBORS,
-            lang=LANGUAGE,
-            user_email=user_email),
-        interface_data(
-            vocabulary=vocabulary,
-            contexts=CONTEXTS_DATASET,
-            available_logs=AVAILABLE_LOGS,
-            available_wordcloud=AVAILABLE_WORDCLOUD,
-            lang=LANGUAGE,
-            user_email=user_email),
-        # interface_crowsPairs(
-        #     language_model=beto_lm,
-        #     available_logs=AVAILABLE_LOGS,
-        #     lang=LANGUAGE,
-        #     user_email=user_email),
-    ]
-
-    TAB_NAMES = [
-        "Actividad asincrónica 1",
-        labels["phraseExplorer"],
-        labels["biasWordExplorer"],
-        labels["wordExplorer"],
-        labels["dataExplorer"],
-        # labels["crowsPairsExplorer"]
-    ]
-
-    if LANGUAGE != 'es':
-        # Skip data tab when using other than spanish language
-        INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
-        TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
-
-    edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
-
-    with gr.Blocks(theme=edia_theme, css=css, title="E.D.I.A.") as iface:
-        _ = gr.HTML(NAVBAR_HTML)
-        _ = gr.TabbedInterface(
-            interface_list= INTERFACE_LIST,
-            tab_names=TAB_NAMES,
-        )
-        _ = gr.HTML(FOOTER_HTML)
-
-    # iface.queue(
-    #     max_size=QUEUE_MAX_SIZE,
-    #     concurrency_count=REQUESTS_CONCURRENCY
-    # ) 
-    user_path = f"/{user_email}"
-    app = gr.mount_gradio_app(
-        app=app,
-        blocks=iface,
-        path=user_path,
-        # root_path=user_path,
+with gr.Blocks(theme=edia_theme, css=css, title="E.D.I.A.") as iface:
+    _ = gr.HTML(NAVBAR_HTML)
+    _ = gr.TabbedInterface(
+        interface_list=INTERFACE_LIST,
+        tab_names=TAB_NAMES,
     )
-    return RedirectResponse(url=user_path)
+    _ = gr.HTML(FOOTER_HTML)
 
-if __name__ == '__main__':
-    uvicorn.run(app, port=cmd_line_args['port'])
+# iface.queue(
+#     max_size=QUEUE_MAX_SIZE,
+#     concurrency_count=REQUESTS_CONCURRENCY
+# )
+
+iface.launch(
+    server_port=cmd_line_args['port'],
+)

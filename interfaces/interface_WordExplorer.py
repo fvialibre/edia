@@ -2,6 +2,7 @@ import gradio as gr
 import pandas as pd
 import matplotlib.pyplot as plt
 from modules.module_connection import WordExplorerConnector
+from auth import authorized_emails
 
 plt.rcParams.update({'font.size': 14})
 
@@ -10,7 +11,6 @@ def interface(
     available_logs: bool, 
     max_neighbors: int,
     lang: str="es",
-    user_email: str="",
 ) -> gr.Blocks:
 
     # -- Load examples ---
@@ -36,9 +36,12 @@ def interface(
     interface = gr.Blocks()
 
     with interface:
-        token_id = gr.Textbox(
-            value=user_email,
-            visible=False
+        token_id = gr.Dropdown(
+            choices=authorized_emails,
+            label="Seleccione su mail",
+            info="Seleccione su mail",
+            multiselect=False,
+            allow_custom_value=False,
         )
         with gr.Row():
             with gr.Column(scale=3):

@@ -1,7 +1,7 @@
 import gradio as gr
 import pandas as pd
 from modules.module_connection import Word2ContextExplorerConnector
-
+from auth import authorized_emails
 
 def interface(
     vocabulary, # Vocabulary class instance
@@ -9,7 +9,6 @@ def interface(
     available_logs: bool,
     available_wordcloud: bool,
     lang: str="es",
-    user_email: str="",
 ) -> gr.Blocks:
 
     # --- Init Class ---
@@ -31,9 +30,12 @@ def interface(
     )
 
     with iface:
-        token_id = gr.Textbox(
-            value=user_email,
-            visible=False
+        token_id = gr.Dropdown(
+            choices=authorized_emails,
+            label="Seleccione su mail",
+            info="Seleccione su mail",
+            multiselect=False,
+            allow_custom_value=False,
         )
         with gr.Row():
             with gr.Column():

@@ -33,7 +33,8 @@
             "word_list_3",
             "word_list_4",
             "token_id", 
-            "highlight_query"
+            "highlight_query",
+            "model_name"
         ]
     },
     "BiasWordExplorer_interface": {
@@ -63,7 +64,8 @@
             "plot_space",
             "token_id", 
             "highlight_query",
-            "type_of_bias_explored"
+            "type_of_bias_explored",
+            "model_name"
         ]
     },
     "PhraseExplorer_interface": {
@@ -97,7 +99,8 @@
             "word_list",
             "token_id",
             "highlight_query",
-            "type_of_bias_explored"
+            "type_of_bias_explored",
+            "model_name"
         ]
     },
     "DataExplorer_interface": {
@@ -120,7 +123,8 @@
             "word",
             "subsets_choice",
             "token_id", 
-            "highlight_query"
+            "highlight_query",
+            "model_name"
         ]
     },
     "CrowsPairs_interface": {

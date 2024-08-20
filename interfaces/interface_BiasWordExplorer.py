@@ -1,6 +1,7 @@
 import gradio as gr
 import pandas as pd
 from modules.module_connection import BiasWordExplorerConnector
+from auth import authorized_emails
 
 
 # --- Interface ---
@@ -34,9 +35,12 @@ def interface(
     interface = gr.Blocks()
 
     with interface:
-        token_id = gr.Textbox(
-            value=user_email,
-            visible=False
+        token_id = gr.Dropdown(
+            choices=authorized_emails,
+            label="Seleccione su mail",
+            info="Seleccione su mail",
+            multiselect=False,
+            allow_custom_value=False,
         )
         with gr.Row():
             with gr.Column():

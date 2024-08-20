@@ -1,14 +1,14 @@
 import gradio as gr
 import pandas as pd
 from modules.module_connection import PhraseBiasExplorerConnector
+from auth import authorized_emails
 
 
 def interface(
     language_model: str,
-    generative_language_model: str, 
     available_logs: bool, 
     lang: str="es",
-    user_email: str="",
+    user_email: any=None,
 ) -> gr.Blocks:
 
     # -- Load examples --
@@ -21,7 +21,6 @@ def interface(
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(
         language_model=language_model,
-        generative_language_model=generative_language_model,
         lang=lang,
         logs_file_name=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None
     )
@@ -37,14 +36,17 @@ def interface(
     )
 
     with iface:
-        token_id = gr.Textbox(
-            value=user_email,
-            visible=False
+        token_id = gr.Dropdown(
+            choices=authorized_emails,
+            label="Seleccione su mail",
+            info="Seleccione su mail",
+            multiselect=False,
+            allow_custom_value=False,
         )
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
-                    ["Modelo en español", "Modelo Multilenguaje"],
+                    ["Modelo en español"],
                     value="Modelo en español",
                     info="Elegí un modelo de lenguaje.",
                     container=False,

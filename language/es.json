@@ -39,7 +39,8 @@
             "lista_de_palabras_3",
             "lista_de_palabras_4",
             "token_id",
-            "destacar_consulta"
+            "destacar_consulta",
+            "model_name"
         ]
     },
     "BiasWordExplorer_interface": {
@@ -78,7 +79,8 @@
             "espacio_graficado",
             "token_id", 
             "destacar_consulta",
-            "tipo_de_sesgo_explorado"
+            "tipo_de_sesgo_explorado",
+            "model_name"
         ]
     },
     "PhraseExplorer_interface": {
@@ -117,7 +119,8 @@
             "lista_de_palabras",
             "token_id",
             "destacar_consulta",
-            "tipo_de_sesgo_explorado"
+            "tipo_de_sesgo_explorado",
+            "model_name"
         ]
     },
     "DataExplorer_interface": {
@@ -143,7 +146,8 @@
             "palabra",
             "conjuntos_de_interes",
             "token_id", 
-            "consulta_destacada"
+            "consulta_destacada",
+            "model_name"
         ]
     },
     "CrowsPairs_interface": {

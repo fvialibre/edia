@@ -6,12 +6,11 @@ import json
 from datetime import datetime
 import os
 from dotenv import dotenv_values
+from auth import authorized_emails
 
 
 # --- Interface ---
-def interface(
-    user_email: str="",
-) -> gr.Blocks:
+def interface() -> gr.Blocks:
 
     secrets = dotenv_values("./.env")
     os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
@@ -36,15 +35,19 @@ def interface(
         return gpt_response.content
 
     with gr.Blocks() as interface:
+        token_id = gr.Dropdown(
+            choices=authorized_emails,
+            label="Seleccione su mail",
+            info="Seleccione su mail",
+            multiselect=False,
+            allow_custom_value=False,
+        )
         _ = gr.ChatInterface(
                 predict,
                 title="ChatGPT vía EDIA",
                 description="En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Para completar la actividad debes cargar los datos en el formulario contando cómo interactuaste con este modelo. Si cerrás la pestaña, no se guarda la conversación, así que recordá cópiarlo antes. Ahí mismo tenes un video que explica paso a paso cómo ingresar la información.",
                 additional_inputs=[
-                    gr.Textbox(
-                        value=user_email,
-                        visible=False,
-                    ),                                        
+                    token_id,                                        
                 ],
                 retry_btn=None,
                 undo_btn=None,

@@ -108,10 +108,7 @@ class CustomPllLabel:
     ) -> List[float]:
     
         min_score = min(scores)
-        if model_name == "BETO":
-            return [min_score/s for s in scores]
-        elif model_name == "generative_lm":
-            return [s/min_score for s in scores]
+        return [min_score/s for s in scores]
 
     def compute(
         self, 
