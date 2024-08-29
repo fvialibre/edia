@@ -5,7 +5,6 @@ from modules.module_connection import PhraseBiasExplorerConnector
 
 def interface(
     language_model: str,
-    generative_language_model: str, 
     available_logs: bool, 
     lang: str="es",
     user_email: str="",
@@ -21,7 +20,6 @@ def interface(
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(
         language_model=language_model,
-        generative_language_model=generative_language_model,
         lang=lang,
         logs_file_name=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None
     )
@@ -44,7 +42,7 @@ def interface(
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
-                    ["Modelo en español", "Modelo Multilenguaje"],
+                    ["Modelo en español"],
                     value="Modelo en español",
                     info="Elegí un modelo de lenguaje.",
                     container=False,

@@ -544,7 +544,6 @@ class PhraseBiasExplorerConnector(Connector):
 
         Connector.__init__(self, kwargs.get('lang', 'en'))
         language_model = kwargs.get('language_model', None)
-        generative_language_model = kwargs.get('generative_language_model', None)
         lang =  kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
         self.headers = pd.read_json(
@@ -558,14 +557,13 @@ class PhraseBiasExplorerConnector(Connector):
         #     "type_of_bias_explored"
         # ]
 
-        if language_model is None or generative_language_model is None:
+        if language_model is None:
             raise KeyError('language_model')
         elif lang is None:
             raise KeyError('lang')
 
         self.phrase_bias_explorer = RankSents(
             language_model=language_model,
-            generative_language_model=generative_language_model,
             lang=lang,
             errorManager=self.errorManager
         )
@@ -587,7 +585,6 @@ class PhraseBiasExplorerConnector(Connector):
         
         model_name_dict = {
             "Modelo en español": "BETO",
-            "Modelo Multilenguaje": "generative_lm"
         }
 
         model_name = model_name_dict[model_name]

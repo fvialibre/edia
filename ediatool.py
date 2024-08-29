@@ -11,7 +11,6 @@ from datetime import datetime
 from modules.model_embbeding import Embedding
 from modules.module_vocabulary import Vocabulary
 from modules.module_languageModel import LanguageModel
-from modules.module_generativeLanguageModel import GenerativeLanguageModel
 from modules.utils import parse_cmd_line_args
 
 
@@ -71,10 +70,6 @@ beto_lm = LanguageModel(
     model_name=LANGUAGE_MODEL
 )
 
-generative_lm = GenerativeLanguageModel(
-    model_name="facebook/xglm-564M"
-)
-
 labels_path = f"language/{LANGUAGE}.json"
 if not os.path.isfile(labels_path):
     raise FileNotFoundError(labels_path)
@@ -113,7 +108,6 @@ async def root(request: Request):
         ),
         interface_biasPhrase(
             language_model=beto_lm,
-            generative_language_model=generative_lm,
             available_logs=AVAILABLE_LOGS,
             lang=LANGUAGE,
             user_email=user_email),
@@ -143,7 +137,7 @@ async def root(request: Request):
     ]
 
     TAB_NAMES = [
-        "Actividad asincrónica 1",
+        "ChatGPT vía EDIA",
         labels["phraseExplorer"],
         labels["biasWordExplorer"],
         labels["wordExplorer"],
@@ -158,7 +152,7 @@ async def root(request: Request):
 
     edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
-    with gr.Blocks(theme=edia_theme, css=css, title="E.D.I.A.") as iface:
+    with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
         _ = gr.HTML(NAVBAR_HTML)
         _ = gr.TabbedInterface(
             interface_list= INTERFACE_LIST,
@@ -169,7 +163,7 @@ async def root(request: Request):
     # iface.queue(
     #     max_size=QUEUE_MAX_SIZE,
     #     concurrency_count=REQUESTS_CONCURRENCY
-    # ) 
+    # )
     user_path = f"/{user_email}"
     app = gr.mount_gradio_app(
         app=app,
@@ -181,3 +175,4 @@ async def root(request: Request):
 
 if __name__ == '__main__':
     uvicorn.run(app, port=cmd_line_args['port'])
+    # uvicorn.run("ediatool:app", port=cmd_line_args['port'], workers=1)
