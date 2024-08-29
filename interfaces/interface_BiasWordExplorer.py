@@ -1,7 +1,7 @@
 import gradio as gr
 import pandas as pd
 from modules.module_connection import BiasWordExplorerConnector
-from auth import authorized_emails
+from auth import school_list
 
 
 # --- Interface ---
@@ -9,7 +9,6 @@ def interface(
     embedding, # Class Embedding instance
     available_logs: bool,
     lang: str="es",
-    user_email: str="",
 ) -> gr.Blocks:
 
     # -- Load examples ---
@@ -35,13 +34,34 @@ def interface(
     interface = gr.Blocks()
 
     with interface:
-        token_id = gr.Dropdown(
-            choices=authorized_emails,
-            label="Seleccione su mail",
-            info="Seleccione su mail",
-            multiselect=False,
-            allow_custom_value=False,
-        )
+        with gr.Row():
+            with gr.Column():
+                token_id = gr.Textbox(
+                    label="Escriba su correo electrónico",
+                    lines=1,
+                )
+            with gr.Column():
+                school = gr.Dropdown(
+                    choices=school_list,
+                    label="Seleccione su escuela",
+                    # info="Seleccione su escuela",
+                    multiselect=False,
+                    allow_custom_value=False,
+                )
+            with gr.Column():
+                age = gr.Dropdown(
+                    choices=[str(i) for i in range(1, 100)],
+                    label="Seleccione su edad",
+                    # info="Seleccione su edad",
+                    multiselect=False,
+                    allow_custom_value=False,
+                )
+            with gr.Column():
+                gender = gr.Radio(
+                    ["M", "F", "X"],
+                    label="Seleccione su género",
+                    # info="Where did they go?"
+                )
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
@@ -166,7 +186,18 @@ def interface(
 
         bias2d.click(
             fn=connector.calculate_bias_2d,
-            inputs=[wordlist_1, wordlist_2, diagnose_list, token_id, highlight_query, type_of_bias_explored, model_name],
+            inputs=[
+                wordlist_1,
+                wordlist_2,
+                diagnose_list,
+                token_id,
+                school,
+                age,
+                gender,
+                highlight_query,
+                type_of_bias_explored,
+                model_name
+            ],
             outputs=[bias_plot, err_msg],
             api_name="bias_we_2d"
         )
@@ -179,7 +210,10 @@ def interface(
                 wordlist_3, 
                 wordlist_4, 
                 diagnose_list,
-                token_id, 
+                token_id,
+                school,
+                age,
+                gender,
                 highlight_query,
                 type_of_bias_explored
             ],

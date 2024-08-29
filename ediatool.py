@@ -20,11 +20,11 @@ from interfaces.interface_BiasWordExplorer import interface as interface_biasWor
 from interfaces.interface_data import interface as interface_data
 from interfaces.interface_biasPhrase import interface as interface_biasPhrase
 from interfaces.interface_chatActivity1 import interface as interface_chatActivity1
+from interfaces.interface_contest import interface as interface_contest
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
 # --- Imports Constants ---
 from html_constants import NAVBAR_HTML, FOOTER_HTML, css
-from auth import authorized_emails
 
 
 # --- Tool config ---
@@ -73,7 +73,7 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
-    interface_chatActivity1(),
+    # interface_chatActivity1(),
     interface_biasPhrase(
         language_model=beto_lm,
         available_logs=AVAILABLE_LOGS,
@@ -98,15 +98,19 @@ INTERFACE_LIST = [
     #     available_logs=AVAILABLE_LOGS,
     #     lang=LANGUAGE,
     #     user_email=user_email),
+    # interface_contest(
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE,),
 ]
 
 TAB_NAMES = [
-    "ChatGPT vía EDIA",
+    # "ChatGPT vía EDIA",
     labels["phraseExplorer"],
     labels["biasWordExplorer"],
     labels["wordExplorer"],
     labels["dataExplorer"],
-    # labels["crowsPairsExplorer"]
+    # labels["crowsPairsExplorer"],
+    "Concurso",
 ]
 
 if LANGUAGE != 'es':
@@ -116,7 +120,7 @@ if LANGUAGE != 'es':
 
 edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
-with gr.Blocks(theme=edia_theme, css=css, title="E.D.I.A.") as iface:
+with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
     _ = gr.HTML(NAVBAR_HTML)
     _ = gr.TabbedInterface(
         interface_list=INTERFACE_LIST,
@@ -124,10 +128,10 @@ with gr.Blocks(theme=edia_theme, css=css, title="E.D.I.A.") as iface:
     )
     _ = gr.HTML(FOOTER_HTML)
 
-# iface.queue(
-#     max_size=QUEUE_MAX_SIZE,
-#     concurrency_count=REQUESTS_CONCURRENCY
-# )
+iface.queue(
+    max_size=QUEUE_MAX_SIZE,
+    concurrency_count=REQUESTS_CONCURRENCY
+)
 
 iface.launch(
     server_port=cmd_line_args['port'],

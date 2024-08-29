@@ -5,7 +5,7 @@ NAVBAR_HTML = """
         </a>
         
         <a href="https://edia.ngrok.app/" style="width: 11em; max-width:20vw; height: auto;">
-            <img src="https://i.imgur.com/kC1Reex.png">
+            <img src="https://i.imgur.com/b0EkuNi.jpeg">
         </a>
         
         <a href="https://edia.ngrok.app/auth/logout" style="width: 11em; max-width:20vw; height: auto;">
@@ -16,7 +16,7 @@ NAVBAR_HTML = """
 
 FOOTER_HTML = """
     <div style="width: 100%; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center;">
-        <img src="https://i.imgur.com/yrOc3c5.png">
+        <img src="https://i.imgur.com/y0MsJRk.jpeg">
     </div>
 """
 

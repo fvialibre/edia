@@ -39,6 +39,9 @@
             "lista_de_palabras_3",
             "lista_de_palabras_4",
             "token_id",
+            "school",
+            "age",
+            "gender",
             "destacar_consulta",
             "model_name"
         ]
@@ -77,7 +80,10 @@
             "lista_de_palabras_3",
             "lista_de_palabras_4",
             "espacio_graficado",
-            "token_id", 
+            "token_id",
+            "school",
+            "age",
+            "gender",
             "destacar_consulta",
             "tipo_de_sesgo_explorado",
             "model_name"
@@ -118,6 +124,9 @@
             "frase",
             "lista_de_palabras",
             "token_id",
+            "school",
+            "age",
+            "gender",
             "destacar_consulta",
             "tipo_de_sesgo_explorado",
             "model_name"
@@ -145,7 +154,10 @@
         "headers_name": [
             "palabra",
             "conjuntos_de_interes",
-            "token_id", 
+            "token_id",
+            "school",
+            "age",
+            "gender",
             "consulta_destacada",
             "model_name"
         ]

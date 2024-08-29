@@ -120,6 +120,9 @@ class Connector(ABC):
         df = df[df['token_id'] == token_id]
         df = df.drop(columns=[
             'token_id',
+            'school',
+            'age',
+            'gender',
             'datetime',
             'destacar_consulta',
             "model_name",
@@ -192,7 +195,10 @@ class WordExplorerConnector(Connector):
         n_alpha: float,
         fontsize: int,
         n_neighbors: int,
-        token_id:str,
+        token_id: str,
+        school: str,
+        age: str,
+        gender: str,
         highlight_query: bool,
         model_name: str,
     ) -> Tuple:
@@ -232,6 +238,9 @@ class WordExplorerConnector(Connector):
             wordlist_3,
             wordlist_4,
             token_id.strip(),
+            school.strip(),
+            age.strip(),
+            gender.strip(),
             highlight_query,
             model_name
         )
@@ -297,7 +306,10 @@ class BiasWordExplorerConnector(Connector):
         wordlist_1: str,
         wordlist_2: str,
         to_diagnose_list: str,
-        token_id: str, 
+        token_id: str,
+        school: str,
+        age: str,
+        gender: str, 
         highlight_query: bool,
         type_of_bias_explored: List[str],
         model_name: str
@@ -316,10 +328,16 @@ class BiasWordExplorerConnector(Connector):
         to_diagnose_list = self.parse_words(to_diagnose_list)
         word_lists = [wordlist_1, wordlist_2, to_diagnose_list]
 
-        # Check if the token id is empty
-        if token_id.strip() == "":
+        if (token_id is None
+            or school is None
+            or age is None
+            or gender is None
+            or len(token_id) == 0
+            or len(school) == 0
+            or len(age) == 0):
+        
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return None, err
+            return err, ""
         
         # Check if word lists have at least one word
         for _list in word_lists:
@@ -348,6 +366,9 @@ class BiasWordExplorerConnector(Connector):
             "",
             "2d",
             token_id.strip(),
+            school.strip(),
+            age.strip(),
+            gender.strip(),
             highlight_query,
             type_of_bias_explored,
             model_name
@@ -369,7 +390,10 @@ class BiasWordExplorerConnector(Connector):
         wordlist_3: str,
         wordlist_4: str,
         to_diagnose_list: str,
-        token_id: str, 
+        token_id: str,
+        school: str,
+        age: str,
+        gender: str,
         highlight_query: bool,
         type_of_bias_explored: List[str],
     ) -> Tuple:
@@ -383,10 +407,16 @@ class BiasWordExplorerConnector(Connector):
 
         wordlists = [wordlist_1, wordlist_2, wordlist_3, wordlist_4, to_diagnose_list]
 
-        # Check if the token id is empty
-        if token_id.strip() == "":
+        if (token_id is None
+            or school is None
+            or age is None
+            or gender is None
+            or len(token_id) == 0
+            or len(school) == 0
+            or len(age) == 0):
+        
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return None, err
+            return err, ""
         
         # Check words errors
         for _list in wordlists:
@@ -415,6 +445,9 @@ class BiasWordExplorerConnector(Connector):
             wordlist_4,
             "4d",
             token_id.strip(),
+            school.strip(),
+            age.strip(),
+            gender.strip(),
             highlight_query,
             type_of_bias_explored,
         )
@@ -493,7 +526,10 @@ class Word2ContextExplorerConnector(Connector):
         word: str,
         n_context: int,
         subset_choice: List[str],
-        token_id: str, 
+        token_id: str,
+        school: str,
+        age: str,
+        gender: str,
         highlight_query: bool,
         model_name: str
     ) -> Tuple:
@@ -502,10 +538,16 @@ class Word2ContextExplorerConnector(Connector):
         err = ""
         contexts = pd.DataFrame([], columns=[''])
 
-        # Check if the token id is empty
-        if token_id.strip() == "":
+        if (token_id is None
+            or school is None
+            or age is None
+            or gender is None
+            or len(token_id) == 0
+            or len(school) == 0
+            or len(age) == 0):
+        
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, contexts
+            return err, ""
         
         # Check other errors
         err = self.word2context_explorer.errorChecking(word)
@@ -525,6 +567,9 @@ class Word2ContextExplorerConnector(Connector):
             word,
             subset_choice,
             token_id.strip(),
+            school.strip(),
+            age.strip(),
+            gender.strip(),
             highlight_query,
             model_name,
         )
@@ -577,6 +622,9 @@ class PhraseBiasExplorerConnector(Connector):
         exclude_prepositions: bool,
         exclude_conjunctions: bool,
         token_id: str,
+        school: str,
+        age: str,
+        gender: str,
         highlight_query: bool,
         type_of_bias_explored: List[str],
         model_name: str,
@@ -593,8 +641,14 @@ class PhraseBiasExplorerConnector(Connector):
         interest_word_list = self.parse_words(interest_word_list)
         banned_word_list = self.parse_words(banned_word_list)
 
-        # Check if the token id is empty
-        if len(token_id) == 0:
+        if (token_id is None
+            or school is None
+            or age is None
+            or gender is None
+            or len(token_id) == 0
+            or len(school) == 0
+            or len(age) == 0):
+        
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
             return err, ""
 
@@ -618,6 +672,9 @@ class PhraseBiasExplorerConnector(Connector):
             sent,
             interest_word_list,
             token_id.strip(),
+            school.strip(),
+            age.strip(),
+            gender.strip(),
             highlight_query,
             type_of_bias_explored,
             model_name
@@ -698,6 +755,9 @@ class CrowsPairsExplorerConnector(Connector):
             self.headers,
             sent_list,
             token_id.strip(),
+            school.strip(),
+            age.strip(),
+            gender.strip(),
             highlight_query
         )
 

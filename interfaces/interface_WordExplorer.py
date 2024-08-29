@@ -2,7 +2,7 @@ import gradio as gr
 import pandas as pd
 import matplotlib.pyplot as plt
 from modules.module_connection import WordExplorerConnector
-from auth import authorized_emails
+from auth import school_list
 
 plt.rcParams.update({'font.size': 14})
 
@@ -36,13 +36,34 @@ def interface(
     interface = gr.Blocks()
 
     with interface:
-        token_id = gr.Dropdown(
-            choices=authorized_emails,
-            label="Seleccione su mail",
-            info="Seleccione su mail",
-            multiselect=False,
-            allow_custom_value=False,
-        )
+        with gr.Row():
+            with gr.Column():
+                token_id = gr.Textbox(
+                    label="Escriba su correo electrónico",
+                    lines=1,
+                )
+            with gr.Column():
+                school = gr.Dropdown(
+                    choices=school_list,
+                    label="Seleccione su escuela",
+                    # info="Seleccione su escuela",
+                    multiselect=False,
+                    allow_custom_value=False,
+                )
+            with gr.Column():
+                age = gr.Dropdown(
+                    choices=[str(i) for i in range(1, 100)],
+                    label="Seleccione su edad",
+                    # info="Seleccione su edad",
+                    multiselect=False,
+                    allow_custom_value=False,
+                )
+            with gr.Column():
+                gender = gr.Radio(
+                    ["M", "F", "X"],
+                    label="Seleccione su género",
+                    # info="Where did they go?"
+                )
         with gr.Row():
             with gr.Column(scale=3):
                 model_name = gr.Radio(
@@ -206,7 +227,12 @@ def interface(
                 alpha,
                 fontsize,
                 n_neighbors,
-                token_id, highlight_query, model_name
+                token_id,
+                school,
+                age,
+                gender,
+                highlight_query,
+                model_name
             ],
             outputs=[word_proyections, err_msg],
             api_name="word_explorer"

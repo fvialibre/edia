@@ -32,7 +32,10 @@
             "word_list_2",
             "word_list_3",
             "word_list_4",
-            "token_id", 
+            "token_id",
+            "school",
+            "age",
+            "gender",
             "highlight_query",
             "model_name"
         ]
@@ -62,7 +65,10 @@
             "word_list_3",
             "word_list_4",
             "plot_space",
-            "token_id", 
+            "token_id",
+            "school",
+            "age",
+            "gender",
             "highlight_query",
             "type_of_bias_explored",
             "model_name"
@@ -98,6 +104,9 @@
             "sent",
             "word_list",
             "token_id",
+            "school",
+            "age",
+            "gender",
             "highlight_query",
             "type_of_bias_explored",
             "model_name"
@@ -122,7 +131,10 @@
         "headers_name": [
             "word",
             "subsets_choice",
-            "token_id", 
+            "token_id",
+            "school",
+            "age",
+            "gender",
             "highlight_query",
             "model_name"
         ]

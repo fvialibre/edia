@@ -1,14 +1,13 @@
 import gradio as gr
 import pandas as pd
 from modules.module_connection import PhraseBiasExplorerConnector
-from auth import authorized_emails
+from auth import school_list
 
 
 def interface(
     language_model: str,
     available_logs: bool, 
     lang: str="es",
-    user_email: any=None,
 ) -> gr.Blocks:
 
     # -- Load examples --
@@ -36,13 +35,33 @@ def interface(
     )
 
     with iface:
-        token_id = gr.Dropdown(
-            choices=authorized_emails,
-            label="Seleccione su mail",
-            info="Seleccione su mail",
-            multiselect=False,
-            allow_custom_value=False,
-        )
+        with gr.Row():
+            with gr.Column():
+                token_id = gr.Textbox(
+                    label="Escriba su correo electrónico",
+                    lines=1,
+                )
+            with gr.Column():
+                school = gr.Dropdown(
+                    choices=school_list,
+                    label="Seleccione su escuela",
+                    # info="Seleccione su escuela",
+                    multiselect=False,
+                    allow_custom_value=False,
+                )
+            with gr.Column():
+                age = gr.Dropdown(
+                    choices=[str(i) for i in range(1, 100)],
+                    label="Seleccione su edad",
+                    # info="Seleccione su edad",
+                    multiselect=False,
+                    allow_custom_value=False,
+                )
+            with gr.Column():
+                gender = gr.Radio(
+                    ["M", "F", "X"],
+                    label="Seleccione su género",
+                )
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
@@ -167,6 +186,9 @@ def interface(
                 prepositions, 
                 conjunctions,
                 token_id,
+                school,
+                age,
+                gender,
                 highlight_query,
                 type_of_bias_explored,
                 model_name,

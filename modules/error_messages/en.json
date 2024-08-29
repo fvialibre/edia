@@ -20,7 +20,7 @@
 
         "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Word not entered and/or interest set(s) not selected!",
 
-        "TOKEN_ID_EMPTY": "Enter your email to make your query!",
+        "TOKEN_ID_EMPTY": "Enter your personal data to make your query!",
         "TYPE_OF_BIAS_EXPLORED_EMPTY": "It is necessary to specify a type of bias in order to make your query!"
     }
 }
