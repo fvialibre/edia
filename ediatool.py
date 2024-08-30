@@ -32,15 +32,16 @@ cmd_line_args = parse_cmd_line_args()
 cfg = configparser.ConfigParser()
 cfg.read('tool.cfg')
 
-LANGUAGE            = cfg['INTERFACE']['language']
-EMBEDDINGS_PATH     = cfg['WORD_EXPLORER']['embeddings_path']
-NN_METHOD           = cfg['WORD_EXPLORER']['nn_method']
-MAX_NEIGHBORS       = int(cfg['WORD_EXPLORER']['max_neighbors'])
-CONTEXTS_DATASET    = cfg['DATA']['contexts_dataset']
-VOCABULARY_SUBSET   = cfg['DATA']['vocabulary_subset']
-AVAILABLE_WORDCLOUD = cfg['DATA'].getboolean('available_wordcloud')
-LANGUAGE_MODEL      = cfg['LMODEL']['language_model']
-AVAILABLE_LOGS      = cfg['LOGS'].getboolean('available_logs')
+LANGUAGE                = cfg['INTERFACE']['language']
+EMBEDDINGS_PATH         = cfg['WORD_EXPLORER']['embeddings_path']
+NN_METHOD               = cfg['WORD_EXPLORER']['nn_method']
+MAX_NEIGHBORS           = int(cfg['WORD_EXPLORER']['max_neighbors'])
+CONTEXTS_DATASET        = cfg['DATA']['contexts_dataset']
+VOCABULARY_SUBSET       = cfg['DATA']['vocabulary_subset']
+AVAILABLE_WORDCLOUD     = cfg['DATA'].getboolean('available_wordcloud')
+SPANISH_LANGUAGE_MODEL  = cfg['LMODEL']['spanish_language_model']
+ENGLISH_LANGUAGE_MODEL  = cfg['LMODEL']['english_language_model']
+AVAILABLE_LOGS          = cfg['LOGS'].getboolean('available_logs')
 
 # Server
 QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size'])
@@ -60,8 +61,12 @@ vocabulary = Vocabulary(
     subset_name=VOCABULARY_SUBSET
 )
 
-beto_lm = LanguageModel(
-    model_name=LANGUAGE_MODEL
+spanish_lm = LanguageModel(
+    model_name=SPANISH_LANGUAGE_MODEL
+)
+
+english_lm = LanguageModel(
+    model_name=ENGLISH_LANGUAGE_MODEL
 )
 
 labels_path = f"language/{LANGUAGE}.json"
@@ -75,7 +80,8 @@ labels = pd.read_json(labels_path)["app"]
 INTERFACE_LIST = [
     # interface_chatActivity1(),
     interface_biasPhrase(
-        language_model=beto_lm,
+        spanish_language_model=spanish_lm,
+        english_language_model=english_lm,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
     interface_biasWordExplorer(
@@ -98,9 +104,9 @@ INTERFACE_LIST = [
     #     available_logs=AVAILABLE_LOGS,
     #     lang=LANGUAGE,
     #     user_email=user_email),
-    # interface_contest(
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,),
+    interface_contest(
+        available_logs=AVAILABLE_LOGS,
+        lang=LANGUAGE,),
 ]
 
 TAB_NAMES = [
@@ -130,9 +136,9 @@ with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
 
 iface.queue(
     max_size=QUEUE_MAX_SIZE,
-    concurrency_count=REQUESTS_CONCURRENCY
 )
 
 iface.launch(
     server_port=cmd_line_args['port'],
+    max_threads = REQUESTS_CONCURRENCY
 )

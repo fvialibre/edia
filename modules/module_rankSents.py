@@ -7,20 +7,39 @@ import torch
 class RankSents:
     def __init__(
         self, 
-        language_model, # LanguageModel class instance
+        spanish_language_model, # LanguageModel class instance
+        english_language_model, # LanguageModel class instance
         lang: str,
         errorManager    # ErrorManager class instance
     ) -> None:
         
-        self.tokenizer = language_model.initTokenizer()
-        self.model = language_model.initModel()
-        _ = self.model.eval()
-
         self.Label = CustomPllLabel()
-        self.pllScore = PllScore(
-            language_model=language_model
-        )
         self.softmax = torch.nn.Softmax(dim=-1)
+
+        spanish_dict_key = "spanish"
+        english_dict_key = "english"
+
+        self.tokenizer = {
+            spanish_dict_key: spanish_language_model.initTokenizer(),
+            english_dict_key: english_language_model.initTokenizer()
+        }
+
+        self.model = {
+            spanish_dict_key: spanish_language_model.initModel(),
+            english_dict_key: english_language_model.initModel()
+        }
+
+        _ = self.model[spanish_dict_key].eval()
+        _ = self.model[english_dict_key].eval()
+
+        self.pllScore = {
+            spanish_dict_key: PllScore(
+                language_model=spanish_language_model
+            ),
+            english_dict_key: PllScore(
+                language_model=english_language_model
+            ),
+        }
 
         if lang == "es":
             self.articles = [
@@ -48,7 +67,8 @@ class RankSents:
 
     def errorChecking(
         self, 
-        sent: str
+        sent: str,
+        lang_dict_key
     ) -> str:
 
         out_msj = ""
@@ -59,8 +79,8 @@ class RankSents:
         elif sent.count("*") == 0:
             out_msj = ['RANKSENTS_NO_MASK_IN_SENTENCE']
         else:
-            sent_len = len(self.tokenizer.encode(sent.replace("*", self.tokenizer.mask_token)))
-            max_len = self.tokenizer.max_len_single_sentence
+            sent_len = len(self.tokenizer[lang_dict_key].encode(sent.replace("*", self.tokenizer[lang_dict_key].mask_token)))
+            max_len = self.tokenizer[lang_dict_key].max_len_single_sentence
             if sent_len > max_len:
                 out_msj = ['RANKSENTS_TOKENIZER_MAX_TOKENS_REACHED', max_len]
         
@@ -97,10 +117,11 @@ class RankSents:
         exclude_articles: bool=False,
         exclude_prepositions: bool=False,
         exclude_conjunctions: bool=False,
+        model_name: str="",
     ) -> List[str]:
-                                
-        sent_masked = sent.replace("*", self.tokenizer.mask_token)
-        inputs = self.tokenizer.encode_plus( 
+                                        
+        sent_masked = sent.replace("*", self.tokenizer[model_name].mask_token)
+        inputs = self.tokenizer[model_name].encode_plus( 
             sent_masked,
             add_special_tokens=True,
             return_tensors='pt',
@@ -108,10 +129,10 @@ class RankSents:
             truncation=True
         )
 
-        tk_position_mask = torch.where(inputs['input_ids'][0] == self.tokenizer.mask_token_id)[0].item()
+        tk_position_mask = torch.where(inputs['input_ids'][0] == self.tokenizer[model_name].mask_token_id)[0].item()
 
         with torch.no_grad():
-            out = self.model(**inputs)
+            out = self.model[model_name](**inputs)
             logits = out.logits
             outputs = self.softmax(logits)
             outputs = torch.squeeze(outputs, dim=0)
@@ -121,12 +142,12 @@ class RankSents:
         
         top_tks_pred = []
         for tk_id in first_tk_id:
-            tk_string = self.tokenizer.decode([tk_id])
+            tk_string = self.tokenizer[model_name].decode([tk_id])
             
             tk_is_banned = tk_string in banned_word_list
             tk_is_punctuation = not tk_string.isalnum()
             tk_is_substring = tk_string.startswith("##")
-            tk_is_special = (tk_string in self.tokenizer.all_special_tokens)
+            tk_is_special = (tk_string in self.tokenizer[model_name].all_special_tokens)
 
             if exclude_articles:
                 tk_is_article = tk_string in self.articles
@@ -172,7 +193,7 @@ class RankSents:
         model_name: str=""
     ) -> Dict[str, float]:
         
-        err = self.errorChecking(sent)
+        err = self.errorChecking(sent, model_name)
         if err:
             raise ValueError(err)
 
@@ -183,7 +204,8 @@ class RankSents:
                 banned_word_list,
                 exclude_articles,
                 exclude_prepositions,
-                exclude_conjunctions
+                exclude_conjunctions,
+                model_name,
             )
 
         sent_list = []
@@ -194,6 +216,6 @@ class RankSents:
             
         all_plls_scores = {}
         for sent, sent2print in zip(sent_list, sent_list2print):
-            all_plls_scores[sent2print] = self.pllScore.compute(sent)
+            all_plls_scores[sent2print] = self.pllScore[model_name].compute(sent)
 
         return all_plls_scores

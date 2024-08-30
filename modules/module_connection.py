@@ -505,7 +505,7 @@ class Word2ContextExplorerConnector(Connector):
         subsets_info = ""
         distribution_plot = None
         word_cloud_plot = None
-        subsets_choice = gr.CheckboxGroup.update(choices=[])
+        subsets_choice = gr.CheckboxGroup(choices=[])
 
         err = self.word2context_explorer.errorChecking(word)
         if err:
@@ -514,7 +514,7 @@ class Word2ContextExplorerConnector(Connector):
         subsets_info, subsets_origin_info = self.word2context_explorer.getSubsetsInfo(word)
 
         clean_keys = [key.split(" ")[0].strip() for key in subsets_origin_info]
-        subsets_choice = gr.CheckboxGroup.update(choices=clean_keys)
+        subsets_choice = gr.CheckboxGroup(choices=clean_keys)
 
         distribution_plot = self.word2context_explorer.genDistributionPlot(word)
         #word_cloud_plot = self.word2context_explorer.genWordCloudPlot(word)
@@ -588,7 +588,8 @@ class PhraseBiasExplorerConnector(Connector):
     ) -> None:
 
         Connector.__init__(self, kwargs.get('lang', 'en'))
-        language_model = kwargs.get('language_model', None)
+        spanish_language_model = kwargs.get('spanish_language_model', None)
+        english_language_model = kwargs.get('english_language_model', None)
         lang =  kwargs.get('lang', None)
         self.logs_file_name = kwargs.get('logs_file_name', None)
         self.headers = pd.read_json(
@@ -602,13 +603,14 @@ class PhraseBiasExplorerConnector(Connector):
         #     "type_of_bias_explored"
         # ]
 
-        if language_model is None:
+        if spanish_language_model is None or english_language_model is None:
             raise KeyError('language_model')
         elif lang is None:
             raise KeyError('lang')
 
         self.phrase_bias_explorer = RankSents(
-            language_model=language_model,
+            spanish_language_model=spanish_language_model,
+            english_language_model=english_language_model,
             lang=lang,
             errorManager=self.errorManager
         )
@@ -632,7 +634,8 @@ class PhraseBiasExplorerConnector(Connector):
     ) -> Tuple:
         
         model_name_dict = {
-            "Modelo en español": "BETO",
+            "Modelo en español": "spanish",
+            "Modelo en inglés": "english",
         }
 
         model_name = model_name_dict[model_name]
@@ -653,7 +656,7 @@ class PhraseBiasExplorerConnector(Connector):
             return err, ""
 
         # Check format setns errors
-        err = self.phrase_bias_explorer.errorChecking(sent)
+        err = self.phrase_bias_explorer.errorChecking(sent, model_name)
         if err:
             return err, ""
 
@@ -691,79 +694,79 @@ class PhraseBiasExplorerConnector(Connector):
             model_name
         )
         
-        all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores, model_name)
+        all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)
         return err, all_plls_scores
 
-class CrowsPairsExplorerConnector(Connector):
-    def __init__(
-        self, 
-        **kwargs
-    ) -> None:
+# class CrowsPairsExplorerConnector(Connector):
+#     def __init__(
+#         self, 
+#         **kwargs
+#     ) -> None:
 
-        Connector.__init__(self, kwargs.get('lang', 'en'))
-        language_model = kwargs.get('language_model', None)
-        self.logs_file_name = kwargs.get('logs_file_name', None)
-        self.headers = [
-            "sent_1",
-            "sent_2",
-            "sent_3",
-            "sent_4",
-            "sent_5",
-            "sent_6",
-            "token_id",
-            "highlight_query"
-        ]
+#         Connector.__init__(self, kwargs.get('lang', 'en'))
+#         language_model = kwargs.get('language_model', None)
+#         self.logs_file_name = kwargs.get('logs_file_name', None)
+#         self.headers = [
+#             "sent_1",
+#             "sent_2",
+#             "sent_3",
+#             "sent_4",
+#             "sent_5",
+#             "sent_6",
+#             "token_id",
+#             "highlight_query"
+#         ]
 
-        if language_model is None:
-            raise KeyError('language_model')
+#         if language_model is None:
+#             raise KeyError('language_model')
         
-        self.crows_pairs_explorer = CrowsPairs(
-            language_model=language_model,
-            errorManager=self.errorManager
-        )
+#         self.crows_pairs_explorer = CrowsPairs(
+#             language_model=language_model,
+#             errorManager=self.errorManager
+#         )
 
-    def compare_sentences(
-        self,
-        sent0: str,
-        sent1: str,
-        sent2: str,
-        sent3: str,
-        sent4: str,
-        sent5: str,
-        token_id: str,
-        highlight_query: bool
-    ) -> Tuple:
+#     def compare_sentences(
+#         self,
+#         sent0: str,
+#         sent1: str,
+#         sent2: str,
+#         sent3: str,
+#         sent4: str,
+#         sent5: str,
+#         token_id: str,
+#         highlight_query: bool
+#     ) -> Tuple:
 
-        sent_list = [sent0, sent1, sent2, sent3, sent4, sent5]
+#         sent_list = [sent0, sent1, sent2, sent3, sent4, sent5]
 
-        # Check if the token id is empty
-        if token_id.strip() == "":
-            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, "", ""
+#         # Check if the token id is empty
+#         if token_id.strip() == "":
+#             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+#             return err, "", ""
         
-        # Check sents format errors
-        err = self.crows_pairs_explorer.errorChecking(
-            sent_list
-        )
+#         # Check sents format errors
+#         err = self.crows_pairs_explorer.errorChecking(
+#             sent_list
+#         )
 
-        if err:
-            return err, "", ""
+#         if err:
+#             return err, "", ""
 
-        # Save inputs in logs file
-        self.logs_save(
-            self.logs_file_name, 
-            self.headers,
-            sent_list,
-            token_id.strip(),
-            school.strip(),
-            age.strip(),
-            gender.strip(),
-            highlight_query
-        )
+#         # Save inputs in logs file
+#         self.logs_save(
+#             self.logs_file_name, 
+#             self.headers,
+#             sent_list,
+#             token_id.strip(),
+#             school.strip(),
+#             age.strip(),
+#             gender.strip(),
+#             highlight_query
+#         )
 
-        all_plls_scores = self.crows_pairs_explorer.rank(
-            sent_list
-        )
+#         all_plls_scores = self.crows_pairs_explorer.rank(
+#             sent_list
+#         )
         
-        all_plls_scores = self.crows_pairs_explorer.Label.compute(all_plls_scores)
-        return err, all_plls_scores, ""
+#         all_plls_scores = self.crows_pairs_explorer.Label.compute(all_plls_scores)
+#         return err, all_plls_scores, ""

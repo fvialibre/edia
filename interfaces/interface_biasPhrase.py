@@ -5,7 +5,8 @@ from auth import school_list
 
 
 def interface(
-    language_model: str,
+    spanish_language_model: str,
+    english_language_model: str,
     available_logs: bool, 
     lang: str="es",
 ) -> gr.Blocks:
@@ -19,7 +20,8 @@ def interface(
 
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(
-        language_model=language_model,
+        spanish_language_model=spanish_language_model,
+        english_language_model=english_language_model,
         lang=lang,
         logs_file_name=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None
     )
@@ -65,7 +67,7 @@ def interface(
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
-                    ["Modelo en español"],
+                    ["Modelo en español", "Modelo en inglés"],
                     value="Modelo en español",
                     info="Elegí un modelo de lenguaje.",
                     container=False,

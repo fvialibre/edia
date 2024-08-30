@@ -20,6 +20,7 @@ class CustomPllLabel:
                     }
                     progress::-webkit-progress-bar {
                         background-color: white;
+                        border-radius: 0.5em;
                     }
                     #myturn span {
                         position: absolute;
@@ -104,7 +105,6 @@ class CustomPllLabel:
     def __getProportions(
         self, 
         scores: List[float],
-        model_name: str,
     ) -> List[float]:
     
         min_score = min(scores)
@@ -113,7 +113,6 @@ class CustomPllLabel:
     def compute(
         self, 
         pll_dict: Dict[str, float],
-        model_name: str,
     ) -> str:
 
         sorted_pll_dict = sorted(pll_dict.items(), key=lambda x: x[1], reverse=True)
@@ -124,6 +123,6 @@ class CustomPllLabel:
         # Scape < and > marks from hightlight word/s
         translation_table = str.maketrans({"<": "<b><i>", ">": "</i></b>"})
         sents = [f"{i+1}. {s.translate(translation_table)}" for i, s in enumerate(sents)]
-        ratios = self.__getProportions(scores, model_name)
+        ratios = self.__getProportions(scores)
         
         return self.__render(sents, scores, ratios)
