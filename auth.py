@@ -1,4 +1,5 @@
 school_list = [
+    "Perspectivas Feministas de la IA",
     "10 DE JUNIO - RIO CUARTO",
     "12 DE OCTUBRE - CAMPO FALCO",
     "12 DE OCTUBRE - BAJO HONDO",
