@@ -78,7 +78,6 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
-    interface_chatActivity1(),
     interface_biasPhrase(
         spanish_language_model=spanish_lm,
         english_language_model=english_lm,
@@ -88,6 +87,7 @@ INTERFACE_LIST = [
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
+    interface_chatActivity1(),
     interface_wordExplorer(
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
@@ -110,9 +110,9 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
-    "ChatGPT vía EDIA",
     labels["phraseExplorer"],
     labels["biasWordExplorer"],
+    "ChatGPT vía EDIA",
     labels["wordExplorer"],
     labels["dataExplorer"],
     # labels["crowsPairsExplorer"],
