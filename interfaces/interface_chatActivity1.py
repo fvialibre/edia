@@ -37,16 +37,6 @@ def interface() -> gr.Blocks:
             }, ensure_ascii=False) + "\n")
         return gpt_response.content
 
-    def toggle_chat(token_id, school, age, gender):
-        if not (token_id is None
-            or school is None
-            or age is None
-            or gender is None
-            or len(token_id) == 0
-            or len(school) == 0
-            or len(age) == 0):
-            return gr.update(visible=True)
-
     with gr.Blocks() as interface:
         with gr.Row():
             with gr.Column():
@@ -92,6 +82,26 @@ def interface() -> gr.Blocks:
                     submit_btn="Enviar",
                     stop_btn=None,
                 )
+            
+        with gr.Column(visible=True) as personal_data_missing:
+            gr.Markdown("""
+                ### Ingrese sus datos personales para poder realizar la consulta!
+            """
+            )
+
+            
+        def toggle_chat(token_id, school, age, gender):
+            if not (token_id is None
+                or school is None
+                or age is None
+                or gender is None
+                or len(token_id) == 0
+                or len(school) == 0
+                or len(age) == 0):
+                return gr.Column(visible=True), gr.Column(visible=False)
+            else:
+                return gr.Column(visible=False), gr.Column(visible=True)
+        
         token_id.change(
             fn=toggle_chat,
             inputs=[
@@ -100,7 +110,7 @@ def interface() -> gr.Blocks:
                 age,
                 gender
             ],
-            outputs=chat_col)
+            outputs=[chat_col, personal_data_missing])
         school.change(
             fn=toggle_chat,
             inputs=[
@@ -109,7 +119,7 @@ def interface() -> gr.Blocks:
                 age,
                 gender
             ],
-            outputs=chat_col)  
+            outputs=[chat_col, personal_data_missing])  
         age.change(
             fn=toggle_chat,
             inputs=[
@@ -118,7 +128,7 @@ def interface() -> gr.Blocks:
                 age,
                 gender
             ],
-            outputs=chat_col)
+            outputs=[chat_col, personal_data_missing])
         gender.change(
             fn=toggle_chat,
             inputs=[
@@ -127,6 +137,6 @@ def interface() -> gr.Blocks:
                 age,
                 gender
             ],
-            outputs=chat_col)
+            outputs=[chat_col, personal_data_missing])
 
     return interface
