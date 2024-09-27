@@ -22,7 +22,7 @@
 
         "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!",
         
-        "TOKEN_ID_EMPTY": "Ingrese sus datos personales para poder realizar la consulta!",
+        "TOKEN_ID_EMPTY": "Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!",
         "TYPE_OF_BIAS_EXPLORED_EMPTY": "Es necesario especificar un tipo de sesgo para poder realizar la consulta!"
     }
 }

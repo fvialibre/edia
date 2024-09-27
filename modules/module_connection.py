@@ -199,6 +199,7 @@ class WordExplorerConnector(Connector):
         school: str,
         age: str,
         gender: str,
+        consent_checkbox: bool,
         highlight_query: bool,
         model_name: str,
     ) -> Tuple:
@@ -212,7 +213,15 @@ class WordExplorerConnector(Connector):
         wordlist_4 = self.parse_words(wordlist_4)
 
         # Check if the token id is empty
-        if token_id.strip() == "":
+        if (token_id is None
+            or school is None
+            or age is None
+            or gender is None
+            or not consent_checkbox
+            or len(token_id) == 0
+            or len(school) == 0
+            or len(age) == 0):
+        
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
             return None, err
         
@@ -309,7 +318,8 @@ class BiasWordExplorerConnector(Connector):
         token_id: str,
         school: str,
         age: str,
-        gender: str, 
+        gender: str,
+        consent_checkbox: bool, 
         highlight_query: bool,
         type_of_bias_explored: List[str],
         model_name: str
@@ -332,13 +342,14 @@ class BiasWordExplorerConnector(Connector):
             or school is None
             or age is None
             or gender is None
+            or not consent_checkbox
             or len(token_id) == 0
             or len(school) == 0
             or len(age) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, ""
-        
+            return None, err
+       
         # Check if word lists have at least one word
         for _list in word_lists:
             if not _list:
@@ -394,6 +405,7 @@ class BiasWordExplorerConnector(Connector):
         school: str,
         age: str,
         gender: str,
+        consent_checkbox: bool,
         highlight_query: bool,
         type_of_bias_explored: List[str],
     ) -> Tuple:
@@ -411,12 +423,13 @@ class BiasWordExplorerConnector(Connector):
             or school is None
             or age is None
             or gender is None
+            or not consent_checkbox
             or len(token_id) == 0
             or len(school) == 0
             or len(age) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, ""
+            return None, err
         
         # Check words errors
         for _list in wordlists:
@@ -530,6 +543,7 @@ class Word2ContextExplorerConnector(Connector):
         school: str,
         age: str,
         gender: str,
+        consent_checkbox: bool,
         highlight_query: bool,
         model_name: str
     ) -> Tuple:
@@ -542,12 +556,13 @@ class Word2ContextExplorerConnector(Connector):
             or school is None
             or age is None
             or gender is None
+            or not consent_checkbox
             or len(token_id) == 0
             or len(school) == 0
             or len(age) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, ""
+            return None, err
         
         # Check other errors
         err = self.word2context_explorer.errorChecking(word)
@@ -627,6 +642,7 @@ class PhraseBiasExplorerConnector(Connector):
         school: str,
         age: str,
         gender: str,
+        consent_checkbox: bool,
         highlight_query: bool,
         type_of_bias_explored: List[str],
         model_name: str,
@@ -648,12 +664,13 @@ class PhraseBiasExplorerConnector(Connector):
             or school is None
             or age is None
             or gender is None
+            or not consent_checkbox
             or len(token_id) == 0
             or len(school) == 0
             or len(age) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return err, ""
+            return None, err
 
         # Check format setns errors
         err = self.phrase_bias_explorer.errorChecking(sent, model_name)
@@ -668,6 +685,17 @@ class PhraseBiasExplorerConnector(Connector):
         if err:
             return err, ""
 
+        all_plls_scores = self.phrase_bias_explorer.rank(
+            sent,
+            interest_word_list,
+            banned_word_list,
+            exclude_articles,
+            exclude_prepositions,
+            exclude_conjunctions,
+            n_predictions,
+            model_name
+        )
+
         # Save inputs in logs file
         self.logs_save(
             self.logs_file_name, 
@@ -680,18 +708,8 @@ class PhraseBiasExplorerConnector(Connector):
             gender.strip(),
             highlight_query,
             type_of_bias_explored,
-            model_name
-        )
-
-        all_plls_scores = self.phrase_bias_explorer.rank(
-            sent,
-            interest_word_list,
-            banned_word_list,
-            exclude_articles,
-            exclude_prepositions,
-            exclude_conjunctions,
-            n_predictions,
-            model_name
+            model_name,
+            all_plls_scores,
         )
         
         all_plls_scores = self.phrase_bias_explorer.Label.compute(all_plls_scores)

@@ -129,7 +129,8 @@
             "gender",
             "destacar_consulta",
             "tipo_de_sesgo_explorado",
-            "model_name"
+            "model_name",
+            "results"
         ]
     },
     "DataExplorer_interface": {

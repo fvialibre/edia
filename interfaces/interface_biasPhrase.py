@@ -64,6 +64,16 @@ def interface(
                     ["M", "F", "X"],
                     label="Seleccione su género",
                 )
+            with gr.Column():
+                with gr.Row():
+                    consent_checkbox = gr.Checkbox(
+                        label='He leído y acepto el consentimiento informado ➡️',
+                        value=False
+                    )
+                    _ = gr.HTML(
+                        value="<a href='https://docs.google.com/document/d/1yR_spvGWiq9ivuz4iOI8kzwI0Ope6chS/edit'>Link 🔗</a>",
+                    )
+                
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
@@ -191,6 +201,7 @@ def interface(
                 school,
                 age,
                 gender,
+                consent_checkbox,
                 highlight_query,
                 type_of_bias_explored,
                 model_name,

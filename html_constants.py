@@ -29,3 +29,12 @@ font-size: 8em;
 }
 #examples {color: black !important}
 """
+
+HTML_FEEDBACK_TITLE = """
+    <h1 style="text-align: center; margin-bottom: 0em;">
+        Feedback del mensaje<br>
+    </h1>
+    <h3 style="text-align: center; margin-bottom: 3em;">
+        Por favor responda las siguientes preguntas sobre el mensaje que seleccionó.
+    </h3>
+"""

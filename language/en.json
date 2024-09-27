@@ -109,7 +109,8 @@
             "gender",
             "highlight_query",
             "type_of_bias_explored",
-            "model_name"
+            "model_name",
+            "results"
         ]
     },
     "DataExplorer_interface": {

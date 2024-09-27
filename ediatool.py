@@ -19,8 +19,8 @@ from interfaces.interface_WordExplorer import interface as interface_wordExplore
 from interfaces.interface_BiasWordExplorer import interface as interface_biasWordExplorer
 from interfaces.interface_data import interface as interface_data
 from interfaces.interface_biasPhrase import interface as interface_biasPhrase
-from interfaces.interface_chatActivity1 import interface as interface_chatActivity1
-from interfaces.interface_contest import interface as interface_contest
+from interfaces.interface_chatbot import interface as interface_chatbot
+from interfaces.interface_logsData import interface as interface_logsData
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
 # --- Imports Constants ---
@@ -87,7 +87,7 @@ INTERFACE_LIST = [
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
-    interface_chatActivity1(),
+    interface_chatbot(),
     interface_wordExplorer(
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
@@ -104,7 +104,7 @@ INTERFACE_LIST = [
     #     available_logs=AVAILABLE_LOGS,
     #     lang=LANGUAGE,
     #     user_email=user_email),
-    interface_contest(
+    interface_logsData(
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
 ]
@@ -116,7 +116,7 @@ TAB_NAMES = [
     labels["wordExplorer"],
     labels["dataExplorer"],
     # labels["crowsPairsExplorer"],
-    "Concurso",
+    "Visualizar datos",
 ]
 
 if LANGUAGE != 'es':
