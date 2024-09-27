@@ -64,7 +64,7 @@ def interface(
                         value=False
                     )
                     _ = gr.HTML(
-                        value="<a href='https://docs.google.com/document/d/1yR_spvGWiq9ivuz4iOI8kzwI0Ope6chS/edit'>Link 🔗</a>",
+                        value="<a href='https://docs.google.com/document/d/1v7XTX7pFJ8SUv0JbwY5yXsISH61k5GRWdDqWz6PFrls/edit'>Link 🔗</a>",
                     )
         with gr.Row():
             with gr.Column():

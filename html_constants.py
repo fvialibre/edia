@@ -18,7 +18,7 @@ FOOTER_HTML = """
     <div style="width: 100%; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center;">
         <img src="https://i.imgur.com/y0MsJRk.jpeg">
     </div>
-    <a href="https://docs.google.com/document/d/1yR_spvGWiq9ivuz4iOI8kzwI0Ope6chS/edit">
+    <a href="https://docs.google.com/document/d/1v7XTX7pFJ8SUv0JbwY5yXsISH61k5GRWdDqWz6PFrls/edit">
         Consentimiento Informado
     </a>
 """

@@ -103,7 +103,7 @@ class RankSents:
     ) -> str:
         
         out_msj = ""
-        if len(type_of_bias_explored) == 0:
+        if type_of_bias_explored is None or len(type_of_bias_explored) == 0:
             print("TYPE_OF_BIAS_EXPLORED_EMPTY")
             out_msj = ['TYPE_OF_BIAS_EXPLORED_EMPTY']
         

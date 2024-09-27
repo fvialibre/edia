@@ -362,7 +362,7 @@ class BiasWordExplorerConnector(Connector):
             return None, err
         
         # Check if the type of bias is empty
-        if len(type_of_bias_explored) == 0:
+        if type_of_bias_explored is None or len(type_of_bias_explored) == 0:
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
 
@@ -443,7 +443,7 @@ class BiasWordExplorerConnector(Connector):
             return None, err
         
         # Check if the type of bias is empty
-        if len(type_of_bias_explored) == 0:
+        if type_of_bias_explored is None or len(type_of_bias_explored) == 0:
             err = self.errorManager.process(['TYPE_OF_BIAS_EXPLORED_EMPTY'])
             return None, err
 
