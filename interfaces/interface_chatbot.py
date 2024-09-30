@@ -19,15 +19,15 @@ def interface() -> gr.Blocks:
     os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-    def predict(message, history, token_id, school, age, gender, group_id):
-        history_langchain_format = [SystemMessage(content=prompts[group_id])]
+    def predict(message, history, token_id, school, age, gender, prompt):
+        history_langchain_format = [SystemMessage(content=prompt)]
         for human, ai in history:
             history_langchain_format.append(HumanMessage(content=human))
             history_langchain_format.append(AIMessage(content=ai))
         history_langchain_format.append(HumanMessage(content=message))
         gpt_response = llm(history_langchain_format)
 
-        with open("./logs/logs_chatActivity2.jsonl", "a+", encoding='utf-8') as f:
+        with open("./logs/logs_chatbot.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
                 "timestamp": datetime.now().isoformat(),
                 "token_id": token_id,
@@ -37,13 +37,11 @@ def interface() -> gr.Blocks:
                 "message": message,
                 "response": gpt_response.content,
                 "history": history,
-                "current_prompt": prompts[group_id],
-                "group_id": group_id,
-                "prompts": prompts,
+                "current_prompt": prompt,
             }, ensure_ascii=False) + "\n")
         return gpt_response.content
     
-    def open_turn_feedback_modal(x: gr.LikeData, token_id, school, age, gender, group_id):    
+    def open_turn_feedback_modal(x: gr.LikeData, token_id, school, age, gender, prompt):    
         return {
             "selected_message": x.value,
             "is_like": x.liked,
@@ -52,11 +50,11 @@ def interface() -> gr.Blocks:
             "school": school,
             "age": age,
             "gender": gender,
-            "group_id": group_id,
+            "prompt": prompt,
         }, Modal(visible=True)
 
     def send_turn_feedback_modal(turn_info_for_feedback, q1, q2):
-        with open("./logs/logs_chatActivity2_feedback.jsonl", "a+", encoding='utf-8') as f:
+        with open("./logs/logs_chatbot_feedback.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
                 "timestamp": datetime.now().isoformat(),
                 "selected_message": turn_info_for_feedback["selected_message"],
@@ -68,8 +66,7 @@ def interface() -> gr.Blocks:
                 "school": turn_info_for_feedback["school"],
                 "age": turn_info_for_feedback["age"],
                 "gender": turn_info_for_feedback["gender"],
-                "group_id": turn_info_for_feedback["group_id"],
-                "prompts": prompts,
+                "prompt": turn_info_for_feedback["prompt"],
             }, ensure_ascii=False) + "\n")
         gr.Info("Feedback enviado con éxito")
         return Modal(visible=False)
@@ -86,7 +83,7 @@ def interface() -> gr.Blocks:
             "school": None,
             "age": None,
             "gender": None,
-            "group_id": None,
+            "prompt": None,
         })
         with gr.Row():
             with gr.Column():
@@ -114,13 +111,6 @@ def interface() -> gr.Blocks:
                     label="Seleccione su género",
                 )
             with gr.Column():
-                group_id = gr.Dropdown(
-                    choices=list(prompts.keys()),
-                    label="Seleccione su grupo",
-                    multiselect=False,
-                    allow_custom_value=False,
-                )
-            with gr.Column():
                 with gr.Row():
                     consent_checkbox = gr.Checkbox(
                         label='He leído y acepto el consentimiento informado ➡️',
@@ -129,6 +119,11 @@ def interface() -> gr.Blocks:
                     _ = gr.HTML(
                         value="<a href='https://docs.google.com/document/d/1v7XTX7pFJ8SUv0JbwY5yXsISH61k5GRWdDqWz6PFrls/edit'>Link 🔗</a>",
                     )
+        with gr.Row():
+            prompt = gr.Textbox(
+                label="Escriba el prompt (dejar vacío para usar ChatGPT normal)",
+                lines=3,
+            )
             
         with gr.Column(visible=False, elem_id='col') as chat_col:
             gr.HTML("<h1 style='text-align: center;'>ChatGPT vía EDIA</h1>")
@@ -145,7 +140,7 @@ def interface() -> gr.Blocks:
                         school,
                         age,
                         gender,
-                        group_id,
+                        prompt,
                     ],
                     chatbot=chatbot,
                     retry_btn=None,
@@ -190,17 +185,16 @@ def interface() -> gr.Blocks:
             )
 
             
-        def toggle_chat(token_id, school, age, gender, group_id,consent_checkbox):
+        def toggle_chat(token_id, school, age, gender, prompt, consent_checkbox):
             if not (token_id is None
                 or school is None
                 or age is None
                 or gender is None
-                or group_id is None
+                or prompt is None
                 or consent_checkbox is None
                 or len(token_id) == 0
                 or len(school) == 0
                 or len(age) == 0
-                or len(group_id) == 0
                 or not consent_checkbox):
                 return gr.Column(visible=True), gr.Column(visible=False)
             else:
@@ -213,7 +207,7 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                group_id,
+                prompt,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -224,7 +218,7 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                group_id,
+                prompt,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])  
@@ -235,7 +229,7 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                group_id,
+                prompt,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -246,18 +240,18 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                group_id,
+                prompt,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
-        group_id.change(
+        prompt.change(
             fn=toggle_chat,
             inputs=[
                 token_id,
                 school,
                 age,
                 gender,
-                group_id,
+                prompt,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -268,11 +262,11 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                group_id,
+                prompt,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
 
-        chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, group_id], [turn_info_for_feedback, turn_feedback_modal])
+        chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1, q2], turn_feedback_modal)
     return interface
