@@ -99,11 +99,9 @@ def interface() -> gr.Blocks:
                     allow_custom_value=False,
                 )
             with gr.Column():
-                age = gr.Dropdown(
-                    choices=[str(i) for i in range(1, 100)],
+                age = gr.Number(
+                    value=0,
                     label="Seleccione su edad",
-                    multiselect=False,
-                    allow_custom_value=False,
                 )
             with gr.Column():
                 gender = gr.Radio(
@@ -194,7 +192,6 @@ def interface() -> gr.Blocks:
                 or consent_checkbox is None
                 or len(token_id) == 0
                 or len(school) == 0
-                or len(age) == 0
                 or not consent_checkbox):
                 return gr.Column(visible=True), gr.Column(visible=False)
             else:

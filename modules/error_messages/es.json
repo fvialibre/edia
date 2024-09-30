@@ -23,6 +23,7 @@
         "WORD2CONTEXT_WORDS_OR_SET_MISSING": "Palabra no ingresada y/o conjunto/s de interés no seleccionado/s!",
         
         "TOKEN_ID_EMPTY": "Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!",
+        "AGE_ERROR": "La edad ingresada debe estar entre 1 y 100 años!",
         "TYPE_OF_BIAS_EXPLORED_EMPTY": "Es necesario especificar un tipo de sesgo para poder realizar la consulta!"
     }
 }

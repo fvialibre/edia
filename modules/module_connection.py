@@ -215,14 +215,18 @@ class WordExplorerConnector(Connector):
         # Check if the token id is empty
         if (token_id is None
             or school is None
-            or age is None
             or gender is None
             or not consent_checkbox
             or len(token_id) == 0
-            or len(school) == 0
-            or len(age) == 0):
+            or len(school) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        if (age is None
+            or age < 0
+            or age > 100):
+            err = self.errorManager.process(['AGE_ERROR'])
             return None, err
         
         # Check if word lists are empty
@@ -248,7 +252,7 @@ class WordExplorerConnector(Connector):
             wordlist_4,
             token_id.strip(),
             school.strip(),
-            age.strip(),
+            age,
             gender.strip(),
             highlight_query,
             model_name
@@ -340,14 +344,18 @@ class BiasWordExplorerConnector(Connector):
 
         if (token_id is None
             or school is None
-            or age is None
             or gender is None
             or not consent_checkbox
             or len(token_id) == 0
-            or len(school) == 0
-            or len(age) == 0):
+            or len(school) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        if (age is None
+            or age < 0
+            or age > 100):
+            err = self.errorManager.process(['AGE_ERROR'])
             return None, err
        
         # Check if word lists have at least one word
@@ -378,7 +386,7 @@ class BiasWordExplorerConnector(Connector):
             "2d",
             token_id.strip(),
             school.strip(),
-            age.strip(),
+            age,
             gender.strip(),
             highlight_query,
             type_of_bias_explored,
@@ -421,14 +429,18 @@ class BiasWordExplorerConnector(Connector):
 
         if (token_id is None
             or school is None
-            or age is None
             or gender is None
             or not consent_checkbox
             or len(token_id) == 0
-            or len(school) == 0
-            or len(age) == 0):
+            or len(school) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        if (age is None
+            or age < 0
+            or age > 100):
+            err = self.errorManager.process(['AGE_ERROR'])
             return None, err
         
         # Check words errors
@@ -459,7 +471,7 @@ class BiasWordExplorerConnector(Connector):
             "4d",
             token_id.strip(),
             school.strip(),
-            age.strip(),
+            age,
             gender.strip(),
             highlight_query,
             type_of_bias_explored,
@@ -552,17 +564,21 @@ class Word2ContextExplorerConnector(Connector):
         err = ""
         contexts = pd.DataFrame([], columns=[''])
 
-        if (token_id is None
-            or school is None
-            or age is None
-            or gender is None
-            or not consent_checkbox
-            or len(token_id) == 0
-            or len(school) == 0
-            or len(age) == 0):
+        # if (token_id is None
+        #     or school is None
+        #     or gender is None
+        #     or not consent_checkbox
+        #     or len(token_id) == 0
+        #     or len(school) == 0):
         
-            err = self.errorManager.process(['TOKEN_ID_EMPTY'])
-            return None, err
+        #     err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+        #     return None, err
+        
+        # if (age is None
+        #     or age < 0
+        #     or age > 100):
+        #     err = self.errorManager.process(['AGE_ERROR'])
+        #     return None, err
         
         # Check other errors
         err = self.word2context_explorer.errorChecking(word)
@@ -583,7 +599,7 @@ class Word2ContextExplorerConnector(Connector):
             subset_choice,
             token_id.strip(),
             school.strip(),
-            age.strip(),
+            age,
             gender.strip(),
             highlight_query,
             model_name,
@@ -659,17 +675,21 @@ class PhraseBiasExplorerConnector(Connector):
         sent = " ".join(sent.strip().replace("*"," * ").split())
         interest_word_list = self.parse_words(interest_word_list)
         banned_word_list = self.parse_words(banned_word_list)
-
+        
         if (token_id is None
             or school is None
-            or age is None
             or gender is None
             or not consent_checkbox
             or len(token_id) == 0
-            or len(school) == 0
-            or len(age) == 0):
+            or len(school) == 0):
         
             err = self.errorManager.process(['TOKEN_ID_EMPTY'])
+            return None, err
+        
+        if (age is None
+            or age < 0
+            or age > 100):
+            err = self.errorManager.process(['AGE_ERROR'])
             return None, err
 
         # Check format setns errors
@@ -704,7 +724,7 @@ class PhraseBiasExplorerConnector(Connector):
             interest_word_list,
             token_id.strip(),
             school.strip(),
-            age.strip(),
+            age,
             gender.strip(),
             highlight_query,
             type_of_bias_explored,
@@ -777,7 +797,7 @@ class PhraseBiasExplorerConnector(Connector):
 #             sent_list,
 #             token_id.strip(),
 #             school.strip(),
-#             age.strip(),
+#             age,
 #             gender.strip(),
 #             highlight_query
 #         )

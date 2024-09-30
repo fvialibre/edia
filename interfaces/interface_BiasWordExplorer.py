@@ -44,23 +44,18 @@ def interface(
                 school = gr.Dropdown(
                     choices=school_list,
                     label="Seleccione su escuela",
-                    # info="Seleccione su escuela",
                     multiselect=False,
                     allow_custom_value=False,
                 )
             with gr.Column():
-                age = gr.Dropdown(
-                    choices=[str(i) for i in range(1, 100)],
+                age = gr.Number(
+                    value=0,
                     label="Seleccione su edad",
-                    # info="Seleccione su edad",
-                    multiselect=False,
-                    allow_custom_value=False,
                 )
             with gr.Column():
                 gender = gr.Radio(
                     ["M", "F", "X"],
                     label="Seleccione su género",
-                    # info="Where did they go?"
                 )
             with gr.Column():
                 with gr.Row():
