@@ -37,18 +37,26 @@ def interface(
 
     with interface:
         with gr.Row():
-            with gr.Column():
+            with gr.Column(scale=30):
                 token_id = gr.Textbox(
                     label="Escriba su correo electrónico",
                     lines=1,
                 )
-            with gr.Column():
-                school = gr.Dropdown(
-                    choices=school_list,
-                    label="Seleccione su escuela",
-                    multiselect=False,
-                    allow_custom_value=False,
-                )
+            with gr.Column(scale=70):
+                with gr.Row():
+                    with gr.Column():
+                        school = gr.Number(
+                            value=0,
+                            label="Seleccione el identificador de su escuela (Ver ➡️)",
+                        )
+                        school_name = gr.HTML(
+                            value=f"<p>No seleccionaste ningún colegio</p>",
+                        )
+                    with gr.Column():
+                        _ = gr.HTML(
+                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                        )
+        with gr.Row():
             with gr.Column():
                 age = gr.Number(
                     value=0,

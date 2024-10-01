@@ -86,18 +86,26 @@ def interface() -> gr.Blocks:
             "prompt": None,
         })
         with gr.Row():
-            with gr.Column():
+            with gr.Column(scale=30):
                 token_id = gr.Textbox(
                     label="Escriba su correo electrónico",
                     lines=1,
                 )
-            with gr.Column():
-                school = gr.Dropdown(
-                    choices=school_list,
-                    label="Seleccione su escuela",
-                    multiselect=False,
-                    allow_custom_value=False,
-                )
+            with gr.Column(scale=70):
+                with gr.Row():
+                    with gr.Column():
+                        school = gr.Number(
+                            value=0,
+                            label="Seleccione el identificador de su escuela (Ver ➡️)",
+                        )
+                        school_name = gr.HTML(
+                            value=f"<p>No seleccionaste ningún colegio</p>",
+                        )
+                    with gr.Column():
+                        _ = gr.HTML(
+                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                        )
+        with gr.Row():
             with gr.Column():
                 age = gr.Number(
                     value=0,
@@ -190,8 +198,11 @@ def interface() -> gr.Blocks:
                 or gender is None
                 or prompt is None
                 or consent_checkbox is None
+                or age < 0
+                or age > 100
+                or school == 0
+                or school not in school_list
                 or len(token_id) == 0
-                or len(school) == 0
                 or not consent_checkbox):
                 return gr.Column(visible=True), gr.Column(visible=False)
             else:
@@ -263,6 +274,32 @@ def interface() -> gr.Blocks:
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
+        
+        def update_school_name(school):
+            if school is None or school == 0:
+                return (
+                    gr.HTML(
+                        value=f"<p>No seleccionaste ningún colegio</p>",
+                    )
+                )
+            elif school not in school_list:
+                return (
+                    gr.HTML(
+                        value=f"<p>El colegio seleccionado no existe</p>",
+                    )
+                )
+            else:
+                return (
+                    gr.HTML(
+                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
+                    )
+                )
+        school.change(
+            fn=update_school_name,
+            inputs=[
+                school
+            ],
+            outputs=[school_name])
 
         chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1, q2], turn_feedback_modal)

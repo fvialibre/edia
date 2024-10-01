@@ -24,6 +24,7 @@
         
         "TOKEN_ID_EMPTY": "Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!",
         "AGE_ERROR": "La edad ingresada debe estar entre 1 y 100 años!",
+        "SCHOOL_ERROR": "El colegio seleccionado no es válido!",
         "TYPE_OF_BIAS_EXPLORED_EMPTY": "Es necesario especificar un tipo de sesgo para poder realizar la consulta!"
     }
 }
