@@ -7,6 +7,7 @@ from wordcloud import WordCloud
 import os
 import ast
 from nltk.corpus import stopwords
+from auth import school_list
 
 
 def interface(
@@ -59,7 +60,8 @@ def interface(
     def get_plots(selected_school, selected_graphs):
         if (selected_school is None 
             or selected_graphs is None
-            or len(selected_school) == 0
+            or selected_school is None
+            or selected_school not in school_list
             or len(selected_graphs) == 0
         ):
             plt.text(0.5, 0.5, 'Tenés que seleccionar tu escuela y por lo menos un gráfico', ha='center', va='center', fontsize=12)
@@ -108,7 +110,7 @@ def interface(
                         top_n = pd.concat([top_n, school_counts[school_counts['school'] == selected_school]])
 
                 colors = ['blue' if school == selected_school else 'gray' for school in top_n['school']]
-                top_n.loc[:, 'school'] = [f"Escuela {chr(65+i)}" if school != selected_school else divide_string(school) for i, school in enumerate(top_n['school'])]
+                top_n.loc[:, 'school'] = [f"Escuela {chr(65+i)}" if school != selected_school else divide_string(school_list[school]) for i, school in enumerate(top_n['school'])]
 
                 axs[i].barh(top_n['school'], top_n['count'], color=colors)
                 axs[i].set_xlabel('Número de registros')
@@ -319,8 +321,19 @@ def interface(
         return fig
 
     with iface:
-        school_name = gr.Dropdown(school_list, label="Escuela")
-
+        with gr.Row():
+            with gr.Column():
+                school = gr.Number(
+                    value=0,
+                    label="Seleccione el identificador de su escuela (Ver ➡️)",
+                )
+                school_name = gr.HTML(
+                    value=f"<p>No seleccionaste ningún colegio</p>",
+                )
+            with gr.Column():
+                _ = gr.HTML(
+                    value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                )
         # make checkbox buttons to select graphs
         graph_selection = gr.CheckboxGroup(
             [
@@ -353,10 +366,36 @@ def interface(
             filtered_df.to_csv(save_path, index=False)
             return save_path
 
+        def update_school_name(school):
+            if school is None or school == 0:
+                return (
+                    gr.HTML(
+                        value=f"<p>No seleccionaste ningún colegio</p>",
+                    )
+                )
+            elif school not in school_list:
+                return (
+                    gr.HTML(
+                        value=f"<p>El colegio seleccionado no existe</p>",
+                    )
+                )
+            else:
+                return (
+                    gr.HTML(
+                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
+                    )
+                )
+        school.change(
+            fn=update_school_name,
+            inputs=[
+                school
+            ],
+            outputs=[school_name])
+        
         def update_download_btn_visibility(selected_school):
             return gr.update(visible=bool(selected_school))
 
-        school_name.change(update_download_btn_visibility, [school_name], [download_btn])
-        download_btn.click(filter_and_download_csv, [school_name], gr.File())
-        btn.click(get_plots, [school_name, graph_selection], output)
+        school.change(update_download_btn_visibility, [school], [download_btn])
+        download_btn.click(filter_and_download_csv, [school], gr.File())
+        btn.click(get_plots, [school, graph_selection], output)
     return iface
