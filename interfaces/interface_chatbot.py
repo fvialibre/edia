@@ -13,7 +13,14 @@ from html_constants import HTML_FEEDBACK_TITLE
 
 
 # --- Interface ---
-def interface() -> gr.Blocks:
+def interface(
+        lang: str="es",
+) -> gr.Blocks:
+
+    # --- Get language labels---
+    labels = pd.read_json(
+        f"language/{lang}.json"
+    )["chatActivity_interface"]
 
     secrets = dotenv_values("./.env")
     os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
@@ -88,7 +95,7 @@ def interface() -> gr.Blocks:
         with gr.Row():
             with gr.Column(scale=30):
                 token_id = gr.Textbox(
-                    label="Escriba su correo electrónico",
+                    label=labels["token_id"],
                     lines=1,
                 )
             with gr.Column(scale=70):
@@ -96,30 +103,30 @@ def interface() -> gr.Blocks:
                     with gr.Column():
                         school = gr.Number(
                             value=0,
-                            label="Seleccione el identificador de su escuela (Ver ➡️)",
+                            label=labels["school"],
                         )
                         school_name = gr.HTML(
-                            value=f"<p>No seleccionaste ningún colegio</p>",
+                            value=labels["notschool"],
                         )
                     with gr.Column():
                         _ = gr.HTML(
-                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                            value=labels["ref"],
                         )
         with gr.Row():
             with gr.Column():
                 age = gr.Number(
                     value=0,
-                    label="Seleccione su edad",
+                    label=labels["age"],
                 )
             with gr.Column():
                 gender = gr.Radio(
-                    ["M", "F", "X"],
-                    label="Seleccione su género",
+                    labels["gender_options"],
+                    label=labels["gender"],
                 )
             with gr.Column():
                 with gr.Row():
                     consent_checkbox = gr.Checkbox(
-                        label='He leído y acepto el consentimiento informado ➡️',
+                        label=labels["terms"],
                         value=False
                     )
                     _ = gr.HTML(
@@ -127,7 +134,7 @@ def interface() -> gr.Blocks:
                     )
         with gr.Row():
             prompt = gr.Textbox(
-                label="Escriba el prompt (dejar vacío para usar ChatGPT normal)",
+                label=labels["prompt"],
                 lines=3,
             )
             
@@ -152,7 +159,7 @@ def interface() -> gr.Blocks:
                     retry_btn=None,
                     undo_btn=None,
                     clear_btn=None,
-                    submit_btn="Enviar",
+                    submit_btn=labels["send_b"],
                     stop_btn=None,
                 )
             
@@ -184,11 +191,7 @@ def interface() -> gr.Blocks:
             modal_submit_button = gr.Button("Enviar")
             
         with gr.Column(visible=True) as personal_data_missing:
-            gr.Markdown("""
-                ### Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!
-
-            """
-            )
+            gr.Markdown(value=labels["personal_data_missing"])
 
             
         def toggle_chat(token_id, school, age, gender, prompt, consent_checkbox):

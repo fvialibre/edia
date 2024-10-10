@@ -39,7 +39,7 @@ def interface(
         with gr.Row():
             with gr.Column(scale=30):
                 token_id = gr.Textbox(
-                    label="Escriba su correo electrónico",
+                    label=labels["token_id"],
                     lines=1,
                 )
             with gr.Column(scale=70):
@@ -47,30 +47,30 @@ def interface(
                     with gr.Column():
                         school = gr.Number(
                             value=0,
-                            label="Seleccione el identificador de su escuela (Ver ➡️)",
+                            label=labels["school"],
                         )
                         school_name = gr.HTML(
-                            value=f"<p>No seleccionaste ningún colegio</p>",
+                            value=labels["notschool"],
                         )
                     with gr.Column():
                         _ = gr.HTML(
-                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                            value=labels["ref"],
                         )
         with gr.Row():
             with gr.Column():
                 age = gr.Number(
                     value=0,
-                    label="Seleccione su edad",
+                    label=labels["age"],
                 )
             with gr.Column():
                 gender = gr.Radio(
-                    ["M", "F", "X"],
-                    label="Seleccione su género",
+                    labels["gender_options"],
+                    label=labels["gender"],
                 )
             with gr.Column():
                 with gr.Row():
                     consent_checkbox = gr.Checkbox(
-                        label='He leído y acepto el consentimiento informado ➡️',
+                        label=labels["terms"],
                         value=False
                     )
                     _ = gr.HTML(
@@ -79,9 +79,9 @@ def interface(
         with gr.Row():
             with gr.Column(scale=3):
                 model_name = gr.Radio(
-                    ["Modelo en español"],
+                    labels["language_options"],
                     value="Modelo en español",
-                    info="Elegí un modelo de lenguaje.",
+                    info=labels["languagemodel"],
                     container=False,
                     interactive=True,
                 )
