@@ -53,15 +53,21 @@ def interface() -> gr.Blocks:
             "prompt": prompt,
         }, Modal(visible=True)
 
-    def send_turn_feedback_modal(turn_info_for_feedback, q1, q2):
+    def send_turn_feedback_modal(turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4):
         with open("./logs/logs_chatbot_feedback.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
                 "timestamp": datetime.now().isoformat(),
                 "selected_message": turn_info_for_feedback["selected_message"],
                 "is_like": turn_info_for_feedback["is_like"],
                 "turn_index": turn_info_for_feedback["turn_index"],
+                "q1_checkbox": q1_checkbox,
                 "q1": q1,
+                "q2_checkbox": q2_checkbox,
                 "q2": q2,
+                "q3_checkbox": q3_checkbox,
+                "q3": q3,
+                "q4_checkbox": q4_checkbox,
+                "q4": q4,
                 "token_id": turn_info_for_feedback["token_id"],
                 "school": turn_info_for_feedback["school"],
                 "age": turn_info_for_feedback["age"],
@@ -162,17 +168,32 @@ def interface() -> gr.Blocks:
 
             with gr.Row():
                 with gr.Column():
+                    q1_checkbox = gr.Checkbox(label="Affect")
                     q1 = gr.Slider(
                         1,
                         7,
                         value=4,
                         step=1,
-                        label="Veracidad",
-                        info="1 es mentira, 7 es verdad",
+                        label="Affect",
+                        info="1 es tóxico, 7 es empático",
                         interactive=True,
+                        visible=False,
                     )
                 with gr.Column():
+                    q2_checkbox = gr.Checkbox(label="Veracidad")
                     q2 = gr.Slider(
+                        1,
+                        7,
+                        value=4,
+                        step=1,
+                        label="Veracidad",
+                        info="1 es alucinación, 7 es factual",
+                        interactive=True,
+                        visible=False,
+                    )
+                with gr.Column():
+                    q3_checkbox = gr.Checkbox(label="Sesgo")
+                    q3 = gr.Slider(
                         1,
                         7,
                         value=4,
@@ -180,7 +201,29 @@ def interface() -> gr.Blocks:
                         label="Sesgo",
                         info="1 es sesgado, 7 es justo",
                         interactive=True,
+                        visible=False,
                     )
+                with gr.Column():
+                    q4_checkbox = gr.Checkbox(label="Utilidad")
+                    q4 = gr.Slider(
+                        1,
+                        7,
+                        value=4,
+                        step=1,
+                        label="Utilidad",
+                        info="1 es inútil, 7 es valioso",
+                        interactive=True,
+                        visible=False,
+                    )
+
+            def toggle_slider_visibility(checkbox):
+                return gr.update(visible=checkbox)
+
+            q1_checkbox.change(toggle_slider_visibility, inputs=[q1_checkbox], outputs=[q1])
+            q2_checkbox.change(toggle_slider_visibility, inputs=[q2_checkbox], outputs=[q2])
+            q3_checkbox.change(toggle_slider_visibility, inputs=[q3_checkbox], outputs=[q3])
+            q4_checkbox.change(toggle_slider_visibility, inputs=[q4_checkbox], outputs=[q4])
+
             modal_submit_button = gr.Button("Enviar")
             
         with gr.Column(visible=True) as personal_data_missing:
@@ -302,5 +345,5 @@ def interface() -> gr.Blocks:
             outputs=[school_name])
 
         chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
-        modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1, q2], turn_feedback_modal)
+        modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4], turn_feedback_modal)
     return interface

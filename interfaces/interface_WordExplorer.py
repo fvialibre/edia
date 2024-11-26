@@ -223,6 +223,32 @@ def interface(
                     label=None
                 )
 
+        def update_school_name(school):
+            if school is None or school == 0:
+                return (
+                    gr.HTML(
+                        value=f"<p>No seleccionaste ningún colegio</p>",
+                    )
+                )
+            elif school not in school_list:
+                return (
+                    gr.HTML(
+                        value=f"<p>El colegio seleccionado no existe</p>",
+                    )
+                )
+            else:
+                return (
+                    gr.HTML(
+                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
+                    )
+                )
+        school.change(
+            fn=update_school_name,
+            inputs=[
+                school
+            ],
+            outputs=[school_name])
+
         btn_plot.click(
             fn=connector.plot_proyection_2d,
             inputs=[
