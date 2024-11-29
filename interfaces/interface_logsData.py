@@ -24,7 +24,7 @@ def interface(
     # --- Get language labels---
     labels = pd.read_json(
         f"language/{lang}.json"
-    )["PhraseExplorer_interface"]
+    )["LogsData_interface"]
 
     
     # --- Init Interface ---
@@ -325,33 +325,24 @@ def interface(
             with gr.Column():
                 school = gr.Number(
                     value=0,
-                    label="Seleccione el identificador de su escuela (Ver ➡️)",
+                    label=labels["school"],
                 )
                 school_name = gr.HTML(
-                    value=f"<p>No seleccionaste ningún colegio</p>",
+                    value=labels["notschool"],
                 )
             with gr.Column():
                 _ = gr.HTML(
-                    value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                    value=labels["ref"],
                 )
         # make checkbox buttons to select graphs
         graph_selection = gr.CheckboxGroup(
-            [
-                "Cantidad de frases por escuela",
-                "Tipo de sesgo",
-                "Tipo de sesgo por género",
-                "Combinaciones de tipo de sesgo y género más comunes",
-                "Nube de palabras",
-                "Frases con mayor diferencia de métrica",
-                "Tamaño de vocabulario",
-                "Tiempo activo en la plataforma",
-            ],
-            label="Seleccionar gráficos",
+            labels["boxgroup"],
+            label=labels["graphsel"],
         )
-        btn = gr.Button(value="Buscar")
+        btn = gr.Button(value=labels["button1"])
 
         output = gr.Plot(show_label=False)
-        download_btn = gr.Button(value="Descargar CSV", visible=False)
+        download_btn = gr.Button(value=labels["button2"], visible=False)
 
         def filter_and_download_csv(selected_school):
             df = pd.read_csv("logs/logs_edia_lmodels_biasphrase_es.csv")
@@ -370,19 +361,19 @@ def interface(
             if school is None or school == 0:
                 return (
                     gr.HTML(
-                        value=f"<p>No seleccionaste ningún colegio</p>",
+                        value=labels["notschool"],
                     )
                 )
             elif school not in school_list:
                 return (
                     gr.HTML(
-                        value=f"<p>El colegio seleccionado no existe</p>",
+                        value=labels["notexistschool"],
                     )
                 )
             else:
                 return (
                     gr.HTML(
-                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
+                        value=labels["schoolsel"],
                     )
                 )
         school.change(

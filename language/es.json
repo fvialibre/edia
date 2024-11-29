@@ -4,10 +4,20 @@
         "phraseExplorer": "Sesgo en frases",
         "biasWordExplorer": "Sesgo en palabras",
         "dataExplorer": "Explorar contextos",
-        "crowsPairsExplorer": "Crows-Pairs"
+        "crowsPairsExplorer": "Crows-Pairs",
+        "logData": "Visualizar datos"
     },
     "WordExplorer_interface": {
-        "token_id": "(*) Ingrese su correo electrónico ...",
+        "token_id": "Ingrese su correo electrónico",
+        "school": "Seleccione su escuela (Ver ➡️)",
+        "ref": "<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+        "notschool": "<span style='color: black;'>No seleccionaste ningún colegio</span>",
+        "age": "Seleccione su edad",
+        "gender": "Seleccione su genero",
+        "gender_options": ["M", "F", "X"],
+        "terms":"He leído y acepto el consentimiento informado ➡️",
+        "language_options":["Modelo en español"],
+        "languagemodel": "Elige un modelo de lenguaje.",
         "title": "1. Escribí grupos de palabras para visualizar cómo se relacionan entre sí.",
         "wordLists_info": "Recordá que deben estar separados con ,",
         "wordList0": "Lista de palabras 1",
@@ -47,7 +57,16 @@
         ]
     },
     "BiasWordExplorer_interface": {
-        "token_id": "(*) Ingrese su correo electrónico ...",
+        "token_id": "Ingrese su correo electrónico",
+        "school": "Seleccione su escuela (Ver ➡️)",
+        "ref": "<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+        "notschool": "<span style='color: black;'>No seleccionaste ningún colegio</span>",
+        "age": "Seleccione su edad",
+        "gender": "Seleccione su genero",
+        "gender_options": ["M", "F", "X"],
+        "terms":"He leído y acepto el consentimiento informado ➡️",
+        "languagemodel": "Elige un modelo de lenguaje.",
+        "language_options":["Modelo en español", "Modelo en inglés"],
         "conceptA": "1. Agregá palabras que describen al primer concepto",
         "conceptA_info": "Incluí una lista de palabras para comparar con el primer concepto. Recordá que deben estar separados con ,",
         "conceptA_placeholder":"Ej. frío,congelado,hielo,invierno",
@@ -57,6 +76,18 @@
         "step3": "3. Escribí palabras para diagnosticar",
         "step3_info": "Importante: cada palabra debe estar separada por una ,",
         "step3_placeholder": "Ej. ropa,pelea,enfermero,ganar",
+        "choices":[
+            "Apariencia Física",
+            "Discapacidad",
+            "Edad",
+            "Etnia",
+            "Género",
+            "Nacionalidad",
+            "Orientación sexual",
+            "Profesión",
+            "Religión",
+            "Situación Socioeconómica"
+        ],
         "step2&2Spaces": "2. Para graficar 2 espacios, complete las siguientes listas:",
         "step2&4Spaces": "2. Para graficar 4 espacios, además complete las siguientes listas:",
         "plot2SpacesButton": "Obtené sesgo en palabras",
@@ -71,7 +102,7 @@
         "plot": "Visualización de proporciones",
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
-        "type_of_bias_explored_label": "3. Ingresá el tipo de sesgo que estás explorando.",
+        "type_of_bias_explored_label": "4. Ingresá el tipo de sesgo que estás explorando.",
         "type_of_bias_explored_info": "Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
         "headers_name":[
             "lista_de_palabras_a_diagnosticar",
@@ -90,7 +121,16 @@
         ]
     },
     "PhraseExplorer_interface": {
-        "token_id": "(*) Ingrese su correo electrónico ...",
+        "token_id": "Ingrese su correo electrónico",
+        "school": "Seleccione su escuela (Ver ➡️)",
+        "ref": "<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+        "notschool": "<span style='color: black;'>No seleccionaste ningún colegio</span>",
+        "terms":"He leído y acepto el consentimiento informado ➡️",
+        "age": "Seleccione su edad",
+        "gender": "Seleccione su genero",
+        "gender_options": ["M", "F", "X"],
+        "languagemodel": "Elige un modelo de lenguaje.",
+        "language_options":["Modelo en español", "Modelo en inglés"],
         "step1": "1. Escribí una oración o frase que te interese explorar:",
         "step1_info": "Utiliza un (*) para enmascarar la palabra, es decir, dejá vacía la palabra que querés que el sistema complete.",
         "step1_placeholder": "Ej. Los * manejan bien la plata.",
@@ -110,6 +150,18 @@
             "title": "",
             "placeholder": "La lista de palabras deberán estar separadas por ,"
         },
+        "choices":[
+            "Apariencia Física",
+            "Discapacidad",
+            "Edad",
+            "Etnia",
+            "Género",
+            "Nacionalidad",
+            "Orientación sexual",
+            "Profesión",
+            "Religión",
+            "Situación Socioeconómica"
+        ],
         "excludeArticles": "Excluir Artículos",
         "excludePrepositions": "Excluir Preposiciones",
         "excludeConjunctions": "Excluir Conjunciones",
@@ -134,7 +186,16 @@
         ]
     },
     "DataExplorer_interface": {
-        "token_id": "(*) Ingrese su correo electrónico ...",
+        "token_id": "Ingrese su correo electrónico",
+        "school": "Seleccione su escuela",
+        "notschool": "<span style='color: black;'>No seleccionaste ningún colegio</span>",
+        "ref": "<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+        "age": "Seleccione su edad",
+        "gender": "Seleccione su genero",
+        "gender_options": ["M", "F", "X"],
+        "language_options":["Modelo en español"],
+        "terms":"He leído y acepto el consentimiento informado ➡️",
+        "languagemodel": "Elige un modelo de lenguaje.",
         "step1": "1. Ingresá una palabra de interés",
         "step1_info": "Con la que te gustaría encontrar contextos de usos.",
         "step2": "2. Seleccioná la cantidad máxima de contextos a recuperar",
@@ -143,7 +204,7 @@
         "step3_info": "Elegí las fuentes de datos que te interesan. Podés elegir más de una.",
         "inputWord": {
             "title": "Palabra",
-            "placeholder": "Ingresar aquí la palabra ..."
+            "placeholder": "Ingresar aquí la palabra"
         },
         "wordInfoButton": "Obtené información de la palabra",
         "wordContextButton": "Buscá contextos",
@@ -179,5 +240,41 @@
         "highlight_query": "Destacar consulta",
         "see_queries_made": "Ver consultas realizadas",
         "type_of_bias_explored": "3. Ingrese el tipo de sesgo que está explorando. Puede elegir de una lista o completar si considera que falta. Además puede elegir varios sesgos."
+    },
+    "chatActivity_interface": {
+        "token_id": "Ingrese su correo electrónico",
+        "school": "Seleccione su escuela (Ver ➡️)",
+        "age": "Seleccione su edad",
+        "ref": "<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+        "notschool": "<span style='color: black;'>No seleccionaste ningún colegio</span>",
+        "gender": "Seleccione su genero",
+        "gender_options": ["M", "F", "X"],
+        "terms":"He leído y acepto el consentimiento informado ➡️",
+        "prompt":"Escriba el prompt (dejar vacío para usar ChatGPT normal)",
+        "title":"ChatGPT vía EDIA",
+        "description":"En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Para completar la actividad debes cargar los datos en el formulario contando cómo interactuaste con este modelo. Si cerrás la pestaña, no se guarda la conversación, así que recordá cópiarlo antes. Ahí mismo tenes un video que explica paso a paso cómo ingresar la información.",
+        "send_b":"Enviar",
+         "personal_data_missing": "### Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!"
+    },
+    "LogsData_interface": {
+        "token_id": "Ingrese su correo electrónico",
+        "school": "Seleccione su escuela (Ver ➡️)",
+        "ref": "<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+        "notschool": "<span style='color: black;'>No seleccionaste ningún colegio</span>",
+        "notexistschool": "<span style='color: black;'>El colegio seleccionado no existe</span>",
+        "schoolsel": "<p>Seleccionaste: {school_list[school]}</p>",
+        "boxgroup":[
+            "Cantidad de frases por escuela",
+            "Tipo de sesgo",
+            "Tipo de sesgo por género",
+            "Combinaciones de tipo de sesgo y género más comunes",
+            "Nube de palabras",
+            "Frases con mayor diferencia de métrica",
+            "Tamaño de vocabulario",
+            "Tiempo activo en la plataforma"
+        ],
+        "graphsel": "Seleccionar gráficos",
+        "button1":"Buscar",
+        "button2": "Descargar CSV"
     }
 }

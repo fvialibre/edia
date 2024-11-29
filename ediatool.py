@@ -87,7 +87,9 @@ INTERFACE_LIST = [
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
-    interface_chatbot(),
+    interface_chatbot(
+        lang=LANGUAGE,  
+    ),
     interface_wordExplorer(
         embedding=embedding,
         available_logs=AVAILABLE_LOGS,
@@ -116,13 +118,13 @@ TAB_NAMES = [
     labels["wordExplorer"],
     labels["dataExplorer"],
     # labels["crowsPairsExplorer"],
-    "Visualizar datos",
+    labels["logData"],
 ]
 
-if LANGUAGE != 'es':
-    # Skip data tab when using other than spanish language
-    INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
-    TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
+# if LANGUAGE != 'es':
+#     # Skip data tab when using other than spanish language
+#     INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
+#     TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
 
 edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
