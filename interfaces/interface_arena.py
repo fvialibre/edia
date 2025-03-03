@@ -10,6 +10,7 @@ from dotenv import dotenv_values
 from auth import school_list
 from prompts import prompts
 from html_constants import HTML_FEEDBACK_TITLE
+import random
 
 
 # --- Interface ---
@@ -27,7 +28,7 @@ def interface() -> gr.Blocks:
         history_langchain_format.append(HumanMessage(content=message))
         gpt_response = llm(history_langchain_format)
 
-        with open("./logs/logs_chatbot.jsonl", "a+", encoding='utf-8') as f:
+        with open("./logs/logs_arena.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
                 "timestamp": datetime.now().isoformat(),
                 "token_id": token_id,
@@ -54,7 +55,7 @@ def interface() -> gr.Blocks:
         }, Modal(visible=True)
 
     def send_turn_feedback_modal(turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4):
-        with open("./logs/logs_chatbot_feedback.jsonl", "a+", encoding='utf-8') as f:
+        with open("./logs/logs_arena_feedback.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
                 "timestamp": datetime.now().isoformat(),
                 "selected_message": turn_info_for_feedback["selected_message"],
@@ -132,35 +133,88 @@ def interface() -> gr.Blocks:
                         value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
                     )
         with gr.Row():
-            prompt = gr.Textbox(
-                label="Escriba el prompt (dejar vacío para usar ChatGPT normal)",
-                lines=3,
+            prompt1 = gr.Textbox(
+                visible=True,
             )
+            prompt2 = gr.Textbox(
+                visible=True,
+            )
+            reload_prompt_button = gr.Button("Recargar Prompts")
             
+            def reload_prompts():
+                random_prompts = [
+                    ("Te llamas A y eres de Argentina", "Te llamas B y eres de Bolivia"),
+                    ("Te llamas C y eres de Chile", "Te llamas D y eres de Dinamarca"),
+                    ("Te llamas E y eres de Ecuador", "Te llamas F y eres de Francia"),
+                    ("Te llamas G y eres de Guatemala", "Te llamas H y eres de Honduras"),
+                    ("Te llamas I y eres de Italia", "Te llamas J y eres de Japón"),
+                    ("Te llamas K y eres de Kenia", "Te llamas L y eres de Luxemburgo"),
+                    ("Te llamas M y eres de México", "Te llamas N y eres de Noruega"),
+                    ("Te llamas O y eres de Omán", "Te llamas P y eres de Perú"),
+                    ("Te llamas Q y eres de Qatar", "Te llamas R y eres de Rusia"),
+                    ("Te llamas S y eres de Suecia", "Te llamas T y eres de Tailandia"),
+                    ("Te llamas U y eres de Uruguay", "Te llamas V y eres de Venezuela"),
+                    ("Te llamas W y eres de Gales", "Te llamas X y eres de Xiamen"),
+                    ("Te llamas Y y eres de Yemen", "Te llamas Z y eres de Zambia"),
+                ]
+                selected_prompt = random.choice(random_prompts)
+                print("Prompt reloaded")
+                print(selected_prompt)
+                return selected_prompt[0], selected_prompt[1], gr.update(value=[]), gr.update(value=[])
+            
+            prompt1_value, prompt2_value, _, _ = reload_prompts()
+            prompt1.value = prompt1_value
+            prompt2.value = prompt2_value
         with gr.Column(visible=False, elem_id='col') as chat_col:
-            gr.HTML("<h1 style='text-align: center;'>ChatGPT vía EDIA</h1>")
-            gr.HTML("<p>En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Para completar la actividad debes cargar los datos en el formulario contando cómo interactuaste con este modelo. Si cerrás la pestaña, no se guarda la conversación, así que recordá cópiarlo antes. Ahí mismo tenes un video que explica paso a paso cómo ingresar la información.</p>")
-                    
-            chatbot = gr.Chatbot(
-                show_copy_button=True,
-                likeable=True,
-            )
-            chat_interface = gr.ChatInterface(
-                    predict,
-                    additional_inputs=[
-                        token_id,
-                        school,
-                        age,
-                        gender,
-                        prompt,
-                    ],
-                    chatbot=chatbot,
-                    retry_btn=None,
-                    undo_btn=None,
-                    clear_btn=None,
-                    submit_btn="Enviar",
-                    stop_btn=None,
-                )
+            with gr.Row():
+                with gr.Column():
+                    gr.HTML("<h1 style='text-align: center;'>Conversación A</h1>")
+                    gr.HTML("<p>Vas a interactuar con el prompt A. Debes dar feedback de por lo menos un mensaje en la conversación.</p>")
+                            
+                    chatbot1 = gr.Chatbot(
+                        show_copy_button=True,
+                        likeable=True,
+                    )
+                    chat_interface1 = gr.ChatInterface(
+                            predict,
+                            additional_inputs=[
+                                token_id,
+                                school,
+                                age,
+                                gender,
+                                prompt1,
+                            ],
+                            chatbot=chatbot1,
+                            retry_btn=None,
+                            undo_btn=None,
+                            clear_btn=None,
+                            submit_btn="Enviar",
+                            stop_btn=None,
+                        )
+                with gr.Column():
+                    gr.HTML("<h1 style='text-align: center;'>Conversación B</h1>")
+                    gr.HTML("<p>Vas a interactuar con el prompt B. Debes dar feedback de por lo menos un mensaje en la conversación.</p>")
+                            
+                    chatbot2 = gr.Chatbot(
+                        show_copy_button=True,
+                        likeable=True,
+                    )
+                    chat_interface2 = gr.ChatInterface(
+                            predict,
+                            additional_inputs=[
+                                token_id,
+                                school,
+                                age,
+                                gender,
+                                prompt2,
+                            ],
+                            chatbot=chatbot2,
+                            retry_btn=None,
+                            undo_btn=None,
+                            clear_btn=None,
+                            submit_btn="Enviar",
+                            stop_btn=None,
+                        )
             
         ### MODAL
         with Modal(visible=False) as turn_feedback_modal:
@@ -234,12 +288,13 @@ def interface() -> gr.Blocks:
             )
 
             
-        def toggle_chat(token_id, school, age, gender, prompt, consent_checkbox):
+        def toggle_chat(token_id, school, age, gender, prompt1, prompt2, consent_checkbox):
             if not (token_id is None
                 or school is None
                 or age is None
                 or gender is None
-                or prompt is None
+                or prompt1 is None
+                or prompt2 is None
                 or consent_checkbox is None
                 or age < 0
                 or age > 100
@@ -258,7 +313,8 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                prompt,
+                prompt1,
+                prompt2,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -269,7 +325,8 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                prompt,
+                prompt1,
+                prompt2,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])  
@@ -280,7 +337,8 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                prompt,
+                prompt1,
+                prompt2,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -291,18 +349,32 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                prompt,
+                prompt1,
+                prompt2,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
-        prompt.change(
+        prompt1.change(
             fn=toggle_chat,
             inputs=[
                 token_id,
                 school,
                 age,
                 gender,
-                prompt,
+                prompt1,
+                prompt2,
+                consent_checkbox
+            ],
+            outputs=[chat_col, personal_data_missing])
+        prompt2.change(
+            fn=toggle_chat,
+            inputs=[
+                token_id,
+                school,
+                age,
+                gender,
+                prompt1,
+                prompt2,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -313,7 +385,8 @@ def interface() -> gr.Blocks:
                 school,
                 age,
                 gender,
-                prompt,
+                prompt1,
+                prompt2,
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
@@ -344,6 +417,8 @@ def interface() -> gr.Blocks:
             ],
             outputs=[school_name])
 
-        chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
+        chatbot1.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt1], [turn_info_for_feedback, turn_feedback_modal])
+        chatbot2.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt2], [turn_info_for_feedback, turn_feedback_modal])
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4], turn_feedback_modal)
+        reload_prompt_button.click(reload_prompts, inputs=[], outputs=[prompt1, prompt2, chatbot1, chatbot2])
     return interface

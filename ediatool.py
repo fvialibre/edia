@@ -20,6 +20,8 @@ from interfaces.interface_BiasWordExplorer import interface as interface_biasWor
 from interfaces.interface_data import interface as interface_data
 from interfaces.interface_biasPhrase import interface as interface_biasPhrase
 from interfaces.interface_chatbot import interface as interface_chatbot
+from interfaces.interface_arena import interface as interface_arena
+from interfaces.interface_validator import interface as interface_validator
 from interfaces.interface_logsData import interface as interface_logsData
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
 
@@ -49,13 +51,13 @@ REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
 
 
 # --- Init classes ---
-embedding = Embedding(
-    path=EMBEDDINGS_PATH,
-    limit=100000,
-    randomizedPCA=False,
-    max_neighbors=MAX_NEIGHBORS,
-    nn_method=NN_METHOD
-)
+# embedding = Embedding(
+#     path=EMBEDDINGS_PATH,
+#     limit=100000,
+#     randomizedPCA=False,
+#     max_neighbors=MAX_NEIGHBORS,
+#     nn_method=NN_METHOD
+# )
 
 vocabulary = Vocabulary(
     subset_name=VOCABULARY_SUBSET
@@ -78,45 +80,49 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
-    interface_biasPhrase(
-        spanish_language_model=spanish_lm,
-        english_language_model=english_lm,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE,),
-    interface_biasWordExplorer(
-        embedding=embedding,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE,),
-    interface_chatbot(),
-    interface_wordExplorer(
-        embedding=embedding,
-        available_logs=AVAILABLE_LOGS,
-        max_neighbors=MAX_NEIGHBORS,
-        lang=LANGUAGE,),
     interface_data(
         vocabulary=vocabulary,
         contexts=CONTEXTS_DATASET,
         available_logs=AVAILABLE_LOGS,
         available_wordcloud=AVAILABLE_WORDCLOUD,
         lang=LANGUAGE,),
-    # interface_crowsPairs(
-    #     language_model=beto_lm,
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,
-    #     user_email=user_email),
-    interface_logsData(
+    interface_biasPhrase(
+        spanish_language_model=spanish_lm,
+        english_language_model=english_lm,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
+    # interface_validator(),
+    # interface_biasWordExplorer(
+    #     embedding=embedding,
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE,),
+    # interface_chatbot(),
+    # # interface_arena(),
+    # interface_wordExplorer(
+    #     embedding=embedding,
+    #     available_logs=AVAILABLE_LOGS,
+    #     max_neighbors=MAX_NEIGHBORS,
+    #     lang=LANGUAGE,),
+    # # interface_crowsPairs(
+    # #     language_model=beto_lm,
+    # #     available_logs=AVAILABLE_LOGS,
+    # #     lang=LANGUAGE,
+    # #     user_email=user_email),
+    # interface_logsData(
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE,),
 ]
 
 TAB_NAMES = [
-    labels["phraseExplorer"],
-    labels["biasWordExplorer"],
-    "ChatGPT vía EDIA",
-    labels["wordExplorer"],
     labels["dataExplorer"],
-    # labels["crowsPairsExplorer"],
-    "Visualizar datos",
+    labels["phraseExplorer"],
+    # "Stereotype Validator",
+    # labels["biasWordExplorer"],
+    # "LLM vía EDIA",
+    # # "Arena",
+    # labels["wordExplorer"],
+    # # labels["crowsPairsExplorer"],
+    # "Visualizar datos",
 ]
 
 if LANGUAGE != 'es':

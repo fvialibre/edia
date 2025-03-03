@@ -37,53 +37,65 @@ def interface(
     )
 
     with iface:
-        with gr.Row():
+        with gr.Row(visible=False):
             with gr.Column(scale=30):
                 token_id = gr.Textbox(
-                    label="Escriba su correo electrónico",
+                    label=labels["token_id"],
                     lines=1,
+                    value="EMPTY",
+                    visible=False,
                 )
             with gr.Column(scale=70):
                 with gr.Row():
                     with gr.Column():
                         school = gr.Number(
-                            value=0,
-                            label="Seleccione el identificador de su escuela (Ver ➡️)",
+                            # value=0,
+                            label=labels["school"],
+                            value=10000,
+                            visible=False,
                         )
                         school_name = gr.HTML(
-                            value=f"<p>No seleccionaste ningún colegio</p>",
+                            value=labels["notschool"],
+                            visible=False,
                         )
                     with gr.Column():
                         _ = gr.HTML(
-                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                            value=labels["ref"],
+                            visible=False,
                         )
-        with gr.Row():
+        with gr.Row(visible=False):
             with gr.Column():
                 age = gr.Number(
-                    value=0,
-                    label="Seleccione su edad",
+                    # value=0,
+                    label=labels["age"],
+                    value=50,
+                    visible=False,
                 )
             with gr.Column():
                 gender = gr.Radio(
                     ["M", "F", "X"],
-                    label="Seleccione su género",
+                    label=labels["gender"],
+                    value="F",
+                    visible=False,
                 )
             with gr.Column():
                 with gr.Row():
                     consent_checkbox = gr.Checkbox(
-                        label='He leído y acepto el consentimiento informado ➡️',
-                        value=False
+                        label=labels["terms"],
+                        value=True,
+                        visible=False,
                     )
                     _ = gr.HTML(
-                        value="<a href='https://docs.google.com/document/d/1v7XTX7pFJ8SUv0JbwY5yXsISH61k5GRWdDqWz6PFrls/edit'>Link 🔗</a>",
+                        value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
+                        visible=False,
                     )
                 
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
-                    ["Modelo en español", "Modelo en inglés"],
-                    value="Modelo en español",
-                    info="Elegí un modelo de lenguaje.",
+                    labels["language_options"],
+                    value=labels["language_options"][0],
+                    info=labels["languagemodel"],
                     container=False,
                     interactive=True,
                 )
@@ -109,18 +121,7 @@ def interface(
                 )
                 with gr.Row():
                     type_of_bias_explored = gr.Dropdown(
-                        choices=[
-                            "Apariencia Física",
-                            "Discapacidad",
-                            "Edad",
-                            "Etnia",
-                            "Género",
-                            "Nacionalidad",
-                            "Orientación sexual",
-                            "Profesión",
-                            "Religión",
-                            "Situación Socioeconómica",
-                        ],
+                        choices=labels["choices"],
                         label=labels["type_of_bias_explored_label"],
                         info=labels["type_of_bias_explored_info"],
                         multiselect=True,

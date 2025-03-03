@@ -335,7 +335,9 @@ class BiasWordExplorerConnector(Connector):
 
         model_name_dict = {
             "Modelo en español": "BETO",
-            "Modelo Multilenguaje": "Cohere Multilingual"
+            "Model in Spanish": "BETO",
+            "Modelo Multilenguaje": "Cohere Multilingual",
+            "Model in English": "Cohere Multilingual",
         }
 
         model_name = model_name_dict[model_name]
@@ -677,7 +679,9 @@ class PhraseBiasExplorerConnector(Connector):
         
         model_name_dict = {
             "Modelo en español": "spanish",
+            "Model in Spanish": "spanish",
             "Modelo en inglés": "english",
+            "Model in English": "english",
         }
 
         model_name = model_name_dict[model_name]
