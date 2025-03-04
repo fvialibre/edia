@@ -1,20 +1,79 @@
+import json
+import os
+from datetime import datetime
+
+import country_converter as coco
 import gradio as gr
 import pandas as pd
-import random
-import json
-from datetime import datetime
 from data.nationalities import nationalities
-from auth import school_list
+
+from data_selection import select_data_point
+
 
 # --- Interface ---
 def interface() -> gr.Blocks:
-    df = pd.read_csv('data/processed_Frases_HESEIA_Anotación.csv')
-    df = df[df['region_type'] == 'País']
-    df = df[df['Expresa un estereotipo que conocen?\n1 (muy en desacuerdo) - 5 (muy de acuerdo)'] >= 4]
+    # Set up country converter
+    coco.logging.getLogger().setLevel(coco.logging.CRITICAL)
+    cc = coco.CountryConverter(only_UNmember=True)
 
-    def get_random_data_point():
-        random_row = df.sample(1).iloc[0]
-        return random_row['region'], random_row['attribute']
+    # Check for required files
+    required_files = {
+        "data/processed_Frases_HESEIA_Anotación.csv": "HESEIA dataset",
+        "data/global_administrative_division.json": "Administrative divisions",
+        "data/country_borders.csv": "Country borders dataset",
+    }
+
+    for file_path, description in required_files.items():
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(
+                f"Required {description} file not found: {file_path}"
+            )
+
+    # Create logs directory if it doesn't exist
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+
+    # Create empty dataframes if they don't exist
+    ws_stereotypes_path = "logs/ws_stereotypes.csv"
+    ws_validations_path = "logs/ws_validations.csv"
+
+    if not os.path.exists(ws_stereotypes_path):
+        pd.DataFrame(
+            columns=["identity", "attribute", "annotator_id", "annotator_nationalities"]
+        ).to_csv(ws_stereotypes_path, index=False)
+
+    if not os.path.exists(ws_validations_path):
+        pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
+            ws_validations_path, index=False
+        )
+
+    # Load required datasets
+    df_heseia = pd.read_csv("data/processed_Frases_HESEIA_Anotación.csv")
+    df_borders = pd.read_csv("data/country_borders.csv")
+
+    df_heseia = df_heseia[df_heseia["region_type"] == "País"]
+    df_heseia = df_heseia[
+        df_heseia[
+            "Expresa un estereotipo que conocen?\n1 (muy en desacuerdo) - 5 (muy de acuerdo)"
+        ]
+        >= 4
+    ]
+
+    def get_random_data_point(token_id=None, nationality_personal_info=None):
+        # Read the most up-to-date versions of the dataframes
+        df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
+        df_ws_validations = pd.read_csv(ws_validations_path)
+
+        # Call the function from data_selection.py
+        return select_data_point(
+            df_ws_stereotypes=df_ws_stereotypes,
+            df_ws_validations=df_ws_validations,
+            df_borders=df_borders,
+            df_heseia=df_heseia,
+            df_seegull=None,
+            annotator_id=token_id,
+            annotator_nationalities=nationality_personal_info,
+        )
 
     def log_result(
         token_id,
@@ -26,8 +85,72 @@ def interface() -> gr.Blocks:
         stereotype,
         associated_nationality_list,
         associated_regions_list,
-        associated_attributes
+        associated_attributes,
     ):
+        # Extract the identity and attribute from data_point correctly
+        identity, attribute = data_point[0]['token'], data_point[1]['token']
+
+        # Log the validation in the validation file
+        validation_entry = pd.DataFrame(
+            [{"identity": identity, "attribute": attribute, "annotator_id": token_id}]
+        )
+
+        # Append to the validations file
+        validation_entry.to_csv(
+            ws_validations_path, mode="a", header=False, index=False
+        )
+
+        # Process and save associated attributes as new stereotypes
+        new_stereotypes = []
+
+        # Process associated attributes for the given nationality
+        if associated_attributes and isinstance(associated_attributes, str):
+            attributes_list = [
+                attr.strip()
+                for attr in associated_attributes.split(",")
+                if attr.strip()
+            ]
+            for attr in attributes_list:
+                new_stereotypes.append(
+                    {
+                        "identity": identity,
+                        "attribute": attr,
+                        "annotator_id": token_id,
+                        "annotator_nationalities": nationality_personal_info,
+                    }
+                )
+
+        # Process associated nationalities for the given attribute
+        if associated_nationality_list and len(associated_nationality_list) > 0:
+            for nat in associated_nationality_list:
+                # Normalize country name using coco
+                try:
+                    normalized_country = cc.convert(nat, to="name_short")
+                    if normalized_country != "not found":
+                        new_stereotypes.append(
+                            {
+                                "identity": normalized_country,
+                                "attribute": attribute,
+                                "annotator_id": token_id,
+                                "annotator_nationalities": nationality_personal_info,
+                            }
+                        )
+                except:
+                    pass
+
+        # Save new stereotypes to the workshop stereotypes file if we have any
+        if new_stereotypes:
+            # Read existing stereotypes
+            df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
+
+            # Append new stereotypes
+            df_ws_stereotypes = pd.concat(
+                [df_ws_stereotypes, pd.DataFrame(new_stereotypes)], ignore_index=True
+            )
+
+            # Save back to file
+            df_ws_stereotypes.to_csv(ws_stereotypes_path, index=False)
+
         result = {
             "timestamp": datetime.now().isoformat(),
             "token_id": token_id,
@@ -41,13 +164,13 @@ def interface() -> gr.Blocks:
             "associated_regions_list": associated_regions_list,
             "associated_attributes": associated_attributes,
         }
-        with open('logs/logs_validator.jsonl', 'a+', encoding='utf-8') as f:
-            f.write(json.dumps(result, ensure_ascii=False) + '\n')
+        with open("logs/logs_validator.jsonl", "a+", encoding="utf-8") as f:
+            f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
     initial_identity, initial_attribute = get_random_data_point()
 
     # Gradio interface
-    with gr.Blocks() as interface:        
+    with gr.Blocks() as interface:
         with gr.Row():
             token_id = gr.Textbox(
                 label="Identifier",
@@ -66,17 +189,15 @@ def interface() -> gr.Blocks:
                 visible=False,
             )
             nationality_personal_info = gr.Dropdown(
-                    label="Where are you from?",
-                    info="Select the nationality that represents your cultural, personal, or national identity",
-                    choices=nationalities,
-                    multiselect=True,
-                    allow_custom_value=False,
-
-                )
+                label="Where are you from?",
+                info="Select the nationality that represents your cultural, personal, or national identity",
+                choices=nationalities,
+                multiselect=True,
+                allow_custom_value=False,
+            )
             with gr.Column():
                 consent_checkbox = gr.Checkbox(
-                    label='I have read and accept the informed consent ⬇️',
-                    value=False
+                    label="I have read and accept the informed consent ⬇️", value=False
                 )
                 _ = gr.HTML(
                     value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
@@ -85,37 +206,42 @@ def interface() -> gr.Blocks:
             value="<hr>",
         )
         with gr.Column(visible=True) as personal_data_missing:
-            gr.Markdown("""
+            gr.Markdown(
+                """
                 # Enter your personal data and confirm your consent to proceed with the survey!
-            """)
-        with gr.Column(visible=False, elem_id='col') as validator_col:
+            """
+            )
+        with gr.Column(visible=False, elem_id="col") as validator_col:
             _ = gr.Markdown(
                 """
                 # Welcome to the Stereotype Validator
-                
+
                 ### This tool is designed to help us understand how stereotypes are perceived in different regions.
-                
+
                 ### Each time you submit a response, you will be presented with a new data point from the dataset.
                 """
             )
             with gr.Row():
                 data_point_box = gr.HighlightedText(
                     label="Random data point",
-                    value=[(initial_identity, "nationality"), (initial_attribute, "attribute")],
+                    value=[
+                        (initial_identity, "nationality"),
+                        (initial_attribute, "attribute"),
+                    ],
                     combine_adjacent=True,
                     show_legend=True,
                     interactive=False,
-                    color_map={"nationality": "red", "attribute": "green"}
+                    color_map={"nationality": "red", "attribute": "green"},
                 )
             with gr.Row(equal_height=True):
                 with gr.Column(scale=1):
                     associated_attributes_input = gr.Textbox(
                         label="Which other attributes do you associate with this nationality?",
-                        placeholder="Enter attributes separated by commas"
+                        placeholder="Enter attributes separated by commas",
                     )
                 with gr.Column(scale=1):
                     stereotype_likert = gr.Radio(
-                        [1,2,3,4,5],
+                        [1, 2, 3, 4, 5],
                         label="This is a known stereotype in my region",
                         info="1: Strongly disagree, 5: Strongly agree",
                         interactive=True,
@@ -125,30 +251,32 @@ def interface() -> gr.Blocks:
                     associated_nationalities_dropdown = gr.Dropdown(
                         label="Which other nationalities do you associate with this attribute?",
                         choices=nationalities,
-                        multiselect=True
+                        multiselect=True,
                     )
-                with gr.Column(visible=False, scale=1) as associated_region_dropdown_col:
+                with gr.Column(
+                    visible=False, scale=1
+                ) as associated_region_dropdown_col:
                     associated_region_dropdown = gr.Dropdown(
                         label="Any specific region?",
                         choices=nationalities,
-                        multiselect=True
+                        multiselect=True,
                     )
             with gr.Row(equal_height=True):
                 skip_button = gr.Button("Skip", variant="primary", scale=25)
                 submit_button = gr.Button("Submit", variant="secondary", scale=75)
 
         def on_submit(
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                data_point,
-                stereotype,
-                associated_nationality_list,
-                associated_regions_list,
-                associated_attributes
-            ):
+            token_id,
+            age,
+            gender,
+            nationality_personal_info,
+            consent_checkbox,
+            data_point,
+            stereotype,
+            associated_nationality_list,
+            associated_regions_list,
+            associated_attributes,
+        ):
 
             log_result(
                 token_id,
@@ -160,16 +288,30 @@ def interface() -> gr.Blocks:
                 stereotype,
                 associated_nationality_list,
                 associated_regions_list,
-                associated_attributes
+                associated_attributes,
             )
-            new_identity, new_attribute = get_random_data_point()
-            return [(new_identity, "nationality"), (new_attribute, "attribute")], None, [], [], ""
+            new_identity, new_attribute = get_random_data_point(
+                token_id=token_id, nationality_personal_info=nationality_personal_info
+            )
+            return (
+                [(new_identity, "nationality"), (new_attribute, "attribute")],
+                None,
+                [],
+                [],
+                "",
+            )
 
         def on_skip():
             new_identity, new_attribute = get_random_data_point()
-            return [(new_identity, "nationality"), (new_attribute, "attribute")], None, [], ""
+            return (
+                [(new_identity, "nationality"), (new_attribute, "attribute")],
+                None,
+                [],
+                "",
+            )
 
-        submit_button.click(on_submit,
+        submit_button.click(
+            on_submit,
             inputs=[
                 token_id,
                 age,
@@ -180,28 +322,32 @@ def interface() -> gr.Blocks:
                 stereotype_likert,
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
-                associated_attributes_input
+                associated_attributes_input,
             ],
             outputs=[
                 data_point_box,
                 stereotype_likert,
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
-                associated_attributes_input
-            ]
+                associated_attributes_input,
+            ],
         )
 
-        skip_button.click(on_skip,
+        skip_button.click(
+            on_skip,
             outputs=[
                 data_point_box,
                 stereotype_likert,
                 associated_nationalities_dropdown,
-                associated_attributes_input
-            ]
+                associated_attributes_input,
+            ],
         )
 
-        def toggle_chat(token_id, age, gender, nationality_personal_info, consent_checkbox):
-            if not (token_id is None
+        def toggle_chat(
+            token_id, age, gender, nationality_personal_info, consent_checkbox
+        ):
+            if not (
+                token_id is None
                 or age is None
                 or gender is None
                 or nationality_personal_info is None
@@ -210,80 +356,63 @@ def interface() -> gr.Blocks:
                 or age > 100
                 or len(nationality_personal_info) == 0
                 or len(token_id) == 0
-                or not consent_checkbox):
+                or not consent_checkbox
+            ):
                 return gr.Column(visible=True), gr.Column(visible=False)
             else:
                 return gr.Column(visible=False), gr.Column(visible=True)
 
         token_id.change(
             fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox
-            ],
-            outputs=[validator_col, personal_data_missing])
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            outputs=[validator_col, personal_data_missing],
+        )
         age.change(
             fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox
-            ],
-            outputs=[validator_col, personal_data_missing])
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            outputs=[validator_col, personal_data_missing],
+        )
         gender.change(
             fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox
-            ],
-            outputs=[validator_col, personal_data_missing])
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            outputs=[validator_col, personal_data_missing],
+        )
         nationality_personal_info.change(
             fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox
-            ],
-            outputs=[validator_col, personal_data_missing])
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            outputs=[validator_col, personal_data_missing],
+        )
         consent_checkbox.change(
             fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox
-            ],
-            outputs=[validator_col, personal_data_missing])
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            outputs=[validator_col, personal_data_missing],
+        )
 
         def toggle_and_update_regions(associated_nationalities_dropdown):
-            if (associated_nationalities_dropdown is None
-                or len(associated_nationalities_dropdown) == 0):
+            if (
+                associated_nationalities_dropdown is None
+                or len(associated_nationalities_dropdown) == 0
+            ):
                 associated_region_dropdown = gr.Dropdown(
-                    label="Any specific region?",
-                    choices=[],
-                    multiselect=True
+                    label="Any specific region?", choices=[], multiselect=True
                 )
                 return gr.Column(visible=False), associated_region_dropdown
             else:
+
                 def get_administrative_divisions(selected_countries):
-                    df = pd.read_json('data/global_administrative_division.json')
-                    filtered_df = df[df['name'].isin(selected_countries)]
-                    return [f"{division['name']} ({row['name']})" for _, row in filtered_df.iterrows() for division in row['AD']]
+                    df = pd.read_json("data/global_administrative_division.json")
+                    filtered_df = df[df["name"].isin(selected_countries)]
+                    return [
+                        f"{division['name']} ({row['name']})"
+                        for _, row in filtered_df.iterrows()
+                        for division in row["AD"]
+                    ]
 
                 associated_region_dropdown = gr.Dropdown(
                     label="Any specific region?",
-                    choices=get_administrative_divisions(associated_nationalities_dropdown),
+                    choices=get_administrative_divisions(
+                        associated_nationalities_dropdown
+                    ),
                     multiselect=True,
                     interactive=True,
                 )
@@ -291,9 +420,8 @@ def interface() -> gr.Blocks:
 
         associated_nationalities_dropdown.change(
             fn=toggle_and_update_regions,
-            inputs=[
-                associated_nationalities_dropdown
-            ],
-            outputs=[associated_region_dropdown_col, associated_region_dropdown])
-                
+            inputs=[associated_nationalities_dropdown],
+            outputs=[associated_region_dropdown_col, associated_region_dropdown],
+        )
+
     return interface
