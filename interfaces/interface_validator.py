@@ -178,20 +178,14 @@ def interface() -> gr.Blocks:
         # Process associated nationalities for the given attribute
         if associated_nationality_list and len(associated_nationality_list) > 0:
             for nat in associated_nationality_list:
-                # Normalize country name using coco
-                try:
-                    normalized_country = cc.convert(nat, to="name_short")
-                    if normalized_country != "not found":
-                        new_stereotypes.append(
-                            {
-                                "identity": normalized_country,
-                                "attribute": attribute,
-                                "annotator_id": token_id,
-                                "annotator_nationalities": nationality_personal_info,
-                            }
-                        )
-                except:
-                    pass
+                new_stereotypes.append(
+                    {
+                        "identity": nat,
+                        "attribute": attribute,
+                        "annotator_id": token_id,
+                        "annotator_nationalities": nationality_personal_info,
+                    }
+                )
 
         # Save new stereotypes to the workshop stereotypes file if we have any
         if new_stereotypes:
