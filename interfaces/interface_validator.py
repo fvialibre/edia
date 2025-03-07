@@ -249,7 +249,7 @@ def interface() -> gr.Blocks:
                     label="I have read and accept the informed consent ⬇️", value=False
                 )
                 _ = gr.HTML(
-                    value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
+                    value="<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>Link 🔗</a>",
                 )
         _ = gr.HTML(
             value="<hr>",

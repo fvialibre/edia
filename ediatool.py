@@ -80,18 +80,18 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
-    interface_data(
-        vocabulary=vocabulary,
-        contexts=CONTEXTS_DATASET,
-        available_logs=AVAILABLE_LOGS,
-        available_wordcloud=AVAILABLE_WORDCLOUD,
-        lang=LANGUAGE,),
+    interface_validator(),
     interface_biasPhrase(
         spanish_language_model=spanish_lm,
         english_language_model=english_lm,
         available_logs=AVAILABLE_LOGS,
         lang=LANGUAGE,),
-    # interface_validator(),
+    # interface_data(
+    #     vocabulary=vocabulary,
+    #     contexts=CONTEXTS_DATASET,
+    #     available_logs=AVAILABLE_LOGS,
+    #     available_wordcloud=AVAILABLE_WORDCLOUD,
+    #     lang=LANGUAGE,),
     # interface_biasWordExplorer(
     #     embedding=embedding,
     #     available_logs=AVAILABLE_LOGS,
@@ -114,9 +114,9 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
-    labels["dataExplorer"],
+    "Stereotype Validator",
     labels["phraseExplorer"],
-    # "Stereotype Validator",
+    # labels["dataExplorer"],
     # labels["biasWordExplorer"],
     # "LLM vía EDIA",
     # # "Arena",
