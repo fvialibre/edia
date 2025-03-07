@@ -59,9 +59,9 @@ REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
 #     nn_method=NN_METHOD
 # )
 
-vocabulary = Vocabulary(
-    subset_name=VOCABULARY_SUBSET
-)
+# vocabulary = Vocabulary(
+#     subset_name=VOCABULARY_SUBSET
+# )
 
 spanish_lm = LanguageModel(
     model_name=SPANISH_LANGUAGE_MODEL

@@ -6,7 +6,7 @@ import country_converter as coco
 import gradio as gr
 import pandas as pd
 from data.nationalities import nationalities
-from data_selection import select_data_point
+from interfaces.data_selection import select_data_point
 
 
 # --- Interface ---
