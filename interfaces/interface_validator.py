@@ -6,7 +6,6 @@ import country_converter as coco
 import gradio as gr
 import pandas as pd
 from data.nationalities import nationalities
-
 from data_selection import select_data_point
 
 
@@ -36,6 +35,8 @@ def interface() -> gr.Blocks:
     # Create empty dataframes if they don't exist
     ws_stereotypes_path = "logs/ws_stereotypes.csv"
     ws_validations_path = "logs/ws_validations.csv"
+    skip_log_path = "logs/skips.jsonl"
+    skip_csv_path = "logs/skips.csv"
 
     if not os.path.exists(ws_stereotypes_path):
         pd.DataFrame(
@@ -45,6 +46,12 @@ def interface() -> gr.Blocks:
     if not os.path.exists(ws_validations_path):
         pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
             ws_validations_path, index=False
+        )
+
+    # Create skips.csv if it doesn't exist
+    if not os.path.exists(skip_csv_path):
+        pd.DataFrame(columns=["identity", "attribute", "skip_count"]).to_csv(
+            skip_csv_path, index=False
         )
 
     # Load required datasets
@@ -59,10 +66,57 @@ def interface() -> gr.Blocks:
         >= 4
     ]
 
+    def log_skip(identity, attribute, annotator_id):
+        """
+        Log a skipped data point to the JSONL file and update skip counts in CSV.
+
+        Args:
+            identity: The identity part of the skipped data point.
+            attribute: The attribute part of the skipped data point.
+            annotator_id: ID of the annotator who skipped the data point.
+        """
+        # Create skip data record
+        skip_data = {
+            "identity": identity,
+            "attribute": attribute,
+            "annotator_id": annotator_id,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        # Append to JSONL file
+        with open(skip_log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(skip_data, ensure_ascii=False) + "\n")
+
+        # Update the CSV file with skip counts
+        if os.path.exists(skip_csv_path):
+            df_skips = pd.read_csv(skip_csv_path)
+        else:
+            df_skips = pd.DataFrame(columns=["identity", "attribute", "skip_count"])
+
+        # Look for existing entry
+        mask = (df_skips["identity"] == identity) & (df_skips["attribute"] == attribute)
+        if mask.any():
+            # Increment skip_count for existing entry
+            df_skips.loc[mask, "skip_count"] += 1
+        else:
+            # Add new entry with skip_count = 1
+            new_row = pd.DataFrame(
+                {"identity": [identity], "attribute": [attribute], "skip_count": [1]}
+            )
+            df_skips = pd.concat([df_skips, new_row], ignore_index=True)
+
+        # Save updated skip counts
+        df_skips.to_csv(skip_csv_path, index=False)
+
     def get_random_data_point(token_id=None, nationality_personal_info=None):
         # Read the most up-to-date versions of the dataframes
         df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
         df_ws_validations = pd.read_csv(ws_validations_path)
+
+        # Load skip counts if the file exists
+        df_skips = None
+        if os.path.exists(skip_csv_path):
+            df_skips = pd.read_csv(skip_csv_path)
 
         # Call the function from data_selection.py
         return select_data_point(
@@ -71,6 +125,7 @@ def interface() -> gr.Blocks:
             df_borders=df_borders,
             df_heseia=df_heseia,
             df_seegull=None,
+            df_skips=df_skips,
             annotator_id=token_id,
             annotator_nationalities=nationality_personal_info,
         )
@@ -88,7 +143,7 @@ def interface() -> gr.Blocks:
         associated_attributes,
     ):
         # Extract the identity and attribute from data_point correctly
-        identity, attribute = data_point[0]['token'], data_point[1]['token']
+        identity, attribute = data_point[0]["token"], data_point[1]["token"]
 
         # Log the validation in the validation file
         validation_entry = pd.DataFrame(
@@ -123,20 +178,14 @@ def interface() -> gr.Blocks:
         # Process associated nationalities for the given attribute
         if associated_nationality_list and len(associated_nationality_list) > 0:
             for nat in associated_nationality_list:
-                # Normalize country name using coco
-                try:
-                    normalized_country = cc.convert(nat, to="name_short")
-                    if normalized_country != "not found":
-                        new_stereotypes.append(
-                            {
-                                "identity": normalized_country,
-                                "attribute": attribute,
-                                "annotator_id": token_id,
-                                "annotator_nationalities": nationality_personal_info,
-                            }
-                        )
-                except:
-                    pass
+                new_stereotypes.append(
+                    {
+                        "identity": nat,
+                        "attribute": attribute,
+                        "annotator_id": token_id,
+                        "annotator_nationalities": nationality_personal_info,
+                    }
+                )
 
         # Save new stereotypes to the workshop stereotypes file if we have any
         if new_stereotypes:
@@ -301,8 +350,21 @@ def interface() -> gr.Blocks:
                 "",
             )
 
-        def on_skip():
-            new_identity, new_attribute = get_random_data_point()
+        def on_skip(token_id, data_point):
+            # Extract current identity and attribute from data_point
+            if data_point and len(data_point) >= 2:
+                identity = data_point[0]["token"]
+                attribute = data_point[1]["token"]
+
+                # Log the skip if we have valid identity and attribute
+                if identity and attribute:
+                    log_skip(identity, attribute, token_id)
+
+            # Get new data point, taking skip counts into consideration
+            new_identity, new_attribute = get_random_data_point(
+                token_id=token_id,
+                nationality_personal_info=nationality_personal_info,
+            )
             return (
                 [(new_identity, "nationality"), (new_attribute, "attribute")],
                 None,
@@ -335,6 +397,10 @@ def interface() -> gr.Blocks:
 
         skip_button.click(
             on_skip,
+            inputs=[
+                token_id,
+                data_point_box,
+            ],
             outputs=[
                 data_point_box,
                 stereotype_likert,
