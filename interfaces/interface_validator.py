@@ -414,7 +414,7 @@ def interface() -> gr.Blocks:
         def toggle_chat(
             token_id, age, gender, nationality_personal_info, consent_checkbox
         ):
-            if not (
+            is_valid = not (
                 token_id is None
                 or age is None
                 or gender is None
@@ -425,35 +425,49 @@ def interface() -> gr.Blocks:
                 or len(nationality_personal_info) == 0
                 or len(token_id) == 0
                 or not consent_checkbox
-            ):
-                return gr.Column(visible=True), gr.Column(visible=False)
-            else:
-                return gr.Column(visible=False), gr.Column(visible=True)
+            )
 
+            if is_valid:
+                # Get a personalized data point using the user's information
+                new_identity, new_attribute = get_random_data_point(
+                    token_id=token_id,
+                    nationality_personal_info=nationality_personal_info
+                )
+
+                # Return updated UI state and the new data point
+                return gr.Column(visible=True), gr.Column(visible=False), [
+                    (new_identity, "nationality"),
+                    (new_attribute, "attribute")
+                ]
+            else:
+                # Return original UI state without changing data point
+                return gr.Column(visible=False), gr.Column(visible=True), None
+
+        # Update all the change event connections to include data_point_box in the outputs
         token_id.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
-            outputs=[validator_col, personal_data_missing],
+            outputs=[validator_col, personal_data_missing, data_point_box],
         )
         age.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
-            outputs=[validator_col, personal_data_missing],
+            outputs=[validator_col, personal_data_missing, data_point_box],
         )
         gender.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
-            outputs=[validator_col, personal_data_missing],
+            outputs=[validator_col, personal_data_missing, data_point_box],
         )
         nationality_personal_info.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
-            outputs=[validator_col, personal_data_missing],
+            outputs=[validator_col, personal_data_missing, data_point_box],
         )
         consent_checkbox.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
-            outputs=[validator_col, personal_data_missing],
+            outputs=[validator_col, personal_data_missing, data_point_box],
         )
 
         def toggle_and_update_regions(associated_nationalities_dropdown):
