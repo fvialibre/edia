@@ -6,6 +6,7 @@ import country_converter as coco
 import gradio as gr
 import pandas as pd
 from data.nationalities import nationalities
+
 from interfaces.data_selection import select_data_point
 
 
@@ -350,7 +351,7 @@ def interface() -> gr.Blocks:
                 "",
             )
 
-        def on_skip(token_id, data_point):
+        def on_skip(token_id, data_point, nationality_personal_info):
             # Extract current identity and attribute from data_point
             if data_point and len(data_point) >= 2:
                 identity = data_point[0]["token"]
@@ -400,6 +401,7 @@ def interface() -> gr.Blocks:
             inputs=[
                 token_id,
                 data_point_box,
+                nationality_personal_info,  # Add nationality_personal_info as input
             ],
             outputs=[
                 data_point_box,
