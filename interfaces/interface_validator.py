@@ -297,7 +297,7 @@ def interface() -> gr.Blocks:
                 with gr.Column(scale=1):
                     stereotype_likert = gr.Radio(
                         [1, 2, 3, 4, 5],
-                        label="This is a known stereotype in my region",
+                        label="This is a known association in my region",
                         info="1: Strongly disagree, 5: Strongly agree",
                         interactive=True,
                     )
@@ -364,8 +364,8 @@ def interface() -> gr.Blocks:
                 [],
                 [],
                 "",
-                new_attr_label,
-                new_nat_label,
+                gr.update(label=new_attr_label),
+                gr.update(label=new_nat_label),
             )
 
         def on_skip(token_id, data_point, nationality_personal_info):
@@ -392,8 +392,8 @@ def interface() -> gr.Blocks:
                 None,
                 [],
                 "",
-                new_attr_label,
-                new_nat_label,
+                gr.update(label=new_attr_label),
+                gr.update(label=new_nat_label),
             )
 
         submit_button.click(
@@ -416,8 +416,8 @@ def interface() -> gr.Blocks:
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
                 associated_attributes_input,
-                associated_attributes_input.label,
-                associated_nationalities_dropdown.label,
+                associated_attributes_input,
+                associated_nationalities_dropdown,
             ],
         )
 
@@ -433,8 +433,8 @@ def interface() -> gr.Blocks:
                 stereotype_likert,
                 associated_nationalities_dropdown,
                 associated_attributes_input,
-                associated_attributes_input.label,
-                associated_nationalities_dropdown.label,
+                associated_attributes_input,
+                associated_nationalities_dropdown,
             ],
         )
 
@@ -469,8 +469,8 @@ def interface() -> gr.Blocks:
                     gr.Column(visible=True),
                     gr.Column(visible=False),
                     [(new_identity, "nationality"), (new_attribute, "attribute")],
-                    new_attr_label,
-                    new_nat_label,
+                    gr.update(label=new_attr_label),
+                    gr.update(label=new_nat_label),
                 )
             else:
                 # Return original UI state without changing data point
@@ -478,40 +478,40 @@ def interface() -> gr.Blocks:
                     gr.Column(visible=False),
                     gr.Column(visible=True),
                     None,
-                    associated_attributes_input.label,
-                    associated_nationalities_dropdown.label,
+                    gr.update(),  # Keep current label
+                    gr.update(),  # Keep current label
                 )
 
-        # Update the change event connections to include label updates in outputs
+        # Update the change event connections to include components in outputs (not their labels)
         token_id.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
             outputs=[validator_col, personal_data_missing, data_point_box,
-                    associated_attributes_input.label, associated_nationalities_dropdown.label],
+                    associated_attributes_input, associated_nationalities_dropdown],
         )
         age.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
             outputs=[validator_col, personal_data_missing, data_point_box,
-                    associated_attributes_input.label, associated_nationalities_dropdown.label],
+                    associated_attributes_input, associated_nationalities_dropdown],
         )
         gender.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
             outputs=[validator_col, personal_data_missing, data_point_box,
-                    associated_attributes_input.label, associated_nationalities_dropdown.label],
+                    associated_attributes_input, associated_nationalities_dropdown],
         )
         nationality_personal_info.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
             outputs=[validator_col, personal_data_missing, data_point_box,
-                    associated_attributes_input.label, associated_nationalities_dropdown.label],
+                    associated_attributes_input, associated_nationalities_dropdown],
         )
         consent_checkbox.change(
             fn=toggle_chat,
             inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
             outputs=[validator_col, personal_data_missing, data_point_box,
-                    associated_attributes_input.label, associated_nationalities_dropdown.label],
+                    associated_attributes_input, associated_nationalities_dropdown],
         )
 
         def toggle_and_update_regions(associated_nationalities_dropdown):
