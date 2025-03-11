@@ -625,7 +625,6 @@ def select_data_point(
             3,
         )
         candidate = _select_candidate(ws_about_nat, "validation_count")
-        print(candidate)
         if candidate is not None:
             selection_info = {
                 "source": "WS_ABOUT_NATIONALITY",
