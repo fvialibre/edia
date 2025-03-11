@@ -59,14 +59,6 @@ def interface() -> gr.Blocks:
     df_heseia = pd.read_csv("data/processed_Frases_HESEIA_Anotación.csv")
     df_borders = pd.read_csv("data/country_borders.csv")
 
-    df_heseia = df_heseia[df_heseia["region_type"] == "País"]
-    df_heseia = df_heseia[
-        df_heseia[
-            "Expresa un estereotipo que conocen?\n1 (muy en desacuerdo) - 5 (muy de acuerdo)"
-        ]
-        >= 4
-    ]
-
     def log_skip(identity, attribute, annotator_id):
         """
         Log a skipped data point to the JSONL file and update skip counts in CSV.
