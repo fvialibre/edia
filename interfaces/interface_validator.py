@@ -6,6 +6,7 @@ import country_converter as coco
 import gradio as gr
 import pandas as pd
 from data.nationalities import nationalities
+from filelock import FileLock
 
 from interfaces.data_selection import select_data_point
 
@@ -80,26 +81,36 @@ def interface() -> gr.Blocks:
         with open(skip_log_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(skip_data, ensure_ascii=False) + "\n")
 
-        # Update the CSV file with skip counts
-        if os.path.exists(skip_csv_path):
-            df_skips = pd.read_csv(skip_csv_path)
-        else:
-            df_skips = pd.DataFrame(columns=["identity", "attribute", "skip_count"])
+        # --- Lock CSV update ---
+        skip_lock_path = skip_csv_path + ".lock"
+        with FileLock(skip_lock_path):
+            # Update the CSV file with skip counts
+            if os.path.exists(skip_csv_path):
+                df_skips = pd.read_csv(skip_csv_path)
+            else:
+                df_skips = pd.DataFrame(columns=["identity", "attribute", "skip_count"])
 
-        # Look for existing entry
-        mask = (df_skips["identity"] == identity) & (df_skips["attribute"] == attribute)
-        if mask.any():
-            # Increment skip_count for existing entry
-            df_skips.loc[mask, "skip_count"] += 1
-        else:
-            # Add new entry with skip_count = 1
-            new_row = pd.DataFrame(
-                {"identity": [identity], "attribute": [attribute], "skip_count": [1]}
+            # Look for existing entry
+            mask = (df_skips["identity"] == identity) & (
+                df_skips["attribute"] == attribute
             )
-            df_skips = pd.concat([df_skips, new_row], ignore_index=True)
+            if mask.any():
+                # Increment skip_count for existing entry
+                df_skips.loc[mask, "skip_count"] += 1
+            else:
+                # Add new entry with skip_count = 1
+                new_row = pd.DataFrame(
+                    {
+                        "identity": [identity],
+                        "attribute": [attribute],
+                        "skip_count": [1],
+                    }
+                )
+                df_skips = pd.concat([df_skips, new_row], ignore_index=True)
 
-        # Save updated skip counts
-        df_skips.to_csv(skip_csv_path, index=False)
+            # Save updated skip counts
+            df_skips.to_csv(skip_csv_path, index=False)
+        # --- End Lock ---
 
     def get_random_data_point(token_id=None, nationality_personal_info=None):
         # Read the most up-to-date versions of the dataframes
@@ -182,16 +193,21 @@ def interface() -> gr.Blocks:
 
         # Save new stereotypes to the workshop stereotypes file if we have any
         if new_stereotypes:
-            # Read existing stereotypes
-            df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
+            # --- Lock CSV update ---
+            stereotype_lock_path = ws_stereotypes_path + ".lock"
+            with FileLock(stereotype_lock_path):
+                # Read existing stereotypes
+                df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
 
-            # Append new stereotypes
-            df_ws_stereotypes = pd.concat(
-                [df_ws_stereotypes, pd.DataFrame(new_stereotypes)], ignore_index=True
-            )
+                # Append new stereotypes
+                df_ws_stereotypes = pd.concat(
+                    [df_ws_stereotypes, pd.DataFrame(new_stereotypes)],
+                    ignore_index=True,
+                )
 
-            # Save back to file
-            df_ws_stereotypes.to_csv(ws_stereotypes_path, index=False)
+                # Save back to file
+                df_ws_stereotypes.to_csv(ws_stereotypes_path, index=False)
+            # --- End Lock ---
 
         result = {
             "timestamp": datetime.now().isoformat(),
