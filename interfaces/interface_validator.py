@@ -6,7 +6,6 @@ import country_converter as coco
 import gradio as gr
 import pandas as pd
 from data.nationalities import nationalities
-from filelock import FileLock
 
 from interfaces.data_selection import select_data_point
 
@@ -168,21 +167,9 @@ def interface() -> gr.Blocks:
 
         # Save new stereotypes to the workshop stereotypes file if we have any
         if new_stereotypes:
-            # --- Lock CSV update ---
-            stereotype_lock_path = ws_stereotypes_path + ".lock"
-            with FileLock(stereotype_lock_path):
-                # Read existing stereotypes
-                df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
-
-                # Append new stereotypes
-                df_ws_stereotypes = pd.concat(
-                    [df_ws_stereotypes, pd.DataFrame(new_stereotypes)],
-                    ignore_index=True,
-                )
-
-                # Save back to file
-                df_ws_stereotypes.to_csv(ws_stereotypes_path, index=False)
-            # --- End Lock ---
+            pd.DataFrame(new_stereotypes).to_csv(
+                ws_stereotypes_path, mode="a", header=False, index=False
+            )
 
         result = {
             "timestamp": datetime.now().isoformat(),
