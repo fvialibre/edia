@@ -72,9 +72,18 @@ def _get_excluded_pairs(
         )
         result = validation_pairs.union(stereotype_pairs)
 
-    # Add frequently skipped pairs to exclusions
+    # Add pairs skipped by this annotator
+    if annotator_id is not None and df_skips is not None and not df_skips.empty:
+        annotator_skipped_pairs = set(
+            df_skips[df_skips["annotator_id"] == annotator_id][
+                ["identity", "attribute"]
+            ].itertuples(index=False, name=None)
+        )
+        result = result.union(annotator_skipped_pairs)
+
+    # Add globally frequently skipped pairs to exclusions
     if df_skips is not None and not df_skips.empty:
-        # Calculate skip counts dynamically
+        # Calculate global skip counts dynamically
         skip_counts = (
             df_skips.groupby(["identity", "attribute"])
             .size()
