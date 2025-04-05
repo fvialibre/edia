@@ -52,7 +52,7 @@ def interface() -> gr.Blocks:
 
     # Create skips.csv if it doesn't exist
     if not os.path.exists(skip_csv_path):
-        pd.DataFrame(columns=["identity", "attribute", "skip_count"]).to_csv(
+        pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
             skip_csv_path, index=False
         )
 
@@ -81,36 +81,11 @@ def interface() -> gr.Blocks:
         with open(skip_log_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(skip_data, ensure_ascii=False) + "\n")
 
-        # --- Lock CSV update ---
-        skip_lock_path = skip_csv_path + ".lock"
-        with FileLock(skip_lock_path):
-            # Update the CSV file with skip counts
-            if os.path.exists(skip_csv_path):
-                df_skips = pd.read_csv(skip_csv_path)
-            else:
-                df_skips = pd.DataFrame(columns=["identity", "attribute", "skip_count"])
-
-            # Look for existing entry
-            mask = (df_skips["identity"] == identity) & (
-                df_skips["attribute"] == attribute
-            )
-            if mask.any():
-                # Increment skip_count for existing entry
-                df_skips.loc[mask, "skip_count"] += 1
-            else:
-                # Add new entry with skip_count = 1
-                new_row = pd.DataFrame(
-                    {
-                        "identity": [identity],
-                        "attribute": [attribute],
-                        "skip_count": [1],
-                    }
-                )
-                df_skips = pd.concat([df_skips, new_row], ignore_index=True)
-
-            # Save updated skip counts
-            df_skips.to_csv(skip_csv_path, index=False)
-        # --- End Lock ---
+        # Append to CSV file
+        skip_entry = pd.DataFrame(
+            [{"identity": identity, "attribute": attribute, "annotator_id": annotator_id}]
+        )
+        skip_entry.to_csv(skip_csv_path, mode="a", header=False, index=False)
 
     def get_random_data_point(token_id=None, nationality_personal_info=None):
         # Read the most up-to-date versions of the dataframes

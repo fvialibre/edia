@@ -74,10 +74,20 @@ def _get_excluded_pairs(
 
     # Add frequently skipped pairs to exclusions
     if df_skips is not None and not df_skips.empty:
+        # Calculate skip counts dynamically
+        skip_counts = (
+            df_skips.groupby(["identity", "attribute"])
+            .size()
+            .reset_index(name="skip_count")
+        )
+        # Filter for frequently skipped pairs
+        frequent_skips = skip_counts[skip_counts["skip_count"]
+                                     >= skip_threshold]
+        # Extract pairs
         skipped_pairs = set(
-            df_skips[df_skips["skip_count"] >= skip_threshold][
-                ["identity", "attribute"]
-            ].itertuples(index=False, name=None)
+            frequent_skips[["identity", "attribute"]].itertuples(
+                index=False, name=None
+            )
         )
         result = result.union(skipped_pairs)
 
