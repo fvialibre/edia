@@ -5,15 +5,31 @@ from datetime import datetime
 import country_converter as coco
 import gradio as gr
 import pandas as pd
-from data.nationalities import nationalities
 
 from interfaces.data_selection import select_data_point
+from interfaces.nationalities import (nationalities, nationalities_es,
+                                      nationalities_pt)
 
 # --- Language Handling ---
 AVAILABLE_LANGUAGES = {"English": "en", "Español": "es", "Português": "pt"}
 DEFAULT_LANG = "es"  # Default starting language
 
+# --- Nationality Data Handling ---
+NATIONALITY_DATA = {
+    "en": nationalities,
+    "es": nationalities_es,
+    "pt": nationalities_pt,
+}
 
+def get_nationality_choices(lang_code: str):
+    """Generates (label, value) tuples for nationality dropdowns."""
+    # Use English as fallback if lang_code is invalid or list is missing
+    translated_list = NATIONALITY_DATA.get(lang_code, nationalities)
+    choices = list(zip(translated_list, nationalities))
+    return choices
+
+
+# --- Language Handling ---
 def load_language(lang: str):
     """Loads language labels for the validator interface."""
     labels_path = f"language/{lang}.json"
@@ -77,6 +93,10 @@ def interface(lang: str = "es") -> gr.Blocks:
             raise FileNotFoundError(
                 f"Required {description} file not found: {file_path}"
             )
+
+    # Make sure nationalities are the same length
+    if len(nationalities) != len(nationalities_es) or len(nationalities) != len(nationalities_pt):
+        raise ValueError(f"Error in nationalities: Length mismatch between English and other languages.")
 
     # Create logs directory if it doesn't exist
     if not os.path.exists("logs"):
@@ -264,11 +284,10 @@ def interface(lang: str = "es") -> gr.Blocks:
 
     # Gradio interface
     # Get initial labels for dynamic fields before building the UI
-    # This call was already done correctly above, removing redundant call.
-    # initial_attr_label, initial_nat_label = update_input_labels(
-    #     initial_identity, initial_attribute, labels # Pass labels
-    # )
     # The variables initial_attr_label and initial_nat_label are already set correctly above.
+
+    # Get initial nationality choices based on the starting language
+    initial_nationality_choices = get_nationality_choices(lang)
 
     with gr.Blocks() as interface:
         # State to hold the current language labels
@@ -307,8 +326,8 @@ def interface(lang: str = "es") -> gr.Blocks:
             nationality_personal_info = gr.Dropdown(
                 label=labels["nationality_label"],
                 info=labels["nationality_info"],
-                # Keep nationalities list as is, assuming it's language-independent data
-                choices=nationalities,
+                # Use the helper function to generate choices with (label, value) pairs
+                choices=initial_nationality_choices,
                 multiselect=True,
                 allow_custom_value=False,
             )
@@ -364,7 +383,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 with gr.Column(scale=1):
                     associated_nationalities_dropdown = gr.Dropdown(
                         label=initial_nat_label,  # Already dynamically set
-                        choices=nationalities,
+                        # Use the helper function to generate choices with (label, value) pairs
+                        choices=initial_nationality_choices,
                         multiselect=True,
                     )
                 with gr.Column(
@@ -778,6 +798,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             print(f"[on_language_change] New labels for state: {new_labels}") # DEBUG PRINT
             print(f"[on_language_change] New keys: Nat='{new_nationality_key}', Attr='{new_attribute_key}'") # DEBUG PRINT
 
+            # Get new nationality choices for the dropdowns
+            new_nationality_choices = get_nationality_choices(lang_code)
+
             # Update all UI components with new language
             return (
                 # State update
@@ -792,6 +815,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gr.update(
                     label=new_labels["nationality_label"],
                     info=new_labels["nationality_info"],
+                    # Update choices for the personal info nationality dropdown
+                    choices=new_nationality_choices,
                 ),
                 gr.update(label=new_labels["consent_label"]),
                 f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{new_labels['consent_link_text']}</a>",
@@ -816,7 +841,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                     label=new_attr_label,
                     placeholder=new_labels["associated_attributes_placeholder"],
                 ),
-                gr.update(label=new_nat_label),
+                # Update choices for the associated nationalities dropdown
+                gr.update(label=new_nat_label, choices=new_nationality_choices),
                 gr.update(label=new_labels["associated_region_label"]),
                 # Buttons
                 gr.update(value=new_labels["skip_button_label"]),
