@@ -348,6 +348,7 @@ def select_data_point(
     annotator_nationalities=None,
     p_neighbor=0.2,
     p_other=0.1,
+    p_step2_chance=0.4,  # Chance to execute step 2
     debug=False,
     skip_threshold=3,  # New parameter for skip threshold
 ) -> tuple:
@@ -366,7 +367,10 @@ def select_data_point(
        - Only selects data points with fewer than 3 validations (`validation_count < 3`).
 
     2. Workshop Data (About Annotator's Nationality):
-       - Tries to find a stereotype where the identity is one of the annotator's nationalities.
+       - With probability `p_step2_chance`, tries to find a stereotype where the identity is one
+         of the annotator's nationalities. If this step is skipped (probability 1 - `p_step2_chance`),
+         annotator nationalities are not provided or if no suitable candidate is found,
+         proceeds to the next step.
        - Still enforces the validation count limit and exclusion of previously validated pairs.
 
     3. Workshop Data (Any Nationality):
@@ -446,6 +450,9 @@ def select_data_point(
 
     p_other : float, optional
         Probability of picking a different country. Default 0.1
+
+    p_step2_chance : float, optional
+        Probability of executing step 2 (Workshop: About Annotator's Nationality). Default 0.5
 
     debug : bool, optional
         If True, returns additional selection information. Default False
@@ -632,8 +639,8 @@ def select_data_point(
             else:
                 return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0])
 
-    # 2) Workshop: about annotator's nationality
-    if annotator_nationalities:
+    # 2) Workshop: about annotator's nationality (with probability p_step2_chance)
+    if annotator_nationalities and random.random() < p_step2_chance:
         ws_about_nat = _filter_about_nationality(
             df_ws_stereotypes,
             "identity",
