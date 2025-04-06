@@ -248,6 +248,9 @@ def interface(lang: str = "es") -> gr.Blocks:
     initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute)
 
     with gr.Blocks() as interface:
+        # State to hold the current language labels
+        language_labels_state = gr.State(labels)
+
         # Language selector at the top of the interface
         with gr.Row():
             language_dropdown = gr.Dropdown(
@@ -361,6 +364,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             associated_nationality_list,
             associated_regions_list,
             associated_attributes,
+            current_labels, # Added state input
         ):
 
             log_result(
@@ -382,8 +386,12 @@ def interface(lang: str = "es") -> gr.Blocks:
             # Update the input labels with new data point values
             new_attr_label, new_nat_label = update_input_labels(new_identity, new_attribute)
 
+            # Get current legend keys from state
+            nationality_key = current_labels.get('data_point_legend_nationality', 'nationality')
+            attribute_key = current_labels.get('data_point_legend_attribute', 'attribute')
+
             return (
-                # Update displayed value with dynamic keys
+                # Update displayed value with dynamic keys from state
                 [(new_identity, nationality_key),
                  (new_attribute, attribute_key)],
                 None, # Clear likert
@@ -394,7 +402,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gr.update(label=new_nat_label),
             )
 
-        def on_skip(token_id, data_point, nationality_personal_info):
+        def on_skip(token_id, data_point, nationality_personal_info, current_labels): # Added state input
             # Extract current identity and attribute from data_point
             if data_point and len(data_point) >= 2:
                 identity = data_point[0]["token"]
@@ -413,8 +421,12 @@ def interface(lang: str = "es") -> gr.Blocks:
             # Update the input labels with new data point values
             new_attr_label, new_nat_label = update_input_labels(new_identity, new_attribute)
 
+            # Get current legend keys from state
+            nationality_key = current_labels.get('data_point_legend_nationality', 'nationality')
+            attribute_key = current_labels.get('data_point_legend_attribute', 'attribute')
+
             return (
-                 # Update displayed value with dynamic keys
+                 # Update displayed value with dynamic keys from state
                 [(new_identity, nationality_key),
                  (new_attribute, attribute_key)],
                 None, # Clear likert
@@ -437,6 +449,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
                 associated_attributes_input,
+                language_labels_state, # Added state input
             ],
             outputs=[
                 data_point_box,
@@ -455,6 +468,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 token_id,
                 data_point_box,
                 nationality_personal_info,  # Add nationality_personal_info as input
+                language_labels_state, # Added state input
             ],
             outputs=[
                 data_point_box,
@@ -467,7 +481,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         )
 
         def toggle_chat(
-            token_id, age, gender, nationality_personal_info, consent_checkbox
+            token_id, age, gender, nationality_personal_info, consent_checkbox, current_labels # Added state input
         ):
             is_valid = not (
                 token_id is None
@@ -492,11 +506,15 @@ def interface(lang: str = "es") -> gr.Blocks:
                 # Update the input labels with new data point values
                 new_attr_label, new_nat_label = update_input_labels(new_identity, new_attribute)
 
+                # Get current legend keys from state
+                nationality_key = current_labels.get('data_point_legend_nationality', 'nationality')
+                attribute_key = current_labels.get('data_point_legend_attribute', 'attribute')
+
                 # Return updated UI state and the new data point
                 return (
                     gr.Column(visible=True),
                     gr.Column(visible=False),
-                     # Update displayed value with dynamic keys
+                     # Update displayed value with dynamic keys from state
                     [(new_identity, nationality_key),
                      (new_attribute, attribute_key)],
                     gr.update(label=new_attr_label),
@@ -516,31 +534,31 @@ def interface(lang: str = "es") -> gr.Blocks:
         # The outputs update the component values/visibility, the labels are updated via gr.update() within toggle_chat
         token_id.change(
             fn=toggle_chat,
-            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox, language_labels_state], # Added state input
             outputs=[validator_col, personal_data_missing, data_point_box,
                     associated_attributes_input, associated_nationalities_dropdown],
         )
         age.change(
             fn=toggle_chat,
-            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox, language_labels_state], # Added state input
             outputs=[validator_col, personal_data_missing, data_point_box,
                     associated_attributes_input, associated_nationalities_dropdown],
         )
         gender.change(
             fn=toggle_chat,
-            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox, language_labels_state], # Added state input
             outputs=[validator_col, personal_data_missing, data_point_box,
                     associated_attributes_input, associated_nationalities_dropdown],
         )
         nationality_personal_info.change(
             fn=toggle_chat,
-            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox, language_labels_state], # Added state input
             outputs=[validator_col, personal_data_missing, data_point_box,
                     associated_attributes_input, associated_nationalities_dropdown],
         )
         consent_checkbox.change(
             fn=toggle_chat,
-            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox],
+            inputs=[token_id, age, gender, nationality_personal_info, consent_checkbox, language_labels_state], # Added state input
             outputs=[validator_col, personal_data_missing, data_point_box,
                     associated_attributes_input, associated_nationalities_dropdown],
         )
@@ -600,6 +618,9 @@ def interface(lang: str = "es") -> gr.Blocks:
 
             # Update all UI components with new language
             return (
+                # State update
+                new_labels, # Output new labels to state
+
                 # Personal info section
                 gr.update(label=new_labels['identifier_label'], info=new_labels['identifier_info']),
                 gr.update(label=new_labels['age_label']),
@@ -637,6 +658,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             fn=on_language_change,
             inputs=[language_dropdown, data_point_box],
             outputs=[
+                # State
+                language_labels_state,
+
                 # Personal info
                 token_id,
                 age,
