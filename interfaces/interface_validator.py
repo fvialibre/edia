@@ -9,33 +9,47 @@ from data.nationalities import nationalities
 
 from interfaces.data_selection import select_data_point
 
+# --- Language Handling ---
+AVAILABLE_LANGUAGES = {"en": "English", "es": "Español", "pt": "Português"}
+DEFAULT_LANG = "es"  # Default starting language
 
-# --- Interface ---
-def interface(lang: str = "es") -> gr.Blocks:
-    # --- Load language ---
+def load_language(lang: str):
+    """Loads language labels for the validator interface."""
     labels_path = f"language/{lang}.json"
+    fallback_path = f"language/en.json"  # English as fallback
+
     if not os.path.exists(labels_path):
-        # Fallback or error - let's default to English if the specified lang file is missing
         print(f"Warning: Language file {labels_path} not found. Defaulting to English.")
-        lang = "en"
-        labels_path = "language/en.json"
+        labels_path = fallback_path
+        lang = "en"  # Update lang if falling back
 
     try:
         # Using pandas consistent with interface_crowsPairs.py
         all_labels = pd.read_json(labels_path)
         # Use a key consistent with others, e.g., "validator_interface"
         labels = all_labels["validator_interface"]
+        # Add the current language code to the labels dict for reference
+        labels["current_lang"] = lang
+        return labels
     except KeyError:
         # Handle missing key - maybe load English as fallback?
         print(f"Warning: 'validator_interface' key not found in {labels_path}. Loading English.")
-        all_labels = pd.read_json("language/en.json")
+        all_labels = pd.read_json(fallback_path)
         try:
-            labels = all_labels["validator_interface"] # Assuming English file has the key
+            labels = all_labels["validator_interface"]  # Assuming English file has the key
+            labels["current_lang"] = "en"  # Mark as fallback lang
+            return labels
         except KeyError:
-             raise RuntimeError(f"Critical: 'validator_interface' key not found in fallback English file {labels_path}")
+             raise RuntimeError(f"Critical: 'validator_interface' key not found in fallback English file {fallback_path}")
     except Exception as e:
         # Handle other potential errors during loading
         raise RuntimeError(f"Error loading language file {labels_path}: {e}")
+
+
+# --- Interface ---
+def interface(lang: str = "es") -> gr.Blocks:
+    # --- Initial language load ---
+    labels = load_language(lang)
 
     # Set up country converter
     coco.logging.getLogger().setLevel(coco.logging.CRITICAL)
@@ -234,6 +248,18 @@ def interface(lang: str = "es") -> gr.Blocks:
     initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute)
 
     with gr.Blocks() as interface:
+        # Language selector at the top of the interface
+        with gr.Row():
+            language_dropdown = gr.Dropdown(
+                label="Language / Idioma / Idioma", # Multilingual label
+                choices=list(AVAILABLE_LANGUAGES.items()),
+                value=lang, # Default to server-provided language
+                interactive=True,
+                elem_id="language_dropdown"
+            )
+            gr.HTML("<div style='flex-grow: 1'></div>") # Spacer
+
+        # Personal information row
         with gr.Row():
             token_id = gr.Textbox(
                 label=labels['identifier_label'],
@@ -263,17 +289,18 @@ def interface(lang: str = "es") -> gr.Blocks:
                 consent_checkbox = gr.Checkbox(
                     label=labels['consent_label'], value=False
                 )
-                # Assuming the link itself is constant, but the text might change
-                _ = gr.HTML(
+                consent_link_html = gr.HTML(
                     value=f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{labels['consent_link_text']}</a>",
+                    elem_id="consent_link_html"
                 )
-        _ = gr.HTML(
-            value="<hr>",
-        )
+
+        gr.HTML("<hr>")
+
+        # Create Markdown components within their proper context
         with gr.Column(visible=True) as personal_data_missing:
-            gr.Markdown(labels['personal_data_missing_md'])
+            personal_data_missing_md = gr.Markdown(labels['personal_data_missing_md'])
         with gr.Column(visible=False, elem_id="col") as validator_col:
-            _ = gr.Markdown(labels['welcome_md'])
+            welcome_md = gr.Markdown(labels['welcome_md'])
             with gr.Row():
                 with gr.Column(scale=1):
                     # Assuming color_map keys 'nationality' and 'attribute' are internal identifiers
@@ -552,6 +579,89 @@ def interface(lang: str = "es") -> gr.Blocks:
             fn=toggle_and_update_regions,
             inputs=[associated_nationalities_dropdown],
             outputs=[associated_region_dropdown_col, associated_region_dropdown],
+        )
+
+        # Language change handler function
+        def on_language_change(lang_code, data_point):
+            # Load new labels for the selected language
+            new_labels = load_language(lang_code)
+
+            # Get the current data point identity and attribute if available
+            current_identity = data_point[0]["token"] if data_point and len(data_point) >= 1 else initial_identity
+            current_attribute = data_point[1]["token"] if data_point and len(data_point) >= 2 else initial_attribute
+
+            # Get new translated legend keys
+            new_nationality_key = new_labels.get('data_point_legend_nationality', 'nationality')
+            new_attribute_key = new_labels.get('data_point_legend_attribute', 'attribute')
+            new_dynamic_color_map = {new_nationality_key: "red", new_attribute_key: "green"}
+
+            # Update dynamic labels
+            new_attr_label, new_nat_label = update_input_labels(current_identity, current_attribute)
+
+            # Update all UI components with new language
+            return (
+                # Personal info section
+                gr.update(label=new_labels['identifier_label'], info=new_labels['identifier_info']),
+                gr.update(label=new_labels['age_label']),
+                gr.update(label=new_labels['gender_label']),
+                gr.update(label=new_labels['nationality_label'], info=new_labels['nationality_info']),
+                gr.update(label=new_labels['consent_label']),
+                f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{new_labels['consent_link_text']}</a>",
+                new_labels['personal_data_missing_md'],
+
+                # Main interface section
+                new_labels['welcome_md'],
+
+                # Data point display
+                gr.update(
+                    label=new_labels['data_point_label'],
+                    value=[(current_identity, new_nationality_key), (current_attribute, new_attribute_key)],
+                    color_map=new_dynamic_color_map
+                ),
+
+                # Stereotype section
+                gr.update(label=new_labels['likert_label'], info=new_labels['likert_info']),
+
+                # Associated attributes and nationalities
+                gr.update(label=new_attr_label, placeholder=new_labels['associated_attributes_placeholder']),
+                gr.update(label=new_nat_label),
+                gr.update(label=new_labels['associated_region_label']),
+
+                # Buttons
+                gr.update(value=new_labels['skip_button_label']),
+                gr.update(value=new_labels['submit_button_label'])
+            )
+
+        # Connect language dropdown change handler to update the UI with the new language
+        language_dropdown.change(
+            fn=on_language_change,
+            inputs=[language_dropdown, data_point_box],
+            outputs=[
+                # Personal info
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                consent_link_html,  # Updated to use the named variable
+                personal_data_missing_md,  # Updated to use the named markdown component
+
+                # Main interface section
+                welcome_md,  # Updated to use the named markdown component
+
+                # Data display
+                data_point_box,
+
+                # Form elements
+                stereotype_likert,
+                associated_attributes_input,
+                associated_nationalities_dropdown,
+                associated_region_dropdown,
+
+                # Buttons
+                skip_button,
+                submit_button
+            ]
         )
 
     return interface
