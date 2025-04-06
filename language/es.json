@@ -276,5 +276,28 @@
         "graphsel": "Seleccionar gráficos",
         "button1":"Buscar",
         "button2": "Descargar CSV"
+    },
+    "validator_interface": {
+      "identifier_label": "Identificador",
+      "identifier_info": "Introduce el identificador proporcionado en el taller",
+      "age_label": "Introduce tu edad",
+      "gender_label": "Selecciona tu género",
+      "nationality_label": "¿De dónde eres?",
+      "nationality_info": "Selecciona la nacionalidad que representa tu identidad cultural, personal o nacional",
+      "consent_label": "He leído y acepto el consentimiento informado ⬇️",
+      "consent_link_text": "Enlace 🔗",
+      "personal_data_missing_md": "\n# ¡Introduce tus datos personales y confirma tu consentimiento para proceder con la encuesta!\n            ",
+      "welcome_md": "\n# Bienvenido/a al Validador de Estereotipos\n\n### Esta herramienta está diseñada para ayudarnos a comprender cómo se perciben los estereotipos en diferentes regiones.\n\n### Cada vez que envíes una respuesta, se te presentará un nuevo dato del conjunto.\n            ",
+      "data_point_label": "Dato aleatorio",
+      "data_point_legend_nationality": "nacionalidad",
+      "data_point_legend_attribute": "atributo",
+      "likert_label": "Esta es una asociación conocida en mi región",
+      "likert_info": "1: Totalmente en desacuerdo, 5: Totalmente de acuerdo",
+      "associated_attributes_placeholder": "Introduce atributos separados por comas",
+      "associated_region_label": "¿Alguna región específica?",
+      "skip_button_label": "Saltar",
+      "submit_button_label": "Enviar",
+      "associated_attributes_prompt": "¿Qué otros atributos asocias con {identity}?",
+      "associated_nationalities_prompt": "¿Qué otras nacionalidades asocias con '{attribute}'?"
     }
 }

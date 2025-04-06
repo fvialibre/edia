@@ -276,5 +276,28 @@
         "graphsel": "Select graphics",
         "button1":"Search",
         "button2": "Download CSV"
+    },
+    "validator_interface": {
+      "identifier_label": "Identifier",
+      "identifier_info": "Enter the identifier provided in the workshop",
+      "age_label": "Enter your age",
+      "gender_label": "Select your gender",
+      "nationality_label": "Where are you from?",
+      "nationality_info": "Select the nationality that represents your cultural, personal, or national identity",
+      "consent_label": "I have read and accept the informed consent ⬇️",
+      "consent_link_text": "Link 🔗",
+      "personal_data_missing_md": "\n# Enter your personal data and confirm your consent to proceed with the survey!\n            ",
+      "welcome_md": "\n# Welcome to the Stereotype Validator\n\n### This tool is designed to help us understand how stereotypes are perceived in different regions.\n\n### Each time you submit a response, you will be presented with a new data point from the dataset.\n            ",
+      "data_point_label": "Random data point",
+      "data_point_legend_nationality": "nationality",
+      "data_point_legend_attribute": "attribute",
+      "likert_label": "This is a known association in my region",
+      "likert_info": "1: Strongly disagree, 5: Strongly agree",
+      "associated_attributes_placeholder": "Enter attributes separated by commas",
+      "associated_region_label": "Any specific region?",
+      "skip_button_label": "Skip",
+      "submit_button_label": "Submit",
+      "associated_attributes_prompt": "Which other attributes do you associate with {identity}?",
+      "associated_nationalities_prompt": "Which other nationalities do you associate with '{attribute}'?"
     }
 }
