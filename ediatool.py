@@ -115,7 +115,7 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
-    "Stereotype Validator",
+    labels["stereotypeValidator"],
     labels["phraseExplorer"],
     # labels["dataExplorer"],
     # labels["biasWordExplorer"],

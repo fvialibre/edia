@@ -1,5 +1,6 @@
 {
     "app": {
+        "stereotypeValidator": "Validador de Estereótipos",
         "wordExplorer": "Explorador de Palavras",
         "biasWordExplorer": "Viés em Palavras",
         "dataExplorer": "Dados",
