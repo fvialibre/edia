@@ -10,7 +10,7 @@ from data.nationalities import nationalities
 from interfaces.data_selection import select_data_point
 
 # --- Language Handling ---
-AVAILABLE_LANGUAGES = {"en": "English", "es": "Español", "pt": "Português"}
+AVAILABLE_LANGUAGES = {"English": "en", "Español": "es", "Português": "pt"}
 DEFAULT_LANG = "es"  # Default starting language
 
 def load_language(lang: str):
