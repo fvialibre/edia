@@ -32,6 +32,8 @@ def load_language(lang: str):
         labels = all_labels["validator_interface"]
         # Add the current language code to the labels dict for reference
         labels["current_lang"] = lang
+        print(f"[load_language] Loading lang: {lang}") # DEBUG PRINT
+        print(f"[load_language] Loaded labels: {labels}") # DEBUG PRINT - Potentially too verbose
         return labels
     except KeyError:
         # Handle missing key - maybe load English as fallback?
@@ -392,6 +394,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             associated_attributes,
             current_labels,  # Added state input
         ):
+            print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
 
             log_result(
                 token_id,
@@ -424,6 +427,8 @@ def interface(lang: str = "es") -> gr.Blocks:
 
             color_map = {nationality_key: "red", attribute_key: "green"}
 
+            print(f"[on_submit] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
+
             return (
                 # Update displayed value with dynamic keys from state
                 gr.update(
@@ -442,6 +447,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         def on_skip(
             token_id, data_point, nationality_personal_info, current_labels
         ):  # Added state input
+            print(f"[on_skip] Received current_labels from state: {current_labels}") # DEBUG PRINT
             # Extract current identity and attribute from data_point
             if data_point and len(data_point) >= 2:
                 identity = data_point[0]["token"]
@@ -470,6 +476,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 "data_point_legend_attribute", "attribute"
             )
             color_map = {nationality_key: "red", attribute_key: "green"}
+
+            print(f"[on_skip] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
 
             return (
                 # Update displayed value with dynamic keys from state
@@ -537,6 +545,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             consent_checkbox,
             current_labels,  # Added state input
         ):
+            print(f"[toggle_chat] Received current_labels from state: {current_labels}") # DEBUG PRINT
             is_valid = not (
                 token_id is None
                 or age is None
@@ -571,6 +580,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 )
 
                 color_map = {nationality_key: "red", attribute_key: "green"}
+
+                print(f"[toggle_chat] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
 
                 # Return updated UI state and the new data point
                 return (
@@ -761,6 +772,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             new_attr_label, new_nat_label = update_input_labels(
                 current_identity, current_attribute
             )
+
+            print(f"[on_language_change] New labels for state: {new_labels}") # DEBUG PRINT
+            print(f"[on_language_change] New keys: Nat='{new_nationality_key}', Attr='{new_attribute_key}'") # DEBUG PRINT
 
             # Update all UI components with new language
             return (
