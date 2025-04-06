@@ -246,7 +246,7 @@ def interface(lang: str = "es") -> gr.Blocks:
     initial_identity, initial_attribute = get_random_data_point()
 
     # Helper function to update input labels based on current data point
-    def update_input_labels(identity, attribute):
+    def update_input_labels(identity, attribute, labels): # Added 'labels' argument
         return (
             labels["associated_attributes_prompt"].format(identity=identity),
             labels["associated_nationalities_prompt"].format(
@@ -254,7 +254,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         )
 
     # Get initial labels (will be set later in the Gradio Blocks definition)
-    # initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute)
+    initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute, labels) # Pass initial labels
 
     # Get translated keys for HighlightedText
     nationality_key = labels.get(
@@ -264,9 +264,11 @@ def interface(lang: str = "es") -> gr.Blocks:
 
     # Gradio interface
     # Get initial labels for dynamic fields before building the UI
-    initial_attr_label, initial_nat_label = update_input_labels(
-        initial_identity, initial_attribute
-    )
+    # This call was already done correctly above, removing redundant call.
+    # initial_attr_label, initial_nat_label = update_input_labels(
+    #     initial_identity, initial_attribute, labels # Pass labels
+    # )
+    # The variables initial_attr_label and initial_nat_label are already set correctly above.
 
     with gr.Blocks() as interface:
         # State to hold the current language labels
@@ -414,7 +416,7 @@ def interface(lang: str = "es") -> gr.Blocks:
 
             # Update the input labels with new data point values
             new_attr_label, new_nat_label = update_input_labels(
-                new_identity, new_attribute
+                new_identity, new_attribute, current_labels # Pass current_labels
             )
 
             # Get current legend keys from state
@@ -465,7 +467,7 @@ def interface(lang: str = "es") -> gr.Blocks:
 
             # Update the input labels with new data point values
             new_attr_label, new_nat_label = update_input_labels(
-                new_identity, new_attribute
+                new_identity, new_attribute, current_labels # Pass current_labels
             )
 
             # Get current legend keys from state
@@ -568,7 +570,7 @@ def interface(lang: str = "es") -> gr.Blocks:
 
                 # Update the input labels with new data point values
                 new_attr_label, new_nat_label = update_input_labels(
-                    new_identity, new_attribute
+                    new_identity, new_attribute, current_labels # Pass current_labels
                 )
 
                 # Get current legend keys from state
@@ -770,7 +772,7 @@ def interface(lang: str = "es") -> gr.Blocks:
 
             # Update dynamic labels
             new_attr_label, new_nat_label = update_input_labels(
-                current_identity, current_attribute
+                current_identity, current_attribute, new_labels # Pass new_labels
             )
 
             print(f"[on_language_change] New labels for state: {new_labels}") # DEBUG PRINT
