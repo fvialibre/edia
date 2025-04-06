@@ -43,7 +43,7 @@ def interface(lang: str = "es") -> gr.Blocks:
 
     # Check for required files
     required_files = {
-        "data/processed_Frases_HESEIA_Anotación.csv": "HESEIA dataset",
+        "data/processed_Frases_HESEIA_Anotación.csv": "HESEIA dataset",
         "data/global_administrative_division.json": "Administrative divisions",
         "data/country_borders.csv": "Country borders dataset",
     }
@@ -81,7 +81,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         )
 
     # Load required datasets
-    df_heseia = pd.read_csv("data/processed_Frases_HESEIA_Anotación.csv")
+    df_heseia = pd.read_csv("data/processed_Frases_HESEIA_Anotación.csv")
     df_borders = pd.read_csv("data/country_borders.csv")
 
     def log_skip(identity, attribute, annotator_id):
@@ -224,6 +224,11 @@ def interface(lang: str = "es") -> gr.Blocks:
     # Get initial labels (will be set later in the Gradio Blocks definition)
     # initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute)
 
+    # Get translated keys for HighlightedText
+    nationality_key = labels.get('data_point_legend_nationality', 'nationality')
+    attribute_key = labels.get('data_point_legend_attribute', 'attribute')
+    dynamic_color_map = {nationality_key: "red", attribute_key: "green"}
+
     # Gradio interface
     # Get initial labels for dynamic fields before building the UI
     initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute)
@@ -278,13 +283,13 @@ def interface(lang: str = "es") -> gr.Blocks:
                     data_point_box = gr.HighlightedText(
                         label=labels['data_point_label'],
                         value=[
-                            (initial_identity, labels.get('data_point_legend_nationality', 'nationality')), # Use lookup with fallback
-                            (initial_attribute, labels.get('data_point_legend_attribute', 'attribute')), # Use lookup with fallback
+                            (initial_identity, nationality_key), # Use dynamic key
+                            (initial_attribute, attribute_key), # Use dynamic key
                         ],
                         combine_adjacent=True,
                         show_legend=True,
                         interactive=False,
-                        color_map={"nationality": "red", "attribute": "green"}, # Keep internal keys
+                        color_map=dynamic_color_map, # Use dynamic map
                     )
                 with gr.Column(scale=1):
                     stereotype_likert = gr.Radio(
@@ -351,9 +356,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             new_attr_label, new_nat_label = update_input_labels(new_identity, new_attribute)
 
             return (
-                # Update displayed value with translated legend keys if available
-                [(new_identity, labels.get('data_point_legend_nationality', 'nationality')),
-                 (new_attribute, labels.get('data_point_legend_attribute', 'attribute'))],
+                # Update displayed value with dynamic keys
+                [(new_identity, nationality_key),
+                 (new_attribute, attribute_key)],
                 None, # Clear likert
                 [], # Clear nationalities dropdown
                 [],
@@ -382,9 +387,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             new_attr_label, new_nat_label = update_input_labels(new_identity, new_attribute)
 
             return (
-                 # Update displayed value with translated legend keys if available
-                [(new_identity, labels.get('data_point_legend_nationality', 'nationality')),
-                 (new_attribute, labels.get('data_point_legend_attribute', 'attribute'))],
+                 # Update displayed value with dynamic keys
+                [(new_identity, nationality_key),
+                 (new_attribute, attribute_key)],
                 None, # Clear likert
                 [], # Clear nationalities dropdown
                 "",
@@ -464,9 +469,9 @@ def interface(lang: str = "es") -> gr.Blocks:
                 return (
                     gr.Column(visible=True),
                     gr.Column(visible=False),
-                     # Update displayed value with translated legend keys if available
-                    [(new_identity, labels.get('data_point_legend_nationality', 'nationality')),
-                     (new_attribute, labels.get('data_point_legend_attribute', 'attribute'))],
+                     # Update displayed value with dynamic keys
+                    [(new_identity, nationality_key),
+                     (new_attribute, attribute_key)],
                     gr.update(label=new_attr_label),
                     gr.update(label=new_nat_label),
                 )
