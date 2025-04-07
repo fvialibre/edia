@@ -8,7 +8,8 @@ import pandas as pd
 
 from interfaces.data_selection import select_data_point
 from interfaces.nationalities import (nationalities, nationalities_es,
-                                      nationalities_pt)
+                                      nationalities_pt,
+                                      translated_nationalities)
 
 # --- Language Handling ---
 AVAILABLE_LANGUAGES = {"English": "en", "Español": "es", "Português": "pt"}
@@ -289,9 +290,14 @@ def interface(lang: str = "es") -> gr.Blocks:
     # Get initial nationality choices based on the starting language
     initial_nationality_choices = get_nationality_choices(lang)
 
+    # Translate the initial identity for display
+    initial_identity_display = translated_nationalities[lang].get(initial_identity, initial_identity)
+
     with gr.Blocks() as interface:
         # State to hold the current language labels
         language_labels_state = gr.State(labels)
+        # State to hold the current English data point [identity, attribute]
+        current_data_point_state = gr.State([initial_identity, initial_attribute])
 
         # Language selector at the top of the interface
         with gr.Row():
@@ -357,8 +363,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                     data_point_box = gr.HighlightedText(
                         label=labels["data_point_label"],
                         value=[
-                            # Use dynamic key
-                            (initial_identity, nationality_key),
+                            # Use dynamic key and translated initial identity
+                            (initial_identity_display, nationality_key),
                             (initial_attribute, attribute_key),  # Use dynamic key
                         ],
                         combine_adjacent=True,
@@ -414,17 +420,27 @@ def interface(lang: str = "es") -> gr.Blocks:
             associated_nationality_list,
             associated_regions_list,
             associated_attributes,
-            current_labels,  # Added state input
+            current_labels,
+            current_data_point
         ):
             print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
+            print(f"[on_submit] Received current_data_point state: {current_data_point}") # DEBUG PRINT
 
+            # Extract English identity/attribute from state for logging
+            identity_en = current_data_point[0] if current_data_point else None
+            attribute_en = current_data_point[1] if current_data_point and len(current_data_point) >= 2 else None
+
+            # Create a data_point structure with English tokens for logging
+            data_point_for_log = [{"token": identity_en}, {"token": attribute_en}]
+
+            # Log using the English identity/attribute from state
             log_result(
                 token_id,
                 age,
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
-                data_point,
+                data_point_for_log,
                 stereotype,
                 associated_nationality_list,
                 associated_regions_list,
@@ -434,7 +450,11 @@ def interface(lang: str = "es") -> gr.Blocks:
                 token_id=token_id, nationality_personal_info=nationality_personal_info
             )
 
-            # Update the input labels with new data point values
+            # Translate the new identity for display
+            current_lang = current_labels.get("current_lang", "en") # Get current lang from labels state
+            new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
+
+            # Update the input labels with new data point values (using English identity for prompt format)
             new_attr_label, new_nat_label = update_input_labels(
                 new_identity, new_attribute, current_labels # Pass current_labels
             )
@@ -450,14 +470,17 @@ def interface(lang: str = "es") -> gr.Blocks:
             color_map = {nationality_key: "red", attribute_key: "green"}
 
             print(f"[on_submit] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
+            print(f"[on_submit] New English Identity: {new_identity}, Display Identity: {new_identity_display}") # DEBUG PRINT
 
             return (
-                # Update displayed value with dynamic keys from state
+                # Update displayed value with translated identity and dynamic keys
                 gr.update(
-                    value=[(new_identity, nationality_key),
+                    value=[(new_identity_display, nationality_key),
                            (new_attribute, attribute_key)],
                     color_map=color_map,
                 ),
+                # Update the state holding the English data point
+                [new_identity, new_attribute],
                 None,  # Clear likert
                 [],  # Clear nationalities dropdown
                 [],
@@ -467,13 +490,13 @@ def interface(lang: str = "es") -> gr.Blocks:
             )
 
         def on_skip(
-            token_id, data_point, nationality_personal_info, current_labels
+            token_id, current_data_point, nationality_personal_info, current_labels # Changed data_point input to current_data_point state
         ):  # Added state input
             print(f"[on_skip] Received current_labels from state: {current_labels}") # DEBUG PRINT
-            # Extract current identity and attribute from data_point
-            if data_point and len(data_point) >= 2:
-                identity = data_point[0]["token"]
-                attribute = data_point[1]["token"]
+            # Extract current English identity and attribute from state
+            if current_data_point and len(current_data_point) >= 2:
+                identity = current_data_point[0]
+                attribute = current_data_point[1]
 
                 # Log the skip if we have valid identity and attribute
                 if identity and attribute:
@@ -485,7 +508,11 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info=nationality_personal_info,
             )
 
-            # Update the input labels with new data point values
+            # Translate the new identity for display
+            current_lang = current_labels.get("current_lang", "en") # Get current lang from labels state
+            new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
+
+            # Update the input labels with new data point values (using English identity for prompt format)
             new_attr_label, new_nat_label = update_input_labels(
                 new_identity, new_attribute, current_labels # Pass current_labels
             )
@@ -500,14 +527,17 @@ def interface(lang: str = "es") -> gr.Blocks:
             color_map = {nationality_key: "red", attribute_key: "green"}
 
             print(f"[on_skip] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
+            print(f"[on_skip] New English Identity: {new_identity}, Display Identity: {new_identity_display}") # DEBUG PRINT
 
             return (
-                # Update displayed value with dynamic keys from state
+                # Update displayed value with translated identity and dynamic keys
                 gr.update(
-                    value=[(new_identity, nationality_key),
+                    value=[(new_identity_display, nationality_key),
                            (new_attribute, attribute_key)],
                     color_map=color_map
                 ),
+                # Update the state holding the English data point
+                [new_identity, new_attribute],
                 None,  # Clear likert
                 [],  # Clear nationalities dropdown
                 "",
@@ -528,10 +558,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
                 associated_attributes_input,
-                language_labels_state,  # Added state input
+                language_labels_state,
+                current_data_point_state
             ],
             outputs=[
                 data_point_box,
+                current_data_point_state,
                 stereotype_likert,
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
@@ -545,12 +577,13 @@ def interface(lang: str = "es") -> gr.Blocks:
             on_skip,
             inputs=[
                 token_id,
-                data_point_box,
-                nationality_personal_info,  # Add nationality_personal_info as input
-                language_labels_state,  # Added state input
+                current_data_point_state,
+                nationality_personal_info,
+                language_labels_state,
             ],
             outputs=[
                 data_point_box,
+                current_data_point_state,
                 stereotype_likert,
                 associated_nationalities_dropdown,
                 associated_attributes_input,
@@ -565,7 +598,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             gender,
             nationality_personal_info,
             consent_checkbox,
-            current_labels,  # Added state input
+            current_labels,
         ):
             print(f"[toggle_chat] Received current_labels from state: {current_labels}") # DEBUG PRINT
             is_valid = not (
@@ -588,7 +621,11 @@ def interface(lang: str = "es") -> gr.Blocks:
                     nationality_personal_info=nationality_personal_info,
                 )
 
-                # Update the input labels with new data point values
+                # Translate the new identity for display
+                current_lang = current_labels.get("current_lang", "en")
+                new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
+
+                # Update the input labels with new data point values (using English identity)
                 new_attr_label, new_nat_label = update_input_labels(
                     new_identity, new_attribute, current_labels # Pass current_labels
                 )
@@ -609,12 +646,14 @@ def interface(lang: str = "es") -> gr.Blocks:
                 return (
                     gr.Column(visible=True),
                     gr.Column(visible=False),
-                    # Update displayed value with dynamic keys from state
+                    # Update displayed value with translated identity and dynamic keys
                     gr.update(
-                        value=[(new_identity, nationality_key),
+                        value=[(new_identity_display, nationality_key),
                                (new_attribute, attribute_key)],
                         color_map=color_map,
                     ),
+                    # Update the state holding the English data point
+                    [new_identity, new_attribute],
                     gr.update(label=new_attr_label),
                     gr.update(label=new_nat_label),
                 )
@@ -624,6 +663,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                     gr.Column(visible=False),
                     gr.Column(visible=True),
                     gr.update(),  # Keep current data_point_box value
+                    gr.update(),  # Keep current data point state
                     gr.update(),  # Keep current associated_attributes_input label
                     gr.update(),  # Keep current associated_nationalities_dropdown label
                 )
@@ -639,11 +679,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info,
                 consent_checkbox,
                 language_labels_state,
-            ],  # Added state input
+            ],
             outputs=[
                 validator_col,
                 personal_data_missing,
                 data_point_box,
+                current_data_point_state,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
             ],
@@ -657,11 +698,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info,
                 consent_checkbox,
                 language_labels_state,
-            ],  # Added state input
+            ],
             outputs=[
                 validator_col,
                 personal_data_missing,
                 data_point_box,
+                current_data_point_state,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
             ],
@@ -675,11 +717,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info,
                 consent_checkbox,
                 language_labels_state,
-            ],  # Added state input
+            ],
             outputs=[
                 validator_col,
                 personal_data_missing,
                 data_point_box,
+                current_data_point_state,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
             ],
@@ -693,11 +736,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info,
                 consent_checkbox,
                 language_labels_state,
-            ],  # Added state input
+            ],
             outputs=[
                 validator_col,
                 personal_data_missing,
                 data_point_box,
+                current_data_point_state,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
             ],
@@ -711,11 +755,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info,
                 consent_checkbox,
                 language_labels_state,
-            ],  # Added state input
+            ],
             outputs=[
                 validator_col,
                 personal_data_missing,
                 data_point_box,
+                current_data_point_state,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
             ],
@@ -762,21 +807,14 @@ def interface(lang: str = "es") -> gr.Blocks:
         )
 
         # Language change handler function
-        def on_language_change(lang_code, data_point):
+        def on_language_change(lang_code, current_data_point): # Changed data_point input to current_data_point state
             # Load new labels for the selected language
             new_labels = load_language(lang_code)
 
-            # Get the current data point identity and attribute if available
-            current_identity = (
-                data_point[0]["token"]
-                if data_point and len(data_point) >= 1
-                else initial_identity
-            )
-            current_attribute = (
-                data_point[1]["token"]
-                if data_point and len(data_point) >= 2
-                else initial_attribute
-            )
+            # Get the current English data point identity and attribute from state
+            current_identity = current_data_point[0] if current_data_point else initial_identity
+            current_attribute = current_data_point[1] if current_data_point and len(current_data_point) >= 2 \
+                else initial_attribute # Corrected parenthesis placement
 
             # Get new translated legend keys
             new_nationality_key = new_labels.get(
@@ -790,7 +828,10 @@ def interface(lang: str = "es") -> gr.Blocks:
                 new_attribute_key: "green",
             }
 
-            # Update dynamic labels
+            # Translate the current English identity using the new language code
+            current_identity_display = translated_nationalities[lang_code].get(current_identity, current_identity)
+
+            # Update dynamic labels (using English identity for prompt format)
             new_attr_label, new_nat_label = update_input_labels(
                 current_identity, current_attribute, new_labels # Pass new_labels
             )
@@ -827,7 +868,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gr.update(
                     label=new_labels["data_point_label"],
                     value=[
-                        (current_identity, new_nationality_key),
+                        (current_identity_display, new_nationality_key), # Use translated identity
                         (current_attribute, new_attribute_key),
                     ],
                     color_map=new_dynamic_color_map,
@@ -852,7 +893,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         # Connect language dropdown change handler to update the UI with the new language
         language_dropdown.change(
             fn=on_language_change,
-            inputs=[language_dropdown, data_point_box],
+            inputs=[language_dropdown, current_data_point_state], # Use state instead of data_point_box
             outputs=[
                 # State
                 language_labels_state,

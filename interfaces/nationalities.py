@@ -336,7 +336,7 @@ nationalities_es = [
     "Portugal",
     "Catar",
     "Rumanía",
-    "Federación Rusa",
+    "Rusia",
     "Ruanda",
     "Samoa",
     "San Marino",
@@ -532,7 +532,7 @@ nationalities_pt = [
     "Portugal",
     "Catar",
     "Roménia",
-    "Federação Russa",
+    "Rússia",
     "Ruanda",
     "Samoa",
     "San Marino",
@@ -585,3 +585,9 @@ nationalities_pt = [
     "Zâmbia",
     "Zimbábue",
 ]
+
+translated_nationalities = {
+    "es": dict(zip(nationalities, nationalities_es)),
+    "pt": dict(zip(nationalities, nationalities_pt)),
+    "en": dict(zip(nationalities, nationalities)),
+}
