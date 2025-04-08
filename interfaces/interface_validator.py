@@ -297,12 +297,12 @@ def interface(lang: str = "es") -> gr.Blocks:
 
         # Language selector at the top of the interface
         with gr.Row():
-            language_dropdown = gr.Dropdown(
-                label="Language / Idioma / Idioma",  # Multilingual label
-                choices=list(AVAILABLE_LANGUAGES.items()),
-                value=lang,  # Default to server-provided language
+            language_radio = gr.Radio(
+                label="Language / Idioma",
+                choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names
+                value=next(key for key, val in AVAILABLE_LANGUAGES.items() if val == lang), # Find key matching default lang code
                 interactive=True,
-                elem_id="language_dropdown",
+                elem_id="language_radio",
             )
             gr.HTML("<div style='flex-grow: 1'></div>")  # Spacer
 
@@ -805,7 +805,10 @@ def interface(lang: str = "es") -> gr.Blocks:
         )
 
         # Language change handler function
-        def on_language_change(lang_code, current_data_point): # Changed data_point input to current_data_point state
+        def on_language_change(selected_language_name, current_data_point): # Input is now the selected display name
+            # Convert selected display name back to language code
+            lang_code = AVAILABLE_LANGUAGES.get(selected_language_name, DEFAULT_LANG) # Fallback to default if needed
+
             # Load new labels for the selected language
             new_labels = load_language(lang_code)
 
@@ -888,10 +891,10 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gr.update(value=new_labels["submit_button_label"]),
             )
 
-        # Connect language dropdown change handler to update the UI with the new language
-        language_dropdown.change(
+        # Connect language radio button change handler to update the UI with the new language
+        language_radio.change( # Changed component reference
             fn=on_language_change,
-            inputs=[language_dropdown, current_data_point_state], # Use state instead of data_point_box
+            inputs=[language_radio, current_data_point_state], # Changed component reference
             outputs=[
                 # State
                 language_labels_state,
