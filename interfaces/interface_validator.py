@@ -82,12 +82,18 @@ def interface(lang: str = "es") -> gr.Blocks:
     coco.logging.getLogger().setLevel(coco.logging.CRITICAL)
     cc = coco.CountryConverter(only_UNmember=True)
 
-    # Check for required files
-    required_files = {
-        "data/processed_Frases_HESEIA_Anotación.csv": "HESEIA dataset",
+    # Check for required seed data files (HESEIA per language)
+    required_seed_files = {
+        f"data/heseia_{lang_code}.csv": f"HESEIA dataset ({lang_code})"
+        for lang_code in AVAILABLE_LANGUAGES.values()
+    }
+    # Check for other required general data files
+    required_general_files = {
         "data/global_administrative_division.json": "Administrative divisions",
         "data/country_borders.csv": "Country borders dataset",
     }
+    # Combine all required files
+    required_files = {**required_seed_files, **required_general_files}
 
     for file_path, description in required_files.items():
         if not os.path.exists(file_path):
@@ -103,32 +109,40 @@ def interface(lang: str = "es") -> gr.Blocks:
     if not os.path.exists("logs"):
         os.makedirs("logs")
 
-    # Create empty dataframes if they don't exist
-    ws_stereotypes_path = "logs/ws_stereotypes.csv"
-    ws_validations_path = "logs/ws_validations.csv"
+    # Define path for JSONL skip log (remains singular)
     skip_log_path = "logs/skips.jsonl"
-    skip_csv_path = "logs/skips.csv"
 
-    if not os.path.exists(ws_stereotypes_path):
-        pd.DataFrame(
-            columns=["identity", "attribute",
-                     "annotator_id", "annotator_nationalities"]
-        ).to_csv(ws_stereotypes_path, index=False)
+    # Create language-specific empty CSV dataframes if they don't exist
+    for lang_code in AVAILABLE_LANGUAGES.values():
+        ws_stereotypes_path_lang = f"logs/ws_stereotypes_{lang_code}.csv"
+        ws_validations_path_lang = f"logs/ws_validations_{lang_code}.csv"
+        skip_csv_path_lang = f"logs/skips_{lang_code}.csv"
 
-    if not os.path.exists(ws_validations_path):
-        pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
-            ws_validations_path, index=False
-        )
+        if not os.path.exists(ws_stereotypes_path_lang):
+            pd.DataFrame(
+                columns=["identity", "attribute",
+                         "annotator_id", "annotator_nationalities"]
+            ).to_csv(ws_stereotypes_path_lang, index=False)
 
-    # Create skips.csv if it doesn't exist
-    if not os.path.exists(skip_csv_path):
-        pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
-            skip_csv_path, index=False
-        )
+        if not os.path.exists(ws_validations_path_lang):
+            pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
+                ws_validations_path_lang, index=False
+            )
 
-    # Load required datasets
-    df_heseia = pd.read_csv("data/processed_Frases_HESEIA_Anotación.csv")
+        if not os.path.exists(skip_csv_path_lang):
+            pd.DataFrame(columns=["identity", "attribute", "annotator_id"]).to_csv(
+                skip_csv_path_lang, index=False
+            )
+
+    # Load required datasets (using English HESEIA for now)
+    df_heseia = pd.read_csv("data/heseia_en.csv")
     df_borders = pd.read_csv("data/country_borders.csv")
+
+    # Define paths for English log files (used for current operations)
+    # TODO: Update these paths based on selected language later
+    ws_stereotypes_path = "logs/ws_stereotypes_en.csv"
+    ws_validations_path = "logs/ws_validations_en.csv"
+    skip_csv_path = "logs/skips_en.csv" # Use English skips CSV for now
 
     def log_skip(identity, attribute, annotator_id):
         """
@@ -151,7 +165,8 @@ def interface(lang: str = "es") -> gr.Blocks:
         with open(skip_log_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(skip_data, ensure_ascii=False) + "\n")
 
-        # Append to CSV file
+        # Append to English CSV file for now
+        # TODO: Update this to use language-specific path later
         skip_entry = pd.DataFrame(
             [
                 {
@@ -161,17 +176,20 @@ def interface(lang: str = "es") -> gr.Blocks:
                 }
             ]
         )
-        skip_entry.to_csv(skip_csv_path, mode="a", header=False, index=False)
+        skip_entry.to_csv("logs/skips_en.csv", mode="a", header=False, index=False)
 
     def get_random_data_point(token_id=None, nationality_personal_info=None):
-        # Read the most up-to-date versions of the dataframes
-        df_ws_stereotypes = pd.read_csv(ws_stereotypes_path)
-        df_ws_validations = pd.read_csv(ws_validations_path)
+        # Read the most up-to-date versions of the dataframes (using English for now)
+        # TODO: Update these paths based on selected language later
+        df_ws_stereotypes = pd.read_csv("logs/ws_stereotypes_en.csv")
+        df_ws_validations = pd.read_csv("logs/ws_validations_en.csv")
 
-        # Load skip counts if the file exists
+        # Load English skip counts if the file exists
+        # TODO: Update this path based on selected language later
+        skip_csv_path_en = "logs/skips_en.csv"
         df_skips = None
-        if os.path.exists(skip_csv_path):
-            df_skips = pd.read_csv(skip_csv_path)
+        if os.path.exists(skip_csv_path_en):
+            df_skips = pd.read_csv(skip_csv_path_en)
 
         # Call the function from data_selection.py
         return select_data_point(
@@ -731,6 +749,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
+                understood_languages_checkbox, # Add missing input
                 language_labels_state,
             ],
             outputs=[
@@ -750,6 +769,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
+                understood_languages_checkbox, # Add missing input
                 language_labels_state,
             ],
             outputs=[
@@ -769,6 +789,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
+                understood_languages_checkbox, # Add missing input
                 language_labels_state,
             ],
             outputs=[
