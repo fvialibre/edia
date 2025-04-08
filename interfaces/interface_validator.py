@@ -196,6 +196,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         associated_nationality_list,
         associated_regions_list,
         associated_attributes,
+        understood_languages,
     ):
         # Extract the identity and attribute from data_point correctly
         identity, attribute = data_point[0]["token"], data_point[1]["token"]
@@ -256,6 +257,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             "associated_nationality_list": associated_nationality_list,
             "associated_regions_list": associated_regions_list,
             "associated_attributes": associated_attributes,
+            "understood_languages": understood_languages,
         }
         with open("logs/logs_validator.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
@@ -295,16 +297,24 @@ def interface(lang: str = "es") -> gr.Blocks:
         # State to hold the current English data point [identity, attribute]
         current_data_point_state = gr.State([initial_identity, initial_attribute])
 
-        # Language selector at the top of the interface
+        # Language selectors at the top of the interface
         with gr.Row():
             language_radio = gr.Radio(
-                label="Language / Idioma",
+                label="Interface Language / Idioma de Interfaz / Idioma da Interface",
                 choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names
                 value=next(key for key, val in AVAILABLE_LANGUAGES.items() if val == lang), # Find key matching default lang code
                 interactive=True,
                 elem_id="language_radio",
+                scale=1
             )
-            gr.HTML("<div style='flex-grow: 1'></div>")  # Spacer
+            understood_languages_checkbox = gr.CheckboxGroup(
+                label=labels["understood_languages_label"],
+                choices=list(AVAILABLE_LANGUAGES.keys()),
+                interactive=True,
+                elem_id="understood_languages_checkbox",
+                scale=1
+            )
+
 
         # Personal information row
         with gr.Row():
@@ -415,11 +425,13 @@ def interface(lang: str = "es") -> gr.Blocks:
             associated_nationality_list,
             associated_regions_list,
             associated_attributes,
+            understood_languages, # Added the missing parameter here
             current_labels,
             current_data_point
         ):
             print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
             print(f"[on_submit] Received current_data_point state: {current_data_point}") # DEBUG PRINT
+            print(f"[on_submit] Received understood_languages: {understood_languages}") # DEBUG PRINT
 
             # Extract English identity/attribute from state for logging
             identity_en = current_data_point[0] if current_data_point else None
@@ -440,6 +452,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_nationality_list,
                 associated_regions_list,
                 associated_attributes,
+                understood_languages, # Pass the new argument to log_result
             )
             new_identity, new_attribute = get_random_data_point(
                 token_id=token_id, nationality_personal_info=nationality_personal_info
@@ -553,6 +566,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
                 associated_attributes_input,
+                understood_languages_checkbox,
                 language_labels_state,
                 current_data_point_state
             ],
@@ -593,9 +607,11 @@ def interface(lang: str = "es") -> gr.Blocks:
             gender,
             nationality_personal_info,
             consent_checkbox,
+            understood_languages, # Add understood_languages as input
             current_labels,
         ):
             print(f"[toggle_chat] Received current_labels from state: {current_labels}") # DEBUG PRINT
+            print(f"[toggle_chat] Received understood_languages: {understood_languages}") # DEBUG PRINT
             is_valid = not (
                 token_id is None
                 or age is None
@@ -607,6 +623,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 or len(nationality_personal_info) == 0
                 or len(token_id) == 0
                 or not consent_checkbox
+                or understood_languages is None # Check if None
+                or len(understood_languages) == 0 # Check if empty list
             )
 
             if is_valid:
@@ -673,6 +691,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
+                understood_languages_checkbox, # Add checkbox input
                 language_labels_state,
             ],
             outputs=[
@@ -692,6 +711,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
+                understood_languages_checkbox, # Add checkbox input
                 language_labels_state,
             ],
             outputs=[
@@ -749,6 +769,28 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
+                language_labels_state,
+            ],
+            outputs=[
+                validator_col,
+                personal_data_missing,
+                data_point_box,
+                current_data_point_state,
+                associated_attributes_input,
+                associated_nationalities_dropdown,
+            ],
+        )
+
+        # Add change listener for the new checkbox group
+        understood_languages_checkbox.change(
+            fn=toggle_chat,
+            inputs=[
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                understood_languages_checkbox, # Add checkbox input
                 language_labels_state,
             ],
             outputs=[
@@ -886,6 +928,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 # Update choices for the associated nationalities dropdown
                 gr.update(label=new_nat_label, choices=new_nationality_choices),
                 gr.update(label=new_labels["associated_region_label"]),
+                # Update label for the new checkbox group
+                gr.update(label=new_labels["understood_languages_label"]),
                 # Buttons
                 gr.update(value=new_labels["skip_button_label"]),
                 gr.update(value=new_labels["submit_button_label"]),
@@ -918,6 +962,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 # Buttons
                 skip_button,
                 submit_button,
+                # New checkbox group label update
+                understood_languages_checkbox,
             ],
         )
 

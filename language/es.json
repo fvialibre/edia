@@ -299,6 +299,7 @@
       "skip_button_label": "Saltar",
       "submit_button_label": "Enviar",
       "associated_attributes_prompt": "Qué otro atributo asocias con {identity}? El atributo puede ser una frase larga (e.g. \"usar ropa colorida\")",
-      "associated_nationalities_prompt": "¿Qué otras nacionalidades asocias con '{attribute}'?"
+      "associated_nationalities_prompt": "¿Qué otras nacionalidades asocias con '{attribute}'?",
+      "understood_languages_label": "¿Qué idiomas entiendes?"
     }
 }
