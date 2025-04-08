@@ -64,13 +64,13 @@ REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
 #     subset_name=VOCABULARY_SUBSET
 # )
 
-spanish_lm = LanguageModel(
-    model_name=SPANISH_LANGUAGE_MODEL
-)
+# spanish_lm = LanguageModel(
+#     model_name=SPANISH_LANGUAGE_MODEL
+# )
 
-english_lm = LanguageModel(
-    model_name=ENGLISH_LANGUAGE_MODEL
-)
+# english_lm = LanguageModel(
+#     model_name=ENGLISH_LANGUAGE_MODEL
+# )
 
 labels_path = f"language/{LANGUAGE}.json"
 if not os.path.isfile(labels_path):
@@ -82,11 +82,11 @@ labels = pd.read_json(labels_path)["app"]
 
 INTERFACE_LIST = [
     interface_validator(lang=LANGUAGE),
-    interface_biasPhrase(
-        spanish_language_model=spanish_lm,
-        english_language_model=english_lm,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE,),
+    # interface_biasPhrase(
+    #     spanish_language_model=spanish_lm,
+    #     english_language_model=english_lm,
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE,),
     # interface_data(
     #     vocabulary=vocabulary,
     #     contexts=CONTEXTS_DATASET,
@@ -116,7 +116,7 @@ INTERFACE_LIST = [
 
 TAB_NAMES = [
     labels["stereotypeValidator"],
-    labels["phraseExplorer"],
+    # labels["phraseExplorer"],
     # labels["dataExplorer"],
     # labels["biasWordExplorer"],
     # "LLM vía EDIA",
@@ -134,7 +134,7 @@ if LANGUAGE != 'es':
 edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
 with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
-    _ = gr.HTML(NAVBAR_HTML)
+    # _ = gr.HTML(NAVBAR_HTML)
     _ = gr.TabbedInterface(
         interface_list=INTERFACE_LIST,
         tab_names=TAB_NAMES,
