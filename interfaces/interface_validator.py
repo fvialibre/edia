@@ -389,14 +389,13 @@ def interface(lang: str = "es") -> gr.Blocks:
                         choices=initial_nationality_choices,
                         multiselect=True,
                     )
-                with gr.Column(
-                    visible=False, scale=1
-                ) as associated_region_dropdown_col:
-                    associated_region_dropdown = gr.Dropdown(
-                        label=labels["associated_region_label"],
-                        choices=nationalities,
-                        multiselect=True,
-                    )
+                associated_region_dropdown = gr.Dropdown(
+                    label=labels["associated_region_label"],
+                    choices=[],
+                    multiselect=True,
+                    interactive=False,
+                    scale=1
+                )
             with gr.Row(equal_height=True):
                 skip_button = gr.Button(
                     labels["skip_button_label"], variant="primary", scale=25
@@ -770,11 +769,13 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_region_dropdown = gr.Dropdown(
                     label=labels["associated_region_label"],
                     choices=[],
+                    interactive=False, # Ensure it's disabled
                     multiselect=True,
                 )
-                return gr.Column(visible=False), associated_region_dropdown
+                # Return only the update for the dropdown itself
+                return gr.update(choices=[], interactive=False)
             else:
-
+                # Define helper inside or ensure it's accessible
                 def get_administrative_divisions(selected_countries):
                     df = pd.read_json(
                         "data/global_administrative_division.json")
@@ -791,15 +792,16 @@ def interface(lang: str = "es") -> gr.Blocks:
                         associated_nationalities_dropdown
                     ),
                     multiselect=True,
-                    interactive=True,
+                    interactive=True, # Enable interaction
                 )
-                return gr.Column(visible=True), associated_region_dropdown
+                # Return only the update for the dropdown itself
+                return gr.update(choices=get_administrative_divisions(associated_nationalities_dropdown), interactive=True)
 
         associated_nationalities_dropdown.change(
             fn=toggle_and_update_regions,
             inputs=[associated_nationalities_dropdown],
-            outputs=[associated_region_dropdown_col,
-                     associated_region_dropdown],
+            # Output only targets the region dropdown now
+            outputs=[associated_region_dropdown],
         )
 
         # Language change handler function
