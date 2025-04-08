@@ -450,9 +450,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             current_lang = current_labels.get("current_lang", "en") # Get current lang from labels state
             new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
 
-            # Update the input labels with new data point values (using English identity for prompt format)
+            # Update the input labels with new data point values (using translated identity for prompt format)
             new_attr_label, new_nat_label = update_input_labels(
-                new_identity, new_attribute, current_labels # Pass current_labels
+                new_identity_display, new_attribute, current_labels # Pass current_labels and translated identity
             )
 
             # Get current legend keys from state
@@ -508,9 +508,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             current_lang = current_labels.get("current_lang", "en") # Get current lang from labels state
             new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
 
-            # Update the input labels with new data point values (using English identity for prompt format)
+            # Update the input labels with new data point values (using translated identity for prompt format)
             new_attr_label, new_nat_label = update_input_labels(
-                new_identity, new_attribute, current_labels # Pass current_labels
+                new_identity_display, new_attribute, current_labels # Pass current_labels and translated identity
             )
 
             # Get current legend keys from state
@@ -621,9 +621,9 @@ def interface(lang: str = "es") -> gr.Blocks:
                 current_lang = current_labels.get("current_lang", "en")
                 new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
 
-                # Update the input labels with new data point values (using English identity)
+                # Update the input labels with new data point values (using translated identity)
                 new_attr_label, new_nat_label = update_input_labels(
-                    new_identity, new_attribute, current_labels # Pass current_labels
+                    new_identity_display, new_attribute, current_labels # Pass current_labels and translated identity
                 )
 
                 # Get current legend keys from state
@@ -827,9 +827,9 @@ def interface(lang: str = "es") -> gr.Blocks:
             # Translate the current English identity using the new language code
             current_identity_display = translated_nationalities[lang_code].get(current_identity, current_identity)
 
-            # Update dynamic labels (using English identity for prompt format)
+            # Update dynamic labels (using translated identity for prompt format)
             new_attr_label, new_nat_label = update_input_labels(
-                current_identity, current_attribute, new_labels # Pass new_labels
+                current_identity_display, current_attribute, new_labels # Pass new_labels and translated identity
             )
 
             print(f"[on_language_change] New labels for state: {new_labels}") # DEBUG PRINT
