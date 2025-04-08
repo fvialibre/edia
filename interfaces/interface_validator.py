@@ -178,8 +178,46 @@ def interface(lang: str = "es") -> gr.Blocks:
         )
         skip_entry.to_csv("logs/skips_en.csv", mode="a", header=False, index=False)
 
-    def get_random_data_point(token_id=None, nationality_personal_info=None):
-        # Read the most up-to-date versions of the dataframes (using English for now)
+    def get_random_data_point(token_id=None, nationality_personal_info=None, understood_language_names=None):
+        # Determine which HESEIA datasets to load based on understood languages
+        if not understood_language_names:
+            # Default to English if no languages are selected
+            lang_codes_to_load = ['en']
+            print("[get_random_data_point] No understood languages selected, defaulting to English.")
+        else:
+            lang_codes_to_load = [AVAILABLE_LANGUAGES.get(name) for name in understood_language_names if name in AVAILABLE_LANGUAGES]
+            if not lang_codes_to_load: # Handle case where selection might be invalid somehow
+                lang_codes_to_load = ['en']
+                print("[get_random_data_point] Invalid language names selected, defaulting to English.")
+            else:
+                print(f"[get_random_data_point] Loading HESEIA for languages: {lang_codes_to_load}")
+
+        # Load and concatenate the selected HESEIA datasets
+        heseia_dfs = []
+        for lang_code in lang_codes_to_load:
+            heseia_path = f"data/heseia_{lang_code}.csv"
+            try:
+                df_lang = pd.read_csv(heseia_path)
+                heseia_dfs.append(df_lang)
+                print(f"[get_random_data_point] Loaded {heseia_path}")
+            except FileNotFoundError:
+                print(f"Warning: HESEIA file not found: {heseia_path}. Skipping.")
+            except Exception as e:
+                print(f"Warning: Error loading {heseia_path}: {e}. Skipping.")
+
+        if not heseia_dfs:
+            # Critical fallback: if no HESEIA files could be loaded at all, load English or raise error
+            print("Critical Warning: No HESEIA data could be loaded. Attempting to load English as fallback.")
+            try:
+                df_heseia = pd.read_csv("data/heseia_en.csv")
+            except Exception as e:
+                 raise RuntimeError(f"CRITICAL ERROR: Could not load any HESEIA data, including fallback English: {e}")
+        else:
+            df_heseia = pd.concat(heseia_dfs, ignore_index=True)
+            print(f"[get_random_data_point] Concatenated HESEIA data shape: {df_heseia.shape}")
+
+
+        # Read the most up-to-date versions of the log dataframes (using English for now)
         # TODO: Update these paths based on selected language later
         df_ws_stereotypes = pd.read_csv("logs/ws_stereotypes_en.csv")
         df_ws_validations = pd.read_csv("logs/ws_validations_en.csv")
@@ -191,7 +229,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         if os.path.exists(skip_csv_path_en):
             df_skips = pd.read_csv(skip_csv_path_en)
 
-        # Call the function from data_selection.py
+        # Call the function from data_selection.py with the potentially combined HESEIA data
         return select_data_point(
             df_ws_stereotypes=df_ws_stereotypes,
             df_ws_validations=df_ws_validations,
@@ -280,7 +318,8 @@ def interface(lang: str = "es") -> gr.Blocks:
         with open("logs/logs_validator.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-    initial_identity, initial_attribute = get_random_data_point()
+    # Get initial data point using default language (English)
+    initial_identity, initial_attribute = get_random_data_point(understood_language_names=["English"])
 
     # Helper function to update input labels based on current data point
     def update_input_labels(identity, attribute, labels): # Added 'labels' argument
@@ -465,15 +504,18 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
-                data_point_for_log,
+                data_point_for_log, # Log with English identity/attribute
                 stereotype,
                 associated_nationality_list,
                 associated_regions_list,
                 associated_attributes,
                 understood_languages, # Pass the new argument to log_result
             )
+            # Get new data point based on currently understood languages
             new_identity, new_attribute = get_random_data_point(
-                token_id=token_id, nationality_personal_info=nationality_personal_info
+                token_id=token_id,
+                nationality_personal_info=nationality_personal_info,
+                understood_language_names=understood_languages # Pass selected languages
             )
 
             # Translate the new identity for display
@@ -516,9 +558,10 @@ def interface(lang: str = "es") -> gr.Blocks:
             )
 
         def on_skip(
-            token_id, current_data_point, nationality_personal_info, current_labels # Changed data_point input to current_data_point state
-        ):  # Added state input
+            token_id, current_data_point, nationality_personal_info, understood_languages, current_labels # Added understood_languages
+        ):
             print(f"[on_skip] Received current_labels from state: {current_labels}") # DEBUG PRINT
+            print(f"[on_skip] Received understood_languages: {understood_languages}") # DEBUG PRINT
             # Extract current English identity and attribute from state
             if current_data_point and len(current_data_point) >= 2:
                 identity = current_data_point[0]
@@ -528,10 +571,11 @@ def interface(lang: str = "es") -> gr.Blocks:
                 if identity and attribute:
                     log_skip(identity, attribute, token_id)
 
-            # Get new data point, taking skip counts into consideration
+            # Get new data point, taking skip counts into consideration and using selected languages
             new_identity, new_attribute = get_random_data_point(
                 token_id=token_id,
                 nationality_personal_info=nationality_personal_info,
+                understood_language_names=understood_languages # Pass selected languages
             )
 
             # Translate the new identity for display
@@ -606,6 +650,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 token_id,
                 current_data_point_state,
                 nationality_personal_info,
+                understood_languages_checkbox, # Add checkbox input
                 language_labels_state,
             ],
             outputs=[
@@ -646,10 +691,11 @@ def interface(lang: str = "es") -> gr.Blocks:
             )
 
             if is_valid:
-                # Get a personalized data point using the user's information
+                # Get a personalized data point using the user's information and selected languages
                 new_identity, new_attribute = get_random_data_point(
                     token_id=token_id,
                     nationality_personal_info=nationality_personal_info,
+                    understood_language_names=understood_languages # Pass selected languages
                 )
 
                 # Translate the new identity for display
