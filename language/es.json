@@ -279,8 +279,8 @@
         "button2": "Descargar CSV"
     },
     "validator_interface": {
-      "identifier_label": "Identificador",
-      "identifier_info": "Introduce el identificador proporcionado en el taller",
+      "identifier_label": "Email",
+      "identifier_info": "Introduce tu email",
       "age_label": "Introduce tu edad",
       "gender_label": "Selecciona tu género",
       "nationality_label": "¿De dónde eres?",
