@@ -215,16 +215,12 @@ def interface(lang: str = "es") -> gr.Blocks:
 
         # Process associated attributes for the given nationality
         if associated_attributes and isinstance(associated_attributes, str):
-            attributes_list = [
-                attr.strip()
-                for attr in associated_attributes.split(",")
-                if attr.strip()
-            ]
-            for attr in attributes_list:
+            single_attribute = associated_attributes.strip()
+            if single_attribute:
                 new_stereotypes.append(
                     {
                         "identity": identity,
-                        "attribute": attr,
+                        "attribute": single_attribute,
                         "annotator_id": token_id,
                         "annotator_nationalities": nationality_personal_info,
                     }

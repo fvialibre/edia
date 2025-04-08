@@ -294,11 +294,11 @@
       "data_point_legend_attribute": "attribute",
       "likert_label": "This is a known association in my region",
       "likert_info": "1: Strongly disagree, 5: Strongly agree",
-      "associated_attributes_placeholder": "Enter attributes separated by commas",
+      "associated_attributes_placeholder": "Enter a single attribute or phrase",
       "associated_region_label": "Any specific region?",
       "skip_button_label": "Skip",
       "submit_button_label": "Submit",
-      "associated_attributes_prompt": "Which other attributes do you associate with {identity}?",
+      "associated_attributes_prompt": "Which other attribute do you associate with {identity}? The attribute can be a long phrase (e.g. \"use colorful clothing\")",
       "associated_nationalities_prompt": "Which other nationalities do you associate with '{attribute}'?"
     }
 }

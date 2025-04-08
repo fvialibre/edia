@@ -294,11 +294,11 @@
       "data_point_legend_attribute": "atributo",
       "likert_label": "Esta é uma associação conhecida na minha região",
       "likert_info": "1: Discordo totalmente, 5: Concordo totalmente",
-      "associated_attributes_placeholder": "Introduza atributos separados por vírgulas",
+      "associated_attributes_placeholder": "Introduza um único atributo ou frase",
       "associated_region_label": "Alguma região específica?",
       "skip_button_label": "Pular",
       "submit_button_label": "Enviar",
-      "associated_attributes_prompt": "Que outros atributos você associa a {identity}?",
+      "associated_attributes_prompt": "Qual outro atributo você associa a {identity}? O atributo pode ser uma frase longa (e.g. \"usar roupas coloridas\")",
       "associated_nationalities_prompt": "Que outras nacionalidades você associa a '{attribute}'?"
     }
 }
