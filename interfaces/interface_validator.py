@@ -256,6 +256,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         associated_regions_list,
         associated_attributes,
         understood_languages,
+        associated_attribute_language=None, # Add new parameter with default
         # data_point_language # Language of the data point being logged - needed later
     ):
         # Extract the identity and attribute from data_point correctly
@@ -327,6 +328,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             "associated_regions_list": associated_regions_list,
             "associated_attributes": associated_attributes,
             "understood_languages": understood_languages,
+            "associated_attribute_language": associated_attribute_language, # Log the new field
         }
         with open("logs/logs_validator.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
@@ -458,10 +460,18 @@ def interface(lang: str = "es") -> gr.Blocks:
                         interactive=True,
                     )
             with gr.Row(equal_height=True):
-                with gr.Column(scale=1):
+                # Adjust scale for Textbox and add new Dropdown in the same row
+                with gr.Column(scale=3): # Make Textbox wider
                     associated_attributes_input = gr.Textbox(
                         label=initial_attr_label,  # Already dynamically set
                         placeholder=labels["associated_attributes_placeholder"],
+                    )
+                with gr.Column(scale=1): # Add Dropdown column
+                    # Define the new dropdown component
+                    associated_attribute_language_dropdown = gr.Dropdown(
+                        label=labels["associated_attribute_language_label"],
+                        choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names like "English", "Español"
+                        interactive=True,
                     )
             with gr.Row(equal_height=True):
                 with gr.Column(scale=1):
@@ -498,6 +508,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             associated_regions_list,
             associated_attributes,
             understood_languages,
+            associated_attribute_language, # Add new input parameter
             current_labels,
             current_data_point # This is the state [identity_en, attribute_en]
             # current_data_point_language # Language state is not needed as input here
@@ -527,6 +538,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_regions_list,
                 associated_attributes,
                 understood_languages,
+                associated_attribute_language, # Pass the new argument to log_result
                 # data_point_language=current_data_point_language # Pass language from state
             )
             # Get new data point based on currently understood languages
@@ -573,6 +585,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 [],  # Clear nationalities dropdown
                 [],  # Clear regions dropdown
                 "",  # Clear attributes input
+                None, # Clear the new attribute language dropdown
                 gr.update(label=new_attr_label), # Update attribute label
                 gr.update(label=new_nat_label), # Update nationality label
             )
@@ -634,6 +647,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 None,  # Clear likert
                 [],  # Clear nationalities dropdown
                 "", # Clear attributes input
+                None, # Clear the new attribute language dropdown
                 gr.update(label=new_attr_label), # Update attribute label
                 gr.update(label=new_nat_label), # Update nationality label
             )
@@ -652,6 +666,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_region_dropdown,
                 associated_attributes_input,
                 understood_languages_checkbox,
+                associated_attribute_language_dropdown, # Add new dropdown to inputs
                 language_labels_state,
                 current_data_point_state # Pass state value
             ],
@@ -663,6 +678,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_nationalities_dropdown,
                 associated_region_dropdown, # Added missing output
                 associated_attributes_input, # Added missing output
+                associated_attribute_language_dropdown, # Add new dropdown to outputs (to clear)
                 associated_attributes_input, # Label update target
                 associated_nationalities_dropdown, # Label update target
             ],
@@ -684,6 +700,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 stereotype_likert,
                 associated_nationalities_dropdown,
                 associated_attributes_input, # Added missing output
+                associated_attribute_language_dropdown, # Add new dropdown to outputs (to clear)
                 associated_attributes_input, # Label update target
                 associated_nationalities_dropdown, # Label update target
             ],
@@ -1032,6 +1049,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gr.update(label=new_labels["associated_region_label"]),
                 # Update label for the new checkbox group
                 gr.update(label=new_labels["understood_languages_label"]),
+                # Update label for the new attribute language dropdown
+                gr.update(label=new_labels["associated_attribute_language_label"]),
                 # Buttons
                 gr.update(value=new_labels["skip_button_label"]),
                 gr.update(value=new_labels["submit_button_label"]),
@@ -1061,6 +1080,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_attributes_input,
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
+                # Add the new dropdown to outputs for label update
+                associated_attribute_language_dropdown,
                 # Buttons
                 skip_button,
                 submit_button,

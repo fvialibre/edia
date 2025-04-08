@@ -300,6 +300,7 @@
       "submit_button_label": "Submit",
       "associated_attributes_prompt": "Which other attribute do you associate with {identity}? The attribute can be a long phrase (e.g. \"use colorful clothing\")",
       "associated_nationalities_prompt": "Which other nationalities do you associate with '{attribute}'?",
-      "understood_languages_label": "Which languages do you understand?"
+      "understood_languages_label": "Which languages do you understand?",
+      "associated_attribute_language_label": "What language is this attribute in?"
     }
 }
