@@ -1106,11 +1106,11 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_region_dropdown,
                 # Add the new dropdown to outputs for label update
                 associated_attribute_language_dropdown,
+                # New checkbox group label update
+                understood_languages_checkbox,
                 # Buttons
                 skip_button,
                 submit_button,
-                # New checkbox group label update
-                understood_languages_checkbox,
             ],
         )
 
