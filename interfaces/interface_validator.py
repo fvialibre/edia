@@ -334,29 +334,41 @@ def interface(lang: str = "es") -> gr.Blocks:
 
         # Process and save associated attributes as new stereotypes
         new_stereotypes = []
-        target_lang_code = 'en' # Default to English
+        target_lang_code = None
 
-        # Determine the target language code from the dropdown selection
-        if associated_attribute_language and associated_attribute_language in AVAILABLE_LANGUAGES:
-            target_lang_code = AVAILABLE_LANGUAGES[associated_attribute_language]
+        # Determine the target language code using case-insensitive matching
+        if associated_attribute_language:
+            # Normalize input by removing whitespace and converting to lowercase
+            normalized_input = associated_attribute_language.strip().lower()
+            # Try to find a case-insensitive match with known languages
+            for key in AVAILABLE_LANGUAGES:
+                if key.lower() == normalized_input:
+                    target_lang_code = AVAILABLE_LANGUAGES[key]
+                    target_ws_stereotypes_path = f"logs/ws_stereotypes_{target_lang_code}.csv"
+                    print(f"[log_result] Logging new attribute stereotype to: {target_ws_stereotypes_path}") # DEBUG PRINT
+                    break
+
+            # If no match was found
+            if target_lang_code is None:
+                print(f"[log_result] Custom or missing language '{associated_attribute_language}'. Will not log attribute stereotype to language-specific CSV.")
         else:
-            print(f"Warning: Invalid or missing associated_attribute_language '{associated_attribute_language}'. Defaulting to 'en' for new stereotype logging.")
-
-        # Construct the target file path
-        target_ws_stereotypes_path = f"logs/ws_stereotypes_{target_lang_code}.csv"
-        print(f"[log_result] Logging new attribute stereotype to: {target_ws_stereotypes_path}") # DEBUG PRINT
+            # If language is missing, we won't log to a specific CSV
+            print(f"[log_result] No language specified. Will not log attribute stereotype to language-specific CSV.")
 
         # Process associated attributes for the given nationality
         if associated_attributes and isinstance(associated_attributes, str):
             single_attribute = associated_attributes.strip()
             if single_attribute:
+                # Determine the source language code to store in the stereotype entry
+                source_lang_for_entry = target_lang_code if target_lang_code else associated_attribute_language
+
                 new_stereotypes.append(
                     {
                         "identity": identity,
                         "attribute": single_attribute,
                         "annotator_id": token_id,
                         "annotator_nationalities": nationality_personal_info,
-                        "source_language": target_lang_code,
+                        "source_language": source_lang_for_entry,
                     }
                 )
 
@@ -385,11 +397,14 @@ def interface(lang: str = "es") -> gr.Blocks:
                  )
 
 
-        # Save new attribute stereotypes (from the first part) to their specific language file
+        # Save new attribute stereotypes (from the first part) ONLY if the language is predefined
         if new_stereotypes: # This list now only contains (shown_identity, new_attribute) pairs
-            pd.DataFrame(new_stereotypes).to_csv(
-                target_ws_stereotypes_path, mode="a", header=False, index=False # Use dynamic path from first part
-            )
+            # Check if the selected language is one of the predefined ones before saving to CSV
+            if target_lang_code: # Only proceed if target_lang_code was set (i.e., language is known)
+                pd.DataFrame(new_stereotypes).to_csv(
+                    target_ws_stereotypes_path, mode="a", header=False, index=False # Use dynamic path from first part
+                )
+            # No else needed here, the print statement moved up
 
         # Log everything to the main JSONL file (remains singular)
         result = {
@@ -553,6 +568,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                         choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names like "English", "Español"
                         value=initial_lang_name, # Set initial default value
                         interactive=True,
+                        allow_custom_value=True, # Allow custom language input
                     )
             with gr.Row(equal_height=True):
                 with gr.Column(scale=1):
