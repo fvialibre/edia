@@ -121,7 +121,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         if not os.path.exists(ws_stereotypes_path_lang):
             pd.DataFrame(
                 columns=["identity", "attribute",
-                         "annotator_id", "annotator_nationalities"]
+                         "annotator_id", "annotator_nationalities", "source_language"]
             ).to_csv(ws_stereotypes_path_lang, index=False)
 
         if not os.path.exists(ws_validations_path_lang):
@@ -137,15 +137,10 @@ def interface(lang: str = "es") -> gr.Blocks:
     # Load required border dataset
     df_borders = pd.read_csv("data/country_borders.csv")
 
-    # Define paths for English log files (used for current operations)
-    # TODO: Update these paths based on selected language later
-    ws_stereotypes_path = "logs/ws_stereotypes_en.csv"
-    ws_validations_path = "logs/ws_validations_en.csv"
-    skip_csv_path = "logs/skips_en.csv" # Use English skips CSV for now
 
-    def log_skip(identity, attribute, annotator_id):
+    def log_skip(identity, attribute, annotator_id, data_point_language=None):
         """
-        Log a skipped data point to the JSONL file and update skip counts in CSV.
+        Log a skipped data point to the JSONL file and update skip counts in the language-specific CSV.
 
         Args:
             identity: The identity part of the skipped data point.
@@ -164,8 +159,12 @@ def interface(lang: str = "es") -> gr.Blocks:
         with open(skip_log_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(skip_data, ensure_ascii=False) + "\n")
 
-        # Append to English CSV file for now
-        # TODO: Update this to use language-specific path later
+        # Determine the target language code based on the data point's language
+        lang_code = data_point_language if data_point_language and data_point_language in AVAILABLE_LANGUAGES.values() else 'en'
+        skip_csv_path = f"logs/skips_{lang_code}.csv"
+        print(f"[log_skip] Logging skip to: {skip_csv_path}") # DEBUG PRINT
+
+        # Append to the language-specific CSV file
         skip_entry = pd.DataFrame(
             [
                 {
@@ -175,7 +174,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 }
             ]
         )
-        skip_entry.to_csv("logs/skips_en.csv", mode="a", header=False, index=False)
+        skip_entry.to_csv(skip_csv_path, mode="a", header=False, index=False) # Use dynamic path
 
     def get_random_data_point(token_id=None, nationality_personal_info=None, understood_language_names=None):
         # Determine which HESEIA datasets to load based on understood languages
@@ -219,17 +218,72 @@ def interface(lang: str = "es") -> gr.Blocks:
             print(f"[get_random_data_point] Concatenated HESEIA data shape: {df_heseia.shape}")
 
 
-        # Read the most up-to-date versions of the log dataframes (using English for now)
-        # TODO: Update these paths based on selected language later
-        df_ws_stereotypes = pd.read_csv("logs/ws_stereotypes_en.csv")
-        df_ws_validations = pd.read_csv("logs/ws_validations_en.csv")
+        # Load stereotype logs based on the languages the user understands (same as HESEIA)
+        stereotype_dfs = []
+        print(f"[get_random_data_point] Loading stereotypes for languages: {lang_codes_to_load}")
+        for lang_code in lang_codes_to_load:
+            stereotype_path = f"logs/ws_stereotypes_{lang_code}.csv"
+            try:
+                df_stereotype_lang = pd.read_csv(stereotype_path)
+                stereotype_dfs.append(df_stereotype_lang)
+                print(f"[get_random_data_point] Loaded {stereotype_path} (shape: {df_stereotype_lang.shape})")
+            except FileNotFoundError:
+                print(f"Info: Stereotype file not found: {stereotype_path}. Skipping.")
+            except Exception as e:
+                print(f"Warning: Error loading {stereotype_path}: {e}. Skipping.")
 
-        # Load English skip counts if the file exists
-        # TODO: Update this path based on selected language later
-        skip_csv_path_en = "logs/skips_en.csv"
-        df_skips = None
-        if os.path.exists(skip_csv_path_en):
-            df_skips = pd.read_csv(skip_csv_path_en)
+        if stereotype_dfs:
+            df_ws_stereotypes = pd.concat(stereotype_dfs, ignore_index=True)
+            print(f"[get_random_data_point] Concatenated stereotype data shape: {df_ws_stereotypes.shape}")
+        else:
+            print("Warning: No stereotype logs could be loaded. Using empty DataFrame.")
+            # Ensure the empty DataFrame includes the source_language column
+            df_ws_stereotypes = pd.DataFrame(columns=["identity", "attribute", "annotator_id", "annotator_nationalities", "source_language"])
+
+
+        # Load validation logs based on the languages the user understands
+        validation_dfs = []
+        print(f"[get_random_data_point] Loading validations for languages: {lang_codes_to_load}")
+        for lang_code in lang_codes_to_load:
+            validation_path = f"logs/ws_validations_{lang_code}.csv"
+            try:
+                df_validation_lang = pd.read_csv(validation_path)
+                validation_dfs.append(df_validation_lang)
+                print(f"[get_random_data_point] Loaded {validation_path} (shape: {df_validation_lang.shape})")
+            except FileNotFoundError:
+                print(f"Info: Validation file not found: {validation_path}. Skipping.")
+            except Exception as e:
+                print(f"Warning: Error loading {validation_path}: {e}. Skipping.")
+
+        if validation_dfs:
+            df_ws_validations = pd.concat(validation_dfs, ignore_index=True)
+            print(f"[get_random_data_point] Concatenated validation data shape: {df_ws_validations.shape}")
+        else:
+            print("Warning: No validation logs could be loaded. Using empty DataFrame.")
+            df_ws_validations = pd.DataFrame(columns=["identity", "attribute", "annotator_id"])
+
+
+        # Load skip logs based on the languages the user understands
+        skip_dfs = []
+        print(f"[get_random_data_point] Loading skips for languages: {lang_codes_to_load}")
+        for lang_code in lang_codes_to_load:
+            skip_path = f"logs/skips_{lang_code}.csv"
+            try:
+                df_skip_lang = pd.read_csv(skip_path)
+                skip_dfs.append(df_skip_lang)
+                print(f"[get_random_data_point] Loaded {skip_path} (shape: {df_skip_lang.shape})")
+            except FileNotFoundError:
+                print(f"Info: Skip file not found: {skip_path}. Skipping.")
+            except Exception as e:
+                print(f"Warning: Error loading {skip_path}: {e}. Skipping.")
+
+        if skip_dfs:
+            df_skips = pd.concat(skip_dfs, ignore_index=True)
+            print(f"[get_random_data_point] Concatenated skip data shape: {df_skips.shape}")
+        else:
+            print("Info: No skip logs could be loaded. Proceeding without skip data.")
+            df_skips = None # select_data_point handles None skips
+
 
         # Call the function from data_selection.py with the potentially combined HESEIA data
         # select_data_point now returns (identity, attribute, language_code)
@@ -263,20 +317,19 @@ def interface(lang: str = "es") -> gr.Blocks:
         # data_point here is the English version stored in current_data_point_state
         identity, attribute = data_point[0]["token"], data_point[1]["token"]
 
-        # TODO: Use data_point_language to determine which log file to write to.
-        # For now, still writing to English files.
-        current_ws_stereotypes_path = "logs/ws_stereotypes_en.csv"
-        current_ws_validations_path = "logs/ws_validations_en.csv"
+        # Determine the language code for validation logging based on the data point's language
+        validation_lang_code = data_point_language if data_point_language and data_point_language in AVAILABLE_LANGUAGES.values() else 'en'
+        validation_csv_path = f"logs/ws_validations_{validation_lang_code}.csv"
+        print(f"[log_result] Logging validation to: {validation_csv_path}") # DEBUG PRINT
 
-
-        # Log the validation in the validation file
+        # Log the validation in the language-specific validation file
         validation_entry = pd.DataFrame(
             [{"identity": identity, "attribute": attribute, "annotator_id": token_id}]
         )
 
-        # Append to the validations file
+        # Append to the language-specific validations file
         validation_entry.to_csv(
-            current_ws_validations_path, mode="a", header=False, index=False
+            validation_csv_path, mode="a", header=False, index=False
         )
 
         # Process and save associated attributes as new stereotypes
@@ -303,6 +356,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                         "attribute": single_attribute,
                         "annotator_id": token_id,
                         "annotator_nationalities": nationality_personal_info,
+                        "source_language": target_lang_code,
                     }
                 )
 
@@ -321,6 +375,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                         "attribute": attribute, # Shown attribute
                         "annotator_id": token_id,
                         "annotator_nationalities": nationality_personal_info,
+                        "source_language": dp_lang_code,
                     }
                 )
             # Save these nationality stereotypes to the data point's language file
@@ -614,8 +669,8 @@ def interface(lang: str = "es") -> gr.Blocks:
             )
 
         def on_skip(
-            token_id, current_data_point, nationality_personal_info, understood_languages, current_labels # Added understood_languages
-            # current_data_point_language # Language state is not needed as input here
+            token_id, current_data_point, nationality_personal_info, understood_languages, current_labels,
+            current_data_point_language
         ):
             print(f"[on_skip] Received current_labels from state: {current_labels}") # DEBUG PRINT
             print(f"[on_skip] Received understood_languages: {understood_languages}") # DEBUG PRINT
@@ -626,7 +681,7 @@ def interface(lang: str = "es") -> gr.Blocks:
 
                 # Log the skip if we have valid identity and attribute
                 if identity and attribute:
-                    log_skip(identity, attribute, token_id)
+                    log_skip(identity, attribute, token_id, data_point_language=current_data_point_language)
 
             # Get new data point, taking skip counts into consideration and using selected languages
             new_identity, new_attribute, new_language = get_random_data_point(
@@ -716,6 +771,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 nationality_personal_info,
                 understood_languages_checkbox,
                 language_labels_state,
+                current_data_point_language_state
             ],
             outputs=[
                 data_point_box,
@@ -1104,10 +1160,10 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_attributes_input,
                 associated_nationalities_dropdown,
                 associated_region_dropdown,
-                # Add the new dropdown to outputs for label update
-                associated_attribute_language_dropdown,
                 # New checkbox group label update
                 understood_languages_checkbox,
+                # Add the new dropdown to outputs for label update
+                associated_attribute_language_dropdown,
                 # Buttons
                 skip_button,
                 submit_button,

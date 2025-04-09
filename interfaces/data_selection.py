@@ -642,7 +642,8 @@ def select_data_point(
                 "category": category,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
-            lang_code = 'en' # Workshop data is considered 'en' for now
+            # Extract source language, default to 'en' if column missing
+            lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
             if debug:
                 return (
                     candidate["identity"].iloc[0],
@@ -671,7 +672,8 @@ def select_data_point(
                 "category": None,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
-            lang_code = 'en' # Workshop data is considered 'en' for now
+            # Extract source language, default to 'en' if column missing
+            lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
             if debug:
                 return (
                     candidate["identity"].iloc[0],
@@ -698,10 +700,11 @@ def select_data_point(
             "category": None,
             "validation_count": candidate["validation_count"].iloc[0],
         }
-        lang_code = 'en' # Workshop data is considered 'en' for now
+        # Extract source language, default to 'en' if column missing
+        lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
         if debug:
             return (
-                    candidate["identity"].iloc[0],
+                candidate["identity"].iloc[0],
                     candidate["attribute"].iloc[0],
                     lang_code,
                     selection_info,
