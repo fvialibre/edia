@@ -546,9 +546,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                     )
                 with gr.Column(scale=1): # Add Dropdown column
                     # Define the new dropdown component
+                    # Find the display name corresponding to the initial language code
+                    initial_lang_name = next((key for key, val in AVAILABLE_LANGUAGES.items() if val == lang), "English")
                     associated_attribute_language_dropdown = gr.Dropdown(
                         label=labels["associated_attribute_language_label"],
                         choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names like "English", "Español"
+                        value=initial_lang_name, # Set initial default value
                         interactive=True,
                     )
             with gr.Row(equal_height=True):
@@ -648,6 +651,10 @@ def interface(lang: str = "es") -> gr.Blocks:
             print(f"[on_submit] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
             print(f"[on_submit] New English Identity: {new_identity}, Display Identity: {new_identity_display}, Language: {new_language}") # DEBUG PRINT
 
+            # Find the current language name to reset the dropdown
+            current_lang_code = current_labels.get("current_lang", "en")
+            current_lang_name = next((name for name, code in AVAILABLE_LANGUAGES.items() if code == current_lang_code), "English")
+
             return (
                 # Update displayed value with translated identity and dynamic keys
                 gr.update(
@@ -663,7 +670,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 [],  # Clear nationalities dropdown
                 [],  # Clear regions dropdown
                 "",  # Clear attributes input
-                None, # Clear the new attribute language dropdown
+                gr.update(), # Keep current attribute language dropdown value
                 gr.update(label=new_attr_label), # Update attribute label
                 gr.update(label=new_nat_label), # Update nationality label
             )
@@ -711,6 +718,10 @@ def interface(lang: str = "es") -> gr.Blocks:
             print(f"[on_skip] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
             print(f"[on_skip] New English Identity: {new_identity}, Display Identity: {new_identity_display}, Language: {new_language}") # DEBUG PRINT
 
+            # Find the current language name to reset the dropdown
+            current_lang_code = current_labels.get("current_lang", "en")
+            current_lang_name = next((name for name, code in AVAILABLE_LANGUAGES.items() if code == current_lang_code), "English")
+
             return (
                 # Update displayed value with translated identity and dynamic keys
                 gr.update(
@@ -725,7 +736,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 None,  # Clear likert
                 [],  # Clear nationalities dropdown
                 "", # Clear attributes input
-                None, # Clear the new attribute language dropdown
+                gr.update(), # Keep current attribute language dropdown value
                 gr.update(label=new_attr_label), # Update attribute label
                 gr.update(label=new_nat_label), # Update nationality label
             )
@@ -1128,9 +1139,12 @@ def interface(lang: str = "es") -> gr.Blocks:
                 gr.update(label=new_nat_label, choices=new_nationality_choices),
                 gr.update(label=new_labels["associated_region_label"]),
                 # Update label for the new checkbox group
-                gr.update(label=new_labels["understood_languages_label"]),
-                # Update label for the new attribute language dropdown
-                gr.update(label=new_labels["associated_attribute_language_label"]),
+                 gr.update(label=new_labels["understood_languages_label"]),
+                # Update label and value for the new attribute language dropdown
+                gr.update(
+                    label=new_labels["associated_attribute_language_label"],
+                    value=selected_language_name # Set value to the new interface language name
+                ),
                 # Buttons
                 gr.update(value=new_labels["skip_button_label"]),
                 gr.update(value=new_labels["submit_button_label"]),
