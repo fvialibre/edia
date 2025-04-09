@@ -256,8 +256,8 @@ def interface(lang: str = "es") -> gr.Blocks:
         associated_regions_list,
         associated_attributes,
         understood_languages,
-        associated_attribute_language=None, # Add new parameter with default
-        # data_point_language # Language of the data point being logged - needed later
+        associated_attribute_language=None,
+        data_point_language=None # Add data_point_language parameter
     ):
         # Extract the identity and attribute from data_point correctly
         # data_point here is the English version stored in current_data_point_state
@@ -281,6 +281,17 @@ def interface(lang: str = "es") -> gr.Blocks:
 
         # Process and save associated attributes as new stereotypes
         new_stereotypes = []
+        target_lang_code = 'en' # Default to English
+
+        # Determine the target language code from the dropdown selection
+        if associated_attribute_language and associated_attribute_language in AVAILABLE_LANGUAGES:
+            target_lang_code = AVAILABLE_LANGUAGES[associated_attribute_language]
+        else:
+            print(f"Warning: Invalid or missing associated_attribute_language '{associated_attribute_language}'. Defaulting to 'en' for new stereotype logging.")
+
+        # Construct the target file path
+        target_ws_stereotypes_path = f"logs/ws_stereotypes_{target_lang_code}.csv"
+        print(f"[log_result] Logging new attribute stereotype to: {target_ws_stereotypes_path}") # DEBUG PRINT
 
         # Process associated attributes for the given nationality
         if associated_attributes and isinstance(associated_attributes, str):
@@ -296,21 +307,33 @@ def interface(lang: str = "es") -> gr.Blocks:
                 )
 
         # Process associated nationalities for the given attribute
+        new_nationality_stereotypes = [] # Separate list for nationality stereotypes
         if associated_nationality_list and len(associated_nationality_list) > 0:
+            # Determine the target language code based on the data point's language
+            dp_lang_code = data_point_language if data_point_language and data_point_language in AVAILABLE_LANGUAGES.values() else 'en'
+            dp_ws_stereotypes_path = f"logs/ws_stereotypes_{dp_lang_code}.csv"
+            print(f"[log_result] Logging new nationality stereotype to: {dp_ws_stereotypes_path}") # DEBUG PRINT
+
             for nat in associated_nationality_list:
-                new_stereotypes.append(
+                new_nationality_stereotypes.append(
                     {
-                        "identity": nat,
-                        "attribute": attribute,
+                        "identity": nat, # New identity (nationality)
+                        "attribute": attribute, # Shown attribute
                         "annotator_id": token_id,
                         "annotator_nationalities": nationality_personal_info,
                     }
                 )
+            # Save these nationality stereotypes to the data point's language file
+            if new_nationality_stereotypes:
+                 pd.DataFrame(new_nationality_stereotypes).to_csv(
+                    dp_ws_stereotypes_path, mode="a", header=False, index=False
+                 )
 
-        # Save new stereotypes to the workshop stereotypes file if we have any
-        if new_stereotypes:
+
+        # Save new attribute stereotypes (from the first part) to their specific language file
+        if new_stereotypes: # This list now only contains (shown_identity, new_attribute) pairs
             pd.DataFrame(new_stereotypes).to_csv(
-                current_ws_stereotypes_path, mode="a", header=False, index=False
+                target_ws_stereotypes_path, mode="a", header=False, index=False # Use dynamic path from first part
             )
 
         # Log everything to the main JSONL file (remains singular)
@@ -322,7 +345,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             "nationality_personal_info": nationality_personal_info,
             "consent_checkbox": consent_checkbox,
             "data_point": data_point, # Log the English version
-            # "data_point_language": data_point_language, # Log the original language
+            "data_point_language": data_point_language, # Log the original language
             "stereotype": stereotype,
             "associated_nationality_list": associated_nationality_list,
             "associated_regions_list": associated_regions_list,
@@ -510,8 +533,8 @@ def interface(lang: str = "es") -> gr.Blocks:
             understood_languages,
             associated_attribute_language, # Add new input parameter
             current_labels,
-            current_data_point # This is the state [identity_en, attribute_en]
-            # current_data_point_language # Language state is not needed as input here
+            current_data_point, # This is the state [identity_en, attribute_en]
+            current_data_point_language # Add language state as input
         ):
             print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
             print(f"[on_submit] Received current_data_point state: {current_data_point}") # DEBUG PRINT
@@ -539,7 +562,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_attributes,
                 understood_languages,
                 associated_attribute_language, # Pass the new argument to log_result
-                # data_point_language=current_data_point_language # Pass language from state
+                data_point_language=current_data_point_language # Pass language from state
             )
             # Get new data point based on currently understood languages
             new_identity, new_attribute, new_language = get_random_data_point(
@@ -668,7 +691,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 understood_languages_checkbox,
                 associated_attribute_language_dropdown, # Add new dropdown to inputs
                 language_labels_state,
-                current_data_point_state # Pass state value
+                current_data_point_state, # Pass state value
+                current_data_point_language_state # Pass language state value
             ],
             outputs=[
                 data_point_box,
@@ -785,8 +809,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                     gr.Column(visible=False),
                     gr.Column(visible=True),
                     gr.update(),  # Keep current data_point_box value
-                    gr.update(),  # Keep current data point state
-                    gr.update(),  # Keep current data point language state
+                    None,  # Keep current data point state (use None for State)
+                    None,  # Keep current data point language state (use None for State)
                     gr.update(),  # Keep current associated_attributes_input label
                     gr.update(),  # Keep current associated_nationalities_dropdown label
                 )
@@ -1006,8 +1030,8 @@ def interface(lang: str = "es") -> gr.Blocks:
 
             # Update all UI components with new language
             return (
-                # State update
-                new_labels,  # Output new labels to state
+                # State update - Return raw value for State component
+                new_labels,
                 # Personal info section
                 gr.update(
                     label=new_labels["identifier_label"],
