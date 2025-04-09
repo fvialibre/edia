@@ -502,6 +502,14 @@ def interface(lang: str = "es") -> gr.Blocks:
                 elem_id="understood_languages_checkbox",
                 scale=1
             )
+            with gr.Column():
+                consent_checkbox = gr.Checkbox(
+                    label=labels["consent_label"], value=False
+                )
+                consent_link_html = gr.HTML(
+                    value=f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{labels['consent_link_text']}</a>",
+                    elem_id="consent_link_html",
+                )
 
 
         # Personal information row
@@ -539,14 +547,6 @@ def interface(lang: str = "es") -> gr.Blocks:
                 interactive=False, # Initially disabled
                 scale=1 # Adjust scale as needed, matching nationality dropdown perhaps
             )
-            with gr.Column():
-                consent_checkbox = gr.Checkbox(
-                    label=labels["consent_label"], value=False
-                )
-                consent_link_html = gr.HTML(
-                    value=f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{labels['consent_link_text']}</a>",
-                    elem_id="consent_link_html",
-                )
 
         gr.HTML("<hr>")
 
