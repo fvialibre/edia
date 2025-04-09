@@ -137,6 +137,25 @@ def interface(lang: str = "es") -> gr.Blocks:
     # Load required border dataset
     df_borders = pd.read_csv("data/country_borders.csv")
 
+    # Helper function to get administrative divisions
+    def get_administrative_divisions(selected_countries):
+        """Fetches administrative divisions for selected countries."""
+        try:
+            df = pd.read_json("data/global_administrative_division.json")
+            filtered_df = df[df["name"].isin(selected_countries)]
+            # Format as "Division Name (Country Name)"
+            divisions = [
+                f"{division['name']} ({row['name']})"
+                for _, row in filtered_df.iterrows()
+                for division in row["AD"]
+            ]
+            return sorted(list(set(divisions))) # Sort and remove duplicates
+        except FileNotFoundError:
+            print("Error: data/global_administrative_division.json not found.")
+            return []
+        except Exception as e:
+            print(f"Error reading or processing administrative divisions: {e}")
+            return []
 
     def log_skip(identity, attribute, annotator_id, data_point_language=None):
         """
@@ -311,7 +330,8 @@ def interface(lang: str = "es") -> gr.Blocks:
         associated_attributes,
         understood_languages,
         associated_attribute_language=None,
-        data_point_language=None # Add data_point_language parameter
+        data_point_language=None, # Add data_point_language parameter
+        personal_regions_list=None # Add new parameter for personal regions
     ):
         # Extract the identity and attribute from data_point correctly
         # data_point here is the English version stored in current_data_point_state
@@ -413,6 +433,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             "age": age,
             "gender": gender,
             "nationality_personal_info": nationality_personal_info,
+            "personal_regions_list": personal_regions_list, # Log the new field
             "consent_checkbox": consent_checkbox,
             "data_point": data_point, # Log the English version
             "data_point_language": data_point_language, # Log the original language
@@ -510,6 +531,14 @@ def interface(lang: str = "es") -> gr.Blocks:
                 multiselect=True,
                 allow_custom_value=False,
             )
+            personal_region_dropdown = gr.Dropdown(
+                label=labels["personal_region_label"], # Use new label
+                choices=[], # Initially empty
+                allow_custom_value=True,
+                multiselect=True,
+                interactive=False, # Initially disabled
+                scale=1 # Adjust scale as needed, matching nationality dropdown perhaps
+            )
             with gr.Column():
                 consent_checkbox = gr.Checkbox(
                     label=labels["consent_label"], value=False
@@ -581,6 +610,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_region_dropdown = gr.Dropdown(
                     label=labels["associated_region_label"],
                     choices=[],
+                    allow_custom_value=True,
                     multiselect=True,
                     interactive=False,
                     scale=1
@@ -602,15 +632,17 @@ def interface(lang: str = "es") -> gr.Blocks:
             data_point, # This is the HighlightedText component value, not the state
             stereotype,
             associated_nationality_list,
-            associated_regions_list,
+            associated_regions_list, # This is for the *associated* regions, not personal
             associated_attributes,
             understood_languages,
             associated_attribute_language, # Add new input parameter
+            personal_regions_list, # Add the new personal region dropdown value
             current_labels,
             current_data_point, # This is the state [identity_en, attribute_en]
             current_data_point_language # Add language state as input
         ):
             print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
+            print(f"[on_submit] Received personal_regions_list: {personal_regions_list}") # DEBUG PRINT
             print(f"[on_submit] Received current_data_point state: {current_data_point}") # DEBUG PRINT
             print(f"[on_submit] Received understood_languages: {understood_languages}") # DEBUG PRINT
 
@@ -636,7 +668,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_attributes,
                 understood_languages,
                 associated_attribute_language, # Pass the new argument to log_result
-                data_point_language=current_data_point_language # Pass language from state
+                data_point_language=current_data_point_language, # Pass language from state
+                personal_regions_list=personal_regions_list # Pass the new personal regions
             )
             # Get new data point based on currently understood languages
             new_identity, new_attribute, new_language = get_random_data_point(
@@ -772,6 +805,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_attributes_input,
                 understood_languages_checkbox,
                 associated_attribute_language_dropdown, # Add new dropdown to inputs
+                personal_region_dropdown, # Add personal region dropdown to inputs
                 language_labels_state,
                 current_data_point_state, # Pass state value
                 current_data_point_language_state # Pass language state value
@@ -784,7 +818,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_nationalities_dropdown,
                 associated_region_dropdown, # Added missing output
                 associated_attributes_input, # Added missing output
-                associated_attribute_language_dropdown, # Add new dropdown to outputs (to clear)
+                associated_attribute_language_dropdown, # Keep this dropdown value
+                # DO NOT clear personal_region_dropdown here
                 associated_attributes_input, # Label update target
                 associated_nationalities_dropdown, # Label update target
             ],
@@ -1029,48 +1064,43 @@ def interface(lang: str = "es") -> gr.Blocks:
             ],
         )
 
-        def toggle_and_update_regions(associated_nationalities_dropdown):
-            if (
-                associated_nationalities_dropdown is None
-                or len(associated_nationalities_dropdown) == 0
-            ):
-                associated_region_dropdown = gr.Dropdown(
-                    label=labels["associated_region_label"],
-                    choices=[],
-                    interactive=False, # Ensure it's disabled
-                    multiselect=True,
-                )
-                # Return only the update for the dropdown itself
-                return gr.update(choices=[], interactive=False)
+        # Function to update the PERSONAL region dropdown based on selected PERSONAL nationalities
+        def update_personal_regions(selected_personal_nationalities):
+            if not selected_personal_nationalities:
+                # Disable and clear if no nationalities are selected
+                return gr.update(choices=[], value=[], interactive=False)
             else:
-                # Define helper inside or ensure it's accessible
-                def get_administrative_divisions(selected_countries):
-                    df = pd.read_json(
-                        "data/global_administrative_division.json")
-                    filtered_df = df[df["name"].isin(selected_countries)]
-                    return [
-                        f"{division['name']} ({row['name']})"
-                        for _, row in filtered_df.iterrows()
-                        for division in row["AD"]
-                    ]
+                # Get divisions using the helper function
+                region_choices = get_administrative_divisions(selected_personal_nationalities)
+                # Enable and update choices, keep existing selection if possible (Gradio handles this)
+                return gr.update(choices=region_choices, interactive=True)
 
-                associated_region_dropdown = gr.Dropdown(
-                    label=labels["associated_region_label"],
-                    choices=get_administrative_divisions(
-                        associated_nationalities_dropdown
-                    ),
-                    multiselect=True,
-                    interactive=True, # Enable interaction
-                )
-                # Return only the update for the dropdown itself
-                return gr.update(choices=get_administrative_divisions(associated_nationalities_dropdown), interactive=True)
+        # Connect the personal nationality dropdown to update the personal region dropdown
+        nationality_personal_info.change(
+            fn=update_personal_regions,
+            inputs=[nationality_personal_info],
+            outputs=[personal_region_dropdown]
+        )
 
+
+        # Function to update the ASSOCIATED region dropdown based on selected ASSOCIATED nationalities
+        def toggle_and_update_associated_regions(associated_nationalities_list):
+            if not associated_nationalities_list:
+                # Disable and clear if no associated nationalities are selected
+                return gr.update(choices=[], value=[], interactive=False)
+            else:
+                # Get divisions using the helper function
+                region_choices = get_administrative_divisions(associated_nationalities_list)
+                 # Enable and update choices, clear previous selection
+                return gr.update(choices=region_choices, value=[], interactive=True)
+
+        # Connect the associated nationality dropdown to update the associated region dropdown
         associated_nationalities_dropdown.change(
-            fn=toggle_and_update_regions,
+            fn=toggle_and_update_associated_regions, # Renamed function for clarity
             inputs=[associated_nationalities_dropdown],
-            # Output only targets the region dropdown now
             outputs=[associated_region_dropdown],
         )
+
 
         # Language change handler function
         def on_language_change(selected_language_name, current_data_point): # Input is now the selected display name
@@ -1151,11 +1181,14 @@ def interface(lang: str = "es") -> gr.Blocks:
                     label=new_attr_label,
                     placeholder=new_labels["associated_attributes_placeholder"],
                 ),
-                # Update choices for the associated nationalities dropdown
-                gr.update(label=new_nat_label, choices=new_nationality_choices),
-                gr.update(label=new_labels["associated_region_label"]),
-                # Update label for the new checkbox group
-                 gr.update(label=new_labels["understood_languages_label"]),
+                    # Update choices for the associated nationalities dropdown
+                    gr.update(label=new_nat_label, choices=new_nationality_choices),
+                    # Update label for the personal region dropdown
+                    gr.update(label=new_labels["personal_region_label"]),
+                    # Update label for the associated region dropdown
+                    gr.update(label=new_labels["associated_region_label"]),
+                    # Update label for the new checkbox group
+                    gr.update(label=new_labels["understood_languages_label"]),
                 # Update label and value for the new attribute language dropdown
                 gr.update(
                     label=new_labels["associated_attribute_language_label"],
@@ -1189,6 +1222,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 stereotype_likert,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
+                personal_region_dropdown, # Add personal region dropdown for label update
                 associated_region_dropdown,
                 # New checkbox group label update
                 understood_languages_checkbox,

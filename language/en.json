@@ -285,6 +285,7 @@
       "gender_label": "Select your gender",
       "nationality_label": "Where are you from?",
       "nationality_info": "Select the nationality that represents your cultural, personal, or national identity",
+      "personal_region_label": "What region are you from?",
       "consent_label": "I have read and accept the informed consent ⬇️",
       "consent_link_text": "Link 🔗",
       "personal_data_missing_md": "\n# Enter your personal data and confirm your consent to proceed with the survey!\n            ",

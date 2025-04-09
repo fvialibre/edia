@@ -285,6 +285,7 @@
       "gender_label": "Selecciona tu género",
       "nationality_label": "¿De dónde eres?",
       "nationality_info": "Selecciona la nacionalidad que representa tu identidad cultural, personal o nacional",
+      "personal_region_label": "¿De qué región eres?",
       "consent_label": "He leído y acepto el consentimiento informado ⬇️",
       "consent_link_text": "Enlace 🔗",
       "personal_data_missing_md": "\n# ¡Introduce tus datos personales y confirma tu consentimiento para proceder con la encuesta!\n            ",
