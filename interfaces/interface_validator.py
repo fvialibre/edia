@@ -507,7 +507,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                     label=labels["consent_label"], value=False
                 )
                 consent_link_html = gr.HTML(
-                    value=f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{labels['consent_link_text']}</a>",
+                    value=f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/'>{labels['consent_link_text']}</a>",
                     elem_id="consent_link_html",
                 )
 
@@ -1159,7 +1159,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                     choices=new_nationality_choices,
                 ),
                 gr.update(label=new_labels["consent_label"]),
-                f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>{new_labels['consent_link_text']}</a>",
+                f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/'>{new_labels['consent_link_text']}</a>",
                 new_labels["personal_data_missing_md"],
                 # Main interface section
                 new_labels["welcome_md"],
