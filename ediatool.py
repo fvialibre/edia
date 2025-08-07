@@ -1,32 +1,33 @@
 # --- Imports libs ---
-import os
-import gradio as gr
-import pandas as pd
 import configparser
 import json
+import os
 from datetime import datetime
 
-
-# --- Imports modules ---
-from modules.model_embbeding import Embedding
-from modules.module_vocabulary import Vocabulary
-from modules.module_languageModel import LanguageModel
-from modules.utils import parse_cmd_line_args
-
-
-# --- Imports interfaces ---
-from interfaces.interface_WordExplorer import interface as interface_wordExplorer
-from interfaces.interface_BiasWordExplorer import interface as interface_biasWordExplorer
-from interfaces.interface_data import interface as interface_data
-from interfaces.interface_biasPhrase import interface as interface_biasPhrase
-from interfaces.interface_chatbot import interface as interface_chatbot
-from interfaces.interface_arena import interface as interface_arena
-from interfaces.interface_validator import interface as interface_validator
-from interfaces.interface_logsData import interface as interface_logsData
-# from interfaces.interface_crowsPairs import interface as interface_crowsPairs
+import gradio as gr
+import pandas as pd
 
 # --- Imports Constants ---
-from html_constants import NAVBAR_HTML, FOOTER_HTML, css
+from html_constants import FOOTER_HTML, NAVBAR_HTML, css
+from interfaces.interface_arena import interface as interface_arena
+from interfaces.interface_biasPhrase import interface as interface_biasPhrase
+from interfaces.interface_BiasWordExplorer import \
+    interface as interface_biasWordExplorer
+from interfaces.interface_chatbot import interface as interface_chatbot
+from interfaces.interface_data import interface as interface_data
+from interfaces.interface_logsData import interface as interface_logsData
+from interfaces.interface_validator import interface as interface_validator
+# --- Imports interfaces ---
+from interfaces.interface_WordExplorer import \
+    interface as interface_wordExplorer
+# --- Imports modules ---
+from modules.model_embbeding import Embedding
+from modules.module_languageModel import LanguageModel
+from modules.module_vocabulary import Vocabulary
+from modules.utils import parse_cmd_line_args
+
+# from interfaces.interface_crowsPairs import interface as interface_crowsPairs
+
 
 
 # --- Tool config ---
@@ -63,13 +64,13 @@ REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
 #     subset_name=VOCABULARY_SUBSET
 # )
 
-spanish_lm = LanguageModel(
-    model_name=SPANISH_LANGUAGE_MODEL
-)
+# spanish_lm = LanguageModel(
+#     model_name=SPANISH_LANGUAGE_MODEL
+# )
 
-english_lm = LanguageModel(
-    model_name=ENGLISH_LANGUAGE_MODEL
-)
+# english_lm = LanguageModel(
+#     model_name=ENGLISH_LANGUAGE_MODEL
+# )
 
 labels_path = f"language/{LANGUAGE}.json"
 if not os.path.isfile(labels_path):
@@ -80,12 +81,12 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
-    interface_validator(),
-    interface_biasPhrase(
-        spanish_language_model=spanish_lm,
-        english_language_model=english_lm,
-        available_logs=AVAILABLE_LOGS,
-        lang=LANGUAGE,),
+    interface_validator(lang=LANGUAGE),
+    # interface_biasPhrase(
+    #     spanish_language_model=spanish_lm,
+    #     english_language_model=english_lm,
+    #     available_logs=AVAILABLE_LOGS,
+    #     lang=LANGUAGE,),
     # interface_data(
     #     vocabulary=vocabulary,
     #     contexts=CONTEXTS_DATASET,
@@ -114,8 +115,8 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
-    "Stereotype Validator",
-    labels["phraseExplorer"],
+    labels["stereotypeValidator"],
+    # labels["phraseExplorer"],
     # labels["dataExplorer"],
     # labels["biasWordExplorer"],
     # "LLM vía EDIA",
@@ -133,7 +134,7 @@ if LANGUAGE != 'es':
 edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
 with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
-    _ = gr.HTML(NAVBAR_HTML)
+    # _ = gr.HTML(NAVBAR_HTML)
     _ = gr.TabbedInterface(
         interface_list=INTERFACE_LIST,
         tab_names=TAB_NAMES,

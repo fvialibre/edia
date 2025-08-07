@@ -72,12 +72,31 @@ def _get_excluded_pairs(
         )
         result = validation_pairs.union(stereotype_pairs)
 
-    # Add frequently skipped pairs to exclusions
-    if df_skips is not None and not df_skips.empty:
-        skipped_pairs = set(
-            df_skips[df_skips["skip_count"] >= skip_threshold][
+    # Add pairs skipped by this annotator
+    if annotator_id is not None and df_skips is not None and not df_skips.empty:
+        annotator_skipped_pairs = set(
+            df_skips[df_skips["annotator_id"] == annotator_id][
                 ["identity", "attribute"]
             ].itertuples(index=False, name=None)
+        )
+        result = result.union(annotator_skipped_pairs)
+
+    # Add globally frequently skipped pairs to exclusions
+    if df_skips is not None and not df_skips.empty:
+        # Calculate global skip counts dynamically
+        skip_counts = (
+            df_skips.groupby(["identity", "attribute"])
+            .size()
+            .reset_index(name="skip_count")
+        )
+        # Filter for frequently skipped pairs
+        frequent_skips = skip_counts[skip_counts["skip_count"]
+                                     >= skip_threshold]
+        # Extract pairs
+        skipped_pairs = set(
+            frequent_skips[["identity", "attribute"]].itertuples(
+                index=False, name=None
+            )
         )
         result = result.union(skipped_pairs)
 
@@ -329,9 +348,10 @@ def select_data_point(
     annotator_nationalities=None,
     p_neighbor=0.2,
     p_other=0.1,
+    p_step2_chance=0.4,  # Chance to execute step 2
     debug=False,
     skip_threshold=3,  # New parameter for skip threshold
-) -> tuple:
+) -> tuple: # Returns (identity, attribute, language_code)
     """
     Selects a random data point for validation based on a priority hierarchy that incorporates
     annotator nationality, validation count limits, and exclusion of previously annotated pairs
@@ -347,7 +367,10 @@ def select_data_point(
        - Only selects data points with fewer than 3 validations (`validation_count < 3`).
 
     2. Workshop Data (About Annotator's Nationality):
-       - Tries to find a stereotype where the identity is one of the annotator's nationalities.
+       - With probability `p_step2_chance`, tries to find a stereotype where the identity is one
+         of the annotator's nationalities. If this step is skipped (probability 1 - `p_step2_chance`),
+         annotator nationalities are not provided or if no suitable candidate is found,
+         proceeds to the next step.
        - Still enforces the validation count limit and exclusion of previously validated pairs.
 
     3. Workshop Data (Any Nationality):
@@ -399,6 +422,7 @@ def select_data_point(
         HESEIA dataset with columns:
         - `region`: The identity part of the stereotype (corresponds to identity).
         - `attribute`: The attribute part of the stereotype.
+        - `source_language`: The language code ('en', 'es', 'pt') of the source file.
 
     df_seegull : pd.DataFrame, optional
         Data from seegull_countries.csv with columns:
@@ -428,16 +452,20 @@ def select_data_point(
     p_other : float, optional
         Probability of picking a different country. Default 0.1
 
+    p_step2_chance : float, optional
+        Probability of executing step 2 (Workshop: About Annotator's Nationality). Default 0.5
+
     debug : bool, optional
         If True, returns additional selection information. Default False
 
     Returns:
     --------
     tuple
-        If debug=False: A tuple `(identity, attribute)` representing the selected data point
-        If debug=True: A tuple `(identity, attribute, selection_info)` where:
+        If debug=False: A tuple `(identity, attribute, language_code)` representing the selected data point and its source language.
+        If debug=True: A tuple `(identity, attribute, language_code, selection_info)` where:
         - `identity`: The identity part of the stereotype
         - `attribute`: The attribute part of the stereotype
+        - `language_code`: The source language code (e.g., 'en', 'es') or 'en' if unknown/not applicable.
         - `selection_info`: A dictionary with information about the selection process:
             - `source`: One of ["WS_SAME_NEAR_OTHER", "WS_ABOUT_NATIONALITY", "WS_ANY",
                               "HESEIA", "SG_SAME_NEAR_OTHER", "SG_ABOUT_NATIONALITY",
@@ -467,9 +495,17 @@ def select_data_point(
         )
 
     # Add validation counts for HESEIA
+    # Ensure df_heseia has the 'source_language' column before this step
+    # This column should be added when df_heseia is created/loaded in interface_validator.py
+    if 'source_language' not in df_heseia.columns:
+         print("Warning: 'source_language' column missing in df_heseia. Defaulting language to 'en'.")
+         # Add a default column if missing, although ideally it should be present
+         df_heseia['source_language'] = 'en'
+
     df_heseia = _add_validation_count(
         df_heseia, df_ws_validations, "region", "attribute"
     )
+
 
     # Modified _pick_same_neighbor_other to return category information
     def _pick_with_category_info(
@@ -583,6 +619,8 @@ def select_data_point(
 
         return None, None
 
+    # --- Selection Steps ---
+
     # 1) Workshop: same/neighbor/other
     if annotator_nationalities:
         candidate, category = _pick_with_category_info(
@@ -604,17 +642,20 @@ def select_data_point(
                 "category": category,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
+            # Extract source language, default to 'en' if column missing
+            lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
             if debug:
                 return (
                     candidate["identity"].iloc[0],
                     candidate["attribute"].iloc[0],
+                    lang_code,
                     selection_info,
                 )
             else:
-                return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0])
+                return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0], lang_code)
 
-    # 2) Workshop: about annotator's nationality
-    if annotator_nationalities:
+    # 2) Workshop: about annotator's nationality (with probability p_step2_chance)
+    if annotator_nationalities and random.random() < p_step2_chance:
         ws_about_nat = _filter_about_nationality(
             df_ws_stereotypes,
             "identity",
@@ -625,21 +666,23 @@ def select_data_point(
             3,
         )
         candidate = _select_candidate(ws_about_nat, "validation_count")
-        print(candidate)
         if candidate is not None:
             selection_info = {
                 "source": "WS_ABOUT_NATIONALITY",
                 "category": None,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
+            # Extract source language, default to 'en' if column missing
+            lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
             if debug:
                 return (
                     candidate["identity"].iloc[0],
                     candidate["attribute"].iloc[0],
+                    lang_code,
                     selection_info,
                 )
             else:
-                return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0])
+                return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0], lang_code)
 
     # 3) Workshop any nationality
     ws_filtered_any = _filter_candidates(
@@ -657,14 +700,17 @@ def select_data_point(
             "category": None,
             "validation_count": candidate["validation_count"].iloc[0],
         }
+        # Extract source language, default to 'en' if column missing
+        lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
         if debug:
             return (
                 candidate["identity"].iloc[0],
-                candidate["attribute"].iloc[0],
-                selection_info,
-            )
+                    candidate["attribute"].iloc[0],
+                    lang_code,
+                    selection_info,
+                )
         else:
-            return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0])
+            return (candidate["identity"].iloc[0], candidate["attribute"].iloc[0], lang_code)
 
     # 4) HESEIA dataset
     heseia_filtered = _filter_candidates(
@@ -682,14 +728,17 @@ def select_data_point(
             "category": None,
             "validation_count": candidate["validation_count"].iloc[0],
         }
+        # Extract source language, default to 'en' if column missing
+        lang_code = candidate["source_language"].iloc[0] if "source_language" in candidate.columns else 'en'
         if debug:
             return (
-                candidate["region"].iloc[0],
-                candidate["attribute"].iloc[0],
-                selection_info,
-            )
+                    candidate["region"].iloc[0],
+                    candidate["attribute"].iloc[0],
+                    lang_code,
+                    selection_info,
+                )
         else:
-            return (candidate["region"].iloc[0], candidate["attribute"].iloc[0])
+            return (candidate["region"].iloc[0], candidate["attribute"].iloc[0], lang_code)
 
     # 5) SeeGULL: same/neighbor/other (if available)
     if df_seegull is not None and annotator_nationalities:
@@ -712,16 +761,19 @@ def select_data_point(
                 "category": category,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
+            lang_code = 'en' # Default language for SeeGULL data
             if debug:
                 return (
                     candidate["identity_country_name"].iloc[0],
                     candidate["translated_attribute_list"].iloc[0],
+                    lang_code,
                     selection_info,
                 )
             else:
                 return (
                     candidate["identity_country_name"].iloc[0],
                     candidate["translated_attribute_list"].iloc[0],
+                    lang_code,
                 )
 
     # 6) SeeGULL: about annotator's nationality (if available)
@@ -742,16 +794,19 @@ def select_data_point(
                 "category": None,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
+            lang_code = 'en' # Default language for SeeGULL data
             if debug:
                 return (
                     candidate["identity_country_name"].iloc[0],
                     candidate["translated_attribute_list"].iloc[0],
+                    lang_code,
                     selection_info,
                 )
             else:
                 return (
                     candidate["identity_country_name"].iloc[0],
                     candidate["translated_attribute_list"].iloc[0],
+                    lang_code,
                 )
 
     # 7) SeeGULL any nationality (if available)
@@ -771,16 +826,19 @@ def select_data_point(
                 "category": None,
                 "validation_count": candidate["validation_count"].iloc[0],
             }
+            lang_code = 'en' # Default language for SeeGULL data
             if debug:
                 return (
                     candidate["identity_country_name"].iloc[0],
                     candidate["translated_attribute_list"].iloc[0],
+                    lang_code,
                     selection_info,
                 )
             else:
                 return (
                     candidate["identity_country_name"].iloc[0],
                     candidate["translated_attribute_list"].iloc[0],
+                    lang_code,
                 )
 
     # 8) Fallback (always use HESEIA)
@@ -790,14 +848,18 @@ def select_data_point(
         "category": None,
         "validation_count": fallback_row["validation_count"],
     }
+    # Extract source language from fallback, default to 'en'
+    lang_code = fallback_row["source_language"] if "source_language" in fallback_row else 'en'
     if debug:
         return (
             fallback_row["region"],
             fallback_row["attribute"],
+            lang_code,
             selection_info,
         )
     else:
         return (
             fallback_row["region"],
             fallback_row["attribute"],
+            lang_code,
         )
