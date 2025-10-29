@@ -17,15 +17,15 @@ def interface() -> gr.Blocks:
 
     secrets = dotenv_values("./.env")
     os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-    def predict(message, history, token_id, school, age, gender, prompt):
+    def predict(message, history, token_id, school, age, gender, prompt, temperature, top_p, max_tokens):
+        llm = ChatOpenAI(model="gpt-4o-mini", temperature=temperature, top_p=top_p, max_tokens=max_tokens)
         history_langchain_format = [SystemMessage(content=prompt)]
         for human, ai in history:
             history_langchain_format.append(HumanMessage(content=human))
             history_langchain_format.append(AIMessage(content=ai))
         history_langchain_format.append(HumanMessage(content=message))
-        gpt_response = llm(history_langchain_format)
+        gpt_response = llm.invoke(history_langchain_format)
 
         with open("./logs/logs_chatbot.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
@@ -38,6 +38,7 @@ def interface() -> gr.Blocks:
                 "response": gpt_response.content,
                 "history": history,
                 "current_prompt": prompt,
+                "temperature": temperature
             }, ensure_ascii=False) + "\n")
         return gpt_response.content
     
@@ -92,58 +93,92 @@ def interface() -> gr.Blocks:
             "prompt": None,
         })
         with gr.Row():
-            with gr.Column(scale=30):
+            with gr.Column(scale=70):
                 token_id = gr.Textbox(
-                    label="Escriba su correo electrónico",
+                    label="Escriba su identificador",
                     lines=1,
                 )
-            with gr.Column(scale=70):
+            with gr.Column(scale=70, visible=False):
                 with gr.Row():
                     with gr.Column():
                         school = gr.Number(
-                            value=0,
+                            value=10000,
                             label="Seleccione el identificador de su escuela (Ver ➡️)",
+                            visible=False
                         )
                         school_name = gr.HTML(
                             value=f"<p>No seleccionaste ningún colegio</p>",
+                            visible=False
                         )
                     with gr.Column():
                         _ = gr.HTML(
                             value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                            visible=False
                         )
-        with gr.Row():
-            with gr.Column():
-                age = gr.Number(
-                    value=0,
-                    label="Seleccione su edad",
-                )
-            with gr.Column():
-                gender = gr.Radio(
-                    ["M", "F", "X"],
-                    label="Seleccione su género",
-                )
-            with gr.Column():
+            with gr.Column(scale=30):
                 with gr.Row():
                     consent_checkbox = gr.Checkbox(
                         label='He leído y acepto el consentimiento informado ➡️',
-                        value=False
+                        value=False,
                     )
                     _ = gr.HTML(
                         value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
                     )
         with gr.Row():
+            with gr.Column():
+                age = gr.Number(
+                    value=99,
+                    label="Seleccione su edad",
+                    visible=False
+                )
+            with gr.Column():
+                gender = gr.Radio(
+                    ["M", "F", "X"],
+                    label="Seleccione su género",
+                    value="X",
+                    visible=False
+                )
+        with gr.Row():
             prompt = gr.Textbox(
-                label="Escriba el prompt (dejar vacío para usar ChatGPT normal)",
+                label="Escriba el system prompt (dejar vacío para usar ChatGPT normal)",
                 lines=3,
             )
+            with gr.Row():
+                temperature = gr.Slider(
+                    visible=False,
+                    minimum=0.0,
+                    maximum=2.0,
+                    value=0.7,
+                    step=0.01,
+                    label="Temperatura",
+                    info="Controla la creatividad del modelo (0.0 = determinista, 2.0 = creativo)"
+                )
+                top_p = gr.Slider(
+                    minimum=0.0,
+                    maximum=1.0,
+                    value=1.0,
+                    step=0.01,
+                    label="Top-p",
+                    info="Probabilidad acumulada para muestreo nuclear",
+                    visible=False
+                )
+                max_tokens = gr.Slider(
+                    minimum=1,
+                    maximum=4096,
+                    value=1024,
+                    step=1,
+                    label="Máx. tokens",
+                    info="Límite de longitud de la respuesta",
+                    visible=False
+                )
             
         with gr.Column(visible=False, elem_id='col') as chat_col:
             gr.HTML("<h1 style='text-align: center;'>ChatGPT vía EDIA</h1>")
-            gr.HTML("<p>En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Para completar la actividad debes cargar los datos en el formulario contando cómo interactuaste con este modelo. Si cerrás la pestaña, no se guarda la conversación, así que recordá cópiarlo antes. Ahí mismo tenes un video que explica paso a paso cómo ingresar la información.</p>")
+            gr.HTML("<p>En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Si cerrás la pestaña, no se guarda la conversación, así que recordá copiarlo antes.</p>")
                     
             chatbot = gr.Chatbot(
                 show_copy_button=True,
-                likeable=True,
+                # likeable=True,
             )
             chat_interface = gr.ChatInterface(
                     predict,
@@ -153,11 +188,14 @@ def interface() -> gr.Blocks:
                         age,
                         gender,
                         prompt,
+                        temperature,
+                        top_p,
+                        max_tokens
                     ],
                     chatbot=chatbot,
-                    retry_btn=None,
-                    undo_btn=None,
-                    clear_btn=None,
+                    # retry_btn=None,
+                    # undo_btn=None,
+                    # clear_btn=None,
                     submit_btn="Enviar",
                     stop_btn=None,
                 )

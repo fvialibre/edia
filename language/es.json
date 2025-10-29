@@ -6,7 +6,10 @@
         "biasWordExplorer": "Sesgo en palabras",
         "dataExplorer": "Explorar contextos",
         "crowsPairsExplorer": "Crows-Pairs",
-        "logData": "Visualizar datos"
+        "logData": "Visualizar datos",
+        "cvqa": "Preguntas Regionales",
+        "typicalPhrases": "Frases Típicas",
+        "ambiguousReferences": "Referencias Ambiguas"
     },
     "WordExplorer_interface": {
         "token_id": "Ingrese su correo electrónico",
@@ -279,8 +282,8 @@
         "button2": "Descargar CSV"
     },
     "validator_interface": {
-      "identifier_label": "Email",
-      "identifier_info": "Introduce tu email",
+      "identifier_label": "Identificador",
+      "identifier_info": "Introduce tu identificador",
       "age_label": "Introduce tu edad",
       "gender_label": "Selecciona tu género",
       "nationality_label": "¿De dónde eres?",

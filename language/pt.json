@@ -6,7 +6,10 @@
         "dataExplorer": "Dados",
         "phraseExplorer": "Viés em Frases",
         "crowsPairsExplorer": "Crows-Pairs",
-        "logData": "Ver dados"
+        "logData": "Ver dados",
+        "cvqa": "Perguntas Regionais",
+        "typicalPhrases": "Frases Típicas",
+        "ambiguousReferences": "Referências Ambíguas"
     },
     "WordExplorer_interface": {
         "token_id": "Introduza o seu E-mail",
@@ -279,8 +282,8 @@
         "button2": "Baixar CSV"
     },
     "validator_interface": {
-      "identifier_label": "Endereço de E-mail",
-      "identifier_info": "Introduza o seu endereço de e-mail",
+      "identifier_label": "Identificador",
+      "identifier_info": "Introduza o seu identificador",
       "age_label": "Introduza a sua idade",
       "gender_label": "Selecione o seu gênero",
       "nationality_label": "De onde você é?",

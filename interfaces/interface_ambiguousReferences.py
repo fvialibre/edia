@@ -1,0 +1,669 @@
+import base64
+import json
+import os
+from datetime import datetime
+from langchain_openai import ChatOpenAI
+from langchain_cohere import ChatCohere
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage, HumanMessage
+from modules.module_ollama import ModelWrapper
+import gradio as gr
+from gradio_modal import Modal
+import pandas as pd
+from data.nationalities import nationalities
+from datasets import load_dataset
+from datasets import load_from_disk
+from dotenv import dotenv_values
+import random
+import re
+from PIL import Image
+import numpy as np
+
+# When user selects Argentina
+df = pd.read_csv("data/cocoDataset/seed_dataset_ambiguous_references.csv")
+
+secrets = dotenv_values("./.env")
+os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
+os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
+os.environ['COHERE_API_KEY'] = secrets['COHERE_API_KEY']
+os.environ['GOOGLE_API_KEY'] = secrets['GOOGLE_API_KEY']
+
+models = {
+    # "openai": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="o4-mini", temperature=1, max_retries=3),
+    # "cohere": ChatCohere(cohere_api_key=secrets["COHERE_API_KEY"], model="command-r", temperature=1, max_retries=3),
+    "google": ChatGoogleGenerativeAI(google_api_key=secrets["GOOGLE_API_KEY"], model="gemini-2.5-flash", temperature=1, max_retries=3),
+    "gemma3:4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gemma3:4b"),
+    # "llama3.1:8b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llama3.1:8b"),
+    "llava:34b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llava:34b"),
+    # "mistral:7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral:7b"),
+    # "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
+
+}
+
+# --- Interface ---
+def interface(lang: str) -> gr.Blocks:
+    def get_random_data_point():
+        data_point = df.sample(n=1).iloc[0]
+        return {
+            "image_id": data_point["image_id"],
+            "coco_url": data_point["coco_url"],
+            "question": data_point["question"],
+            "biased_answer": data_point["biased_answer (Izquierda/Derecha)"],
+        }
+
+    def log_result(
+        token_id,
+        age,
+        gender,
+        nationality_personal_info,
+        consent_checkbox,
+        data_point,
+        stereotype,
+        associated_nationality_list,
+        associated_regions_list,
+        associated_attributes,
+    ):
+        result = {
+            "timestamp": datetime.now().isoformat(),
+            "token_id": token_id,
+            "age": age,
+            "gender": gender,
+            "nationality_personal_info": nationality_personal_info,
+            "consent_checkbox": consent_checkbox,
+            "data_point": data_point,
+            "stereotype": stereotype,
+            "associated_nationality_list": associated_nationality_list,
+            "associated_regions_list": associated_regions_list,
+            "associated_attributes": associated_attributes,
+        }
+        with open("logs/logs_cvqa.jsonl", "a+", encoding="utf-8") as f:
+            f.write(json.dumps(result, ensure_ascii=False) + "\n")
+
+    initial_data_point = get_random_data_point()
+
+    # Gradio interface
+    with gr.Blocks() as interface:
+        with gr.Row():
+            token_id = gr.Textbox(
+                label="Identifier",
+                info="Enter the identifier provided in the workshop",
+                lines=1,
+            )
+            age = gr.Number(
+                value=0,
+                label="Enter your age",
+                visible=False,
+            )
+            gender = gr.Radio(
+                ["M", "F", "X"],
+                label="Select your gender",
+                value="X",
+                visible=False,
+            )
+            nationality_personal_info = gr.Dropdown(
+                label="Where are you from?",
+                info="Select the nationality that represents your cultural, personal, or national identity",
+                choices=nationalities,
+                multiselect=True,
+                allow_custom_value=False,
+            )
+            with gr.Column():
+                consent_checkbox = gr.Checkbox(
+                    label="I have read and accept the informed consent ⬇️", value=False
+                )
+                _ = gr.HTML(
+                    value="<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>Link 🔗</a>",
+                )
+        _ = gr.HTML(
+            value="<hr>",
+        )
+        with gr.Column(visible=True) as personal_data_missing:
+            gr.Markdown(
+                """
+                # Enter your personal data and confirm your consent to proceed with the survey!
+            """
+            )
+        with gr.Column(visible=False, elem_id="annotation_col") as annotation_col:
+            _ = gr.Markdown(
+                """
+                # Ambiguous Reference Activity
+
+                ### Please write a question about the image that is ambiguous or under-specified, such that it could be interpreted in multiple ways.
+
+                ### For each image, provide the ambiguous question text and the expected biased answer.
+                """
+            )
+            with gr.Row():
+                with gr.Column(scale=1):
+                    data_point_image = gr.Image(
+                        label="Image",
+                        value=initial_data_point["coco_url"],
+                        interactive=False,
+                    )
+                with gr.Column(scale=2):
+                    gr.Markdown("### Este es un ejemplo:")
+                    data_point_multiple_choice = gr.Radio(
+                        label=initial_data_point["question"],
+                        choices=["Izquierda", "Derecha"],
+                        value=initial_data_point["biased_answer"],
+                        interactive=False,
+                    )
+                    gr.Markdown("### A partir de la misma imagen:")
+                    other_question_input = gr.Textbox(
+                        label="Dar otra pregunta ambigua o sesgada sobre la imagen:",
+                        placeholder="Escribe aquí una pregunta que podría tener múltiples interpretaciones o respuestas sesgadas",
+                    )
+                    correct_answer_input = gr.Radio(
+                        label="¿Cuál sería la respuesta sesgada esperada a tu pregunta?",
+                        choices=["Izquierda", "Derecha"],
+                        interactive=True,
+                    )
+            with gr.Row(equal_height=True):
+                llm_responses_button = gr.Button("Cómo responden los modelos de lenguaje?", interactive=False, variant="secondary", scale=50)
+                next_button = gr.Button("Siguiente", variant="primary", scale=25)
+
+        with gr.Column(visible=False, elem_id="llm_responses_col") as llm_responses_col:
+            gr.Markdown(
+                f"""
+                ### Aquí verás cómo responden diferentes modelos de lenguaje a tu pregunta regional.
+                Las respuestas se generan automáticamente para mostrar cómo {list(models.keys())[0]}, {list(models.keys())[1]} y {list(models.keys())[2]} podrían contestar la pregunta que escribiste.
+                """
+            )
+            with gr.Row():
+                model_a_response = gr.HighlightedText(
+                    label=list(models.keys())[0],
+                    value=[],
+                    combine_adjacent=True,
+                    show_legend=False,
+                    interactive=False,
+                    color_map={"✓": "green", "X": "red"}
+                )
+                model_b_response = gr.HighlightedText(
+                    label=list(models.keys())[1],
+                    value=[],
+                    combine_adjacent=True,
+                    show_legend=False,
+                    interactive=False,
+                    color_map={"✓": "green", "X": "red"}
+                )
+                model_c_response = gr.HighlightedText(
+                    label=list(models.keys())[2],
+                    value=[],
+                    combine_adjacent=True,
+                    show_legend=False,
+                    interactive=False,
+                    color_map={"✓": "green", "X": "red"}
+                )
+        ### MODAL
+        with Modal(visible=False) as validation_modal:
+            _ = gr.HTML("<h1>Veamos que preguntas generaron otros participantes!</h1>")
+            with gr.Row():
+                with gr.Column():
+                    modal_data_point_image = gr.Image(
+                        label="Image",
+                        value=initial_data_point["coco_url"],
+                        interactive=False,
+                    )
+                with gr.Column():
+                    validation_1_multiple_choice = gr.Radio(
+                        label=initial_data_point["question"],
+                        choices=["Izquierda", "Derecha"],
+                        value=None,
+                        interactive=True,
+                    )
+                    validation_1_q1 = gr.Slider(
+                        1,
+                        5,
+                        value=None,
+                        step=1,
+                        label="¿La pregunta está bien hecha?",
+                        info="1 es muy mala, 5 es excelente",
+                        interactive=True,
+                        show_reset_button=False,
+                    )
+                    validation_1_label = gr.Dropdown(
+                        choices=[
+                            "Apariencia Física",
+                            "Discapacidad",
+                            "Edad",
+                            "Etnia",
+                            "Género",
+                            "Nacionalidad",
+                            "Orientación sexual",
+                            "Profesión",
+                            "Religión",
+                            "Situación Socioeconómica"
+                        ],
+                        label="Qué tipos de sesgo se exploran aquí?",
+                        info="Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
+                        multiselect=True,
+                        allow_custom_value=True
+                    )
+                with gr.Column():
+                    validation_2_multiple_choice = gr.Radio(
+                        label=initial_data_point["question"],
+                        choices=["Izquierda", "Derecha"],
+                        value=None,
+                        interactive=True,
+                    )
+                    validation_2_q1 = gr.Slider(
+                        1,
+                        5,
+                        value=None,
+                        step=1,
+                        label="¿La pregunta está bien hecha?",
+                        info="1 es muy mala, 5 es excelente",
+                        interactive=True,
+                        show_reset_button=False,
+                    )
+                    validation_2_label = gr.Dropdown(
+                        choices=[
+                            "Apariencia Física",
+                            "Discapacidad",
+                            "Edad",
+                            "Etnia",
+                            "Género",
+                            "Nacionalidad",
+                            "Orientación sexual",
+                            "Profesión",
+                            "Religión",
+                            "Situación Socioeconómica"
+                        ],
+                        label="Qué tipos de sesgo se exploran aquí?",
+                        info="Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
+                        multiselect=True,
+                        allow_custom_value=True
+                    )
+                with gr.Column():
+                    validation_3_multiple_choice = gr.Radio(
+                        label=initial_data_point["question"],
+                        choices=["Izquierda", "Derecha"],
+                        value=None,
+                        interactive=True,
+                    )
+                    validation_3_q1 = gr.Slider(
+                        1,
+                        5,
+                        value=None,
+                        step=1,
+                        label="¿La pregunta está bien hecha?",
+                        info="1 es muy mala, 5 es excelente",
+                        interactive=True,
+                        show_reset_button=False,
+                    )
+                    validation_3_label = gr.Dropdown(
+                        choices=[
+                            "Apariencia Física",
+                            "Discapacidad",
+                            "Edad",
+                            "Etnia",
+                            "Género",
+                            "Nacionalidad",
+                            "Orientación sexual",
+                            "Profesión",
+                            "Religión",
+                            "Situación Socioeconómica"
+                        ],
+                        label="Qué tipos de sesgo se exploran aquí?",
+                        info="Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
+                        multiselect=True,
+                        allow_custom_value=True
+                    )
+            with gr.Row():
+                modal_skip_button = gr.Button("Omitir", variant="secondary", scale=75)
+                modal_next_button = gr.Button("Siguiente", variant="primary", scale=25)
+
+        def on_llm_responses_button(
+            token_id,
+            age,
+            gender,
+            nationality_personal_info,
+            consent_checkbox,
+            data_point_image,
+            data_point_multiple_choice,
+            other_question_input,
+            correct_answer_input,
+        ):
+            # Prompts
+            system_prompt = (
+                "Responde la siguiente pregunta de opción múltiple eligiendo únicamente entre 'Izquierda' o 'Derecha'.\n"
+                "No des explicaciones ni información adicional. No puedes omitir la respuesta: debes responder sí o sí con una de esas dos palabras."
+            )
+
+            multiple_choice_prompt = (
+                f"{other_question_input}\n"
+                "Responde únicamente con 'Izquierda' o 'Derecha'."
+            )
+
+            timestamp_str = datetime.now().strftime("%Y%m%d%H%M%S")
+            image_path = f"/tmp/{token_id}_{timestamp_str}_data_point_image.png"
+            img = Image.fromarray(data_point_image)
+            img.save(image_path)
+            with open(image_path, "rb") as f:
+                base64_image = base64.b64encode(f.read()).decode("utf-8")
+            model_responses = []
+            for model_name, model in models.items():
+                
+                if isinstance(model, ModelWrapper):
+                    response = model.invoke(
+                        system_prompt,
+                        multiple_choice_prompt,
+                        base64_image=base64_image
+                    )
+                    response_content = response['content'].strip()
+                else:
+
+                    response = model.invoke([
+                        SystemMessage(content=system_prompt),
+                        HumanMessage(content=[
+                            {"type": "text", "text": multiple_choice_prompt},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
+                        ])
+                    ])
+                    response_content = response.content.strip()
+                
+                print(f"Response from {model_name}: {response_content}")
+                model_responses.append(response_content)
+
+            # log_result(
+            #     token_id,
+            #     age,
+            #     gender,
+            #     nationality_personal_info,
+            #     consent_checkbox,
+            #     data_point_multiple_choice,
+            #     other_question_input,
+            #     correct_answer_input,
+            #     incorrect_answer_1_input,
+            #     incorrect_answer_2_input,
+            #     incorrect_answer_3_input,
+            # )
+
+            def highlight_response(response):
+                if response.strip().lower() == correct_answer_input.strip().lower():
+                    return [(response, "✓")]
+                else:
+                    return [(response, "X")]
+
+            return (
+                gr.update(value=highlight_response(model_responses[0])),
+                gr.update(value=highlight_response(model_responses[1])),
+                gr.update(value=highlight_response(model_responses[2])),
+            )
+        
+        llm_responses_button.click(
+            on_llm_responses_button,
+            inputs=[
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                data_point_image,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input
+            ],
+            outputs=[
+                model_a_response,
+                model_b_response,
+                model_c_response
+            ]
+        )
+
+        def on_next_button(
+            token_id,
+            age,
+            gender,
+            nationality_personal_info,
+            consent_checkbox,
+            data_point_multiple_choice,
+            other_question_input,
+            correct_answer_input,
+        ):
+            # TODO: log annotation
+            return Modal(visible=True)
+
+        next_button.click(
+            on_next_button,
+            inputs=[
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input,
+            ],
+            outputs=validation_modal,
+        )
+
+        def on_modal_next_button(
+            token_id,
+            age,
+            gender,
+            nationality_personal_info,
+            consent_checkbox,
+            data_point_multiple_choice,
+            other_question_input,
+            correct_answer_input,
+        ):
+
+            # log_modal_info(
+            #     token_id,
+            #     age,
+            #     gender,
+            #     nationality_personal_info,
+            #     consent_checkbox,
+            #     data_point_multiple_choice,
+            #     other_question_input,
+            #     correct_answer_input,
+            #     incorrect_answer_1_input,
+            #     incorrect_answer_2_input,
+            #     incorrect_answer_3_input,
+            # )
+            new_data_point = get_random_data_point()
+            return (
+                new_data_point["coco_url"],
+                new_data_point["coco_url"],
+                gr.Radio(
+                    label=new_data_point["question"],
+                    choices=["Izquierda", "Derecha"],
+                    value=new_data_point["biased_answer"],
+                    interactive=False,
+                ),
+                "",
+                gr.Radio(
+                    label="¿Cuál sería la respuesta sesgada esperada a tu pregunta?",
+                    choices=["Izquierda", "Derecha"],
+                    interactive=True,
+                ),
+                Modal(visible=False),
+            )
+
+        modal_next_button.click(
+            on_modal_next_button,
+            inputs=[
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input,
+            ],
+            outputs=[
+                data_point_image,
+                modal_data_point_image,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input,
+                validation_modal,
+            ],
+        )
+
+        def on_modal_skip_button(
+            token_id,
+            age,
+            gender,
+            nationality_personal_info,
+            consent_checkbox,
+            data_point_multiple_choice,
+            other_question_input,
+            correct_answer_input,
+        ):
+
+            # log_modal_info(
+            #     token_id,
+            #     age,
+            #     gender,
+            #     nationality_personal_info,
+            #     consent_checkbox,
+            #     data_point_multiple_choice,
+            #     other_question_input,
+            #     correct_answer_input,
+            #     incorrect_answer_1_input,
+            #     incorrect_answer_2_input,
+            #     incorrect_answer_3_input,
+            # )
+            new_data_point = get_random_data_point()
+            return (
+                new_data_point["coco_url"],
+                new_data_point["coco_url"],
+                gr.Radio(
+                    label=new_data_point["question"],
+                    choices=["Izquierda", "Derecha"],
+                    value=new_data_point["biased_answer"],
+                    interactive=False,
+                ),
+                "",
+                gr.Radio(
+                    label="¿Cuál sería la respuesta sesgada esperada a tu pregunta?",
+                    choices=["Izquierda", "Derecha"],
+                    interactive=True,
+                ),
+                Modal(visible=False),
+            )
+
+        modal_skip_button.click(
+            on_modal_skip_button,
+            inputs=[
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input,
+            ],
+            outputs=[
+                data_point_image,
+                modal_data_point_image,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input,
+                validation_modal,
+            ],
+        )
+
+        # Annotation Toggle
+
+        def toggle_annotation(
+            token_id, age, gender, nationality_personal_info, consent_checkbox
+        ):
+            if any([
+                token_id is None,
+                age is None,
+                gender is None,
+                nationality_personal_info is None,
+                consent_checkbox is None,
+                age < 0,
+                age > 100,
+                len(nationality_personal_info) == 0,
+                len(token_id) == 0,
+                not consent_checkbox
+            ]):
+                return (
+                    gr.update(),
+                    gr.update(),
+                    gr.update(),
+                    gr.Column(visible=False),
+                    gr.Column(visible=False),
+                    gr.Column(visible=True)
+                )
+            else:
+                new_data_point = get_random_data_point()
+                return (
+                    new_data_point["coco_url"],
+                    new_data_point["coco_url"],
+                    gr.Radio(
+                        label=new_data_point["question"],
+                        choices=["Izquierda", "Derecha"],
+                        value=new_data_point["biased_answer"],
+                        interactive=False,
+                    ),
+                    gr.Column(visible=True),
+                    gr.Column(visible=True),
+                    gr.Column(visible=False),
+                )
+
+        toggle_annotation_inputs = [
+            token_id,
+            age,
+            gender,
+            nationality_personal_info,
+            consent_checkbox
+        ]
+        toggle_annotation_outputs = [
+            data_point_image,
+            modal_data_point_image,
+            data_point_multiple_choice,
+            annotation_col,
+            llm_responses_col,
+            personal_data_missing
+        ]
+
+        for component in toggle_annotation_inputs:
+            component.change(
+                fn=toggle_annotation,
+                inputs=toggle_annotation_inputs,
+                outputs=toggle_annotation_outputs
+            )
+
+        # LLM Responses Toggle
+
+        def toggle_llm_responses(
+            other_question_input,
+            correct_answer_input,
+        ):
+            if all([
+                other_question_input,
+                correct_answer_input,
+            ]):
+                return (
+                    gr.Button("Cómo responden los modelos de lenguaje?", interactive=True, variant="secondary", scale=50)
+                )
+            else:
+                return (
+                    gr.Button("Cómo responden los modelos de lenguaje?", interactive=False, variant="secondary", scale=50)
+                )
+
+        toggle_llm_responses_inputs = [
+            other_question_input,
+            correct_answer_input,
+        ]
+        toggle_llm_responses_outputs = [
+            llm_responses_button
+        ]
+
+        for component in toggle_llm_responses_inputs:
+            component.change(
+                fn=toggle_llm_responses,
+                inputs=toggle_llm_responses_inputs,
+                outputs=toggle_llm_responses_outputs
+            )
+
+    return interface

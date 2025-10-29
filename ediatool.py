@@ -9,21 +9,25 @@ import pandas as pd
 
 # --- Imports Constants ---
 from html_constants import FOOTER_HTML, NAVBAR_HTML, css
-from interfaces.interface_arena import interface as interface_arena
-from interfaces.interface_biasPhrase import interface as interface_biasPhrase
-from interfaces.interface_BiasWordExplorer import \
-    interface as interface_biasWordExplorer
+# from interfaces.interface_arena import interface as interface_arena
+# from interfaces.interface_biasPhrase import interface as interface_biasPhrase
+# from interfaces.interface_BiasWordExplorer import \
+#     interface as interface_biasWordExplorer
 from interfaces.interface_chatbot import interface as interface_chatbot
-from interfaces.interface_data import interface as interface_data
-from interfaces.interface_logsData import interface as interface_logsData
+from interfaces.interface_clinicalChatbot import interface as interface_clinicalChatbot
+# from interfaces.interface_data import interface as interface_data
+# from interfaces.interface_logsData import interface as interface_logsData
 from interfaces.interface_validator import interface as interface_validator
+from interfaces.interface_cvqa import interface as interface_cvqa
+from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
+from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
 # --- Imports interfaces ---
-from interfaces.interface_WordExplorer import \
-    interface as interface_wordExplorer
+# from interfaces.interface_WordExplorer import \
+#     interface as interface_wordExplorer
 # --- Imports modules ---
-from modules.model_embbeding import Embedding
-from modules.module_languageModel import LanguageModel
-from modules.module_vocabulary import Vocabulary
+# from modules.model_embbeding import Embedding
+# from modules.module_languageModel import LanguageModel
+# from modules.module_vocabulary import Vocabulary
 from modules.utils import parse_cmd_line_args
 
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
@@ -81,7 +85,12 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
+    interface_chatbot(),
+    interface_clinicalChatbot(),
     interface_validator(lang=LANGUAGE),
+    interface_cvqa(lang=LANGUAGE),
+    interface_typicalPhrases(lang=LANGUAGE),
+    # interface_ambiguousReferences(lang=LANGUAGE),
     # interface_biasPhrase(
     #     spanish_language_model=spanish_lm,
     #     english_language_model=english_lm,
@@ -97,7 +106,6 @@ INTERFACE_LIST = [
     #     embedding=embedding,
     #     available_logs=AVAILABLE_LOGS,
     #     lang=LANGUAGE,),
-    # interface_chatbot(),
     # # interface_arena(),
     # interface_wordExplorer(
     #     embedding=embedding,
@@ -115,11 +123,15 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
+    "LLM vía EDIA",
+    "Chatbot Clínico",
     labels["stereotypeValidator"],
+    labels["cvqa"],
+    labels["typicalPhrases"],
+    # labels["ambiguousReferences"],
     # labels["phraseExplorer"],
     # labels["dataExplorer"],
     # labels["biasWordExplorer"],
-    # "LLM vía EDIA",
     # # "Arena",
     # labels["wordExplorer"],
     # # labels["crowsPairsExplorer"],

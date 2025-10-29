@@ -6,7 +6,10 @@
         "dataExplorer": "Data",
         "phraseExplorer": "Phrase bias",
         "crowsPairsExplorer": "Crows-Pairs",
-        "logData": "View data"
+        "logData": "View data",
+        "cvqa": "Regional Questions",
+        "typicalPhrases": "Typical Phrases",
+        "ambiguousReferences": "Ambiguous References"
     },
     "WordExplorer_interface": {
         "token_id": "Enter your E-mail",
@@ -279,8 +282,8 @@
         "button2": "Download CSV"
     },
     "validator_interface": {
-      "identifier_label": "Email",
-      "identifier_info": "Enter your email address",
+      "identifier_label": "Identifier",
+      "identifier_info": "Enter your identifier",
       "age_label": "Enter your age",
       "gender_label": "Select your gender",
       "nationality_label": "Where are you from?",
@@ -299,7 +302,7 @@
       "associated_region_label": "Any specific region?",
       "skip_button_label": "Skip",
       "submit_button_label": "Submit",
-      "associated_attributes_prompt": "Which other attribute do you associate with {identity}? The attribute can be a long phrase (e.g. \"use colorful clothing\")",
+      "associated_attributes_prompt": "Which other attribute do you associate with {identity}?",
       "associated_nationalities_prompt": "Which other nationalities do you associate with '{attribute}'?",
       "understood_languages_label": "Which languages do you understand?",
       "associated_attribute_language_label": "What language is this attribute in?"

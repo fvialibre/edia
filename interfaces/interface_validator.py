@@ -79,7 +79,7 @@ def interface(lang: str = "es") -> gr.Blocks:
     labels = load_language(lang)
 
     # Set up country converter
-    coco.logging.getLogger().setLevel(coco.logging.CRITICAL)
+    # coco.logging.getLogger().setLevel(coco.logging.CRITICAL)
     cc = coco.CountryConverter(only_UNmember=True)
 
     # Check for required seed data files (HESEIA per language)
@@ -507,7 +507,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                     label=labels["consent_label"], value=False
                 )
                 consent_link_html = gr.HTML(
-                    value=f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/'>{labels['consent_link_text']}</a>",
+                    value=f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/' style='color:gray'>{labels['consent_link_text']}</a>",
                     elem_id="consent_link_html",
                 )
 
@@ -516,13 +516,12 @@ def interface(lang: str = "es") -> gr.Blocks:
         with gr.Row():
             token_id = gr.Textbox(
                 label=labels["identifier_label"],
-                info=labels["identifier_info"],
                 lines=1,
             )
             age = gr.Number(
                 value=0,
                 label=labels["age_label"],
-                visible=False,
+                visible=True,
             )
             gender = gr.Radio(
                 # Assuming M/F/X are universal codes, otherwise these need translation too
@@ -582,6 +581,23 @@ def interface(lang: str = "es") -> gr.Blocks:
                         interactive=True,
                     )
             with gr.Row(equal_height=True):
+                with gr.Column(scale=1):
+                    associated_nationalities_dropdown = gr.Dropdown(
+                        label=initial_nat_label,  # Already dynamically set
+                        # Use the helper function to generate choices with (label, value) pairs
+                        choices=initial_nationality_choices,
+                        multiselect=True,
+                    )
+                associated_region_dropdown = gr.Dropdown(
+                    label=labels["associated_region_label"],
+                    choices=[],
+                    allow_custom_value=True,
+                    multiselect=True,
+                    interactive=False,
+                    scale=1,
+                    visible=False, # Initially hidden
+                )
+            with gr.Row(equal_height=True):
                 # Adjust scale for Textbox and add new Dropdown in the same row
                 with gr.Column(scale=3): # Make Textbox wider
                     associated_attributes_input = gr.Textbox(
@@ -598,23 +614,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                         value=initial_lang_name, # Set initial default value
                         interactive=True,
                         allow_custom_value=True, # Allow custom language input
+                        visible=False, # Make sure it's visible
                     )
-            with gr.Row(equal_height=True):
-                with gr.Column(scale=1):
-                    associated_nationalities_dropdown = gr.Dropdown(
-                        label=initial_nat_label,  # Already dynamically set
-                        # Use the helper function to generate choices with (label, value) pairs
-                        choices=initial_nationality_choices,
-                        multiselect=True,
-                    )
-                associated_region_dropdown = gr.Dropdown(
-                    label=labels["associated_region_label"],
-                    choices=[],
-                    allow_custom_value=True,
-                    multiselect=True,
-                    interactive=False,
-                    scale=1
-                )
             with gr.Row(equal_height=True):
                 skip_button = gr.Button(
                     labels["skip_button_label"], variant="primary", scale=25
