@@ -530,7 +530,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 ["M", "F", "X"],
                 label=labels["gender_label"],
                 value="X",
-                visible=False,
+                visible=True,
             )
             nationality_personal_info = gr.Dropdown(
                 label=labels["nationality_label"],

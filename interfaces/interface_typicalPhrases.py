@@ -48,7 +48,7 @@ def interface(lang: str) -> gr.Blocks:
             "phrase": data_point["phrase"],
             "meaning": data_point["meaning"],
         }
-    
+
     def get_administrative_divisions(selected_countries):
         """Fetches administrative divisions for selected countries."""
         try:
@@ -179,7 +179,7 @@ def interface(lang: str) -> gr.Blocks:
                     ["M", "F", "X"],
                     label=i18n("GenderLabel"),
                     value="X",
-                    visible=False,
+                    visible=True,
                 )
             with gr.Row():
                 nationality_personal_info = gr.Dropdown(
@@ -336,7 +336,7 @@ def interface(lang: str) -> gr.Blocks:
                 system_prompt = i18n("SystemPromptDefine")
                 model_responses = []
                 for model_name, model in models.items():
-                    
+
                     if isinstance(model, ModelWrapper):
                         response = model.invoke(
                             system_prompt,
@@ -352,7 +352,7 @@ def interface(lang: str) -> gr.Blocks:
                             ])
                         ])
                         response_content = response.content.strip()
-                    
+
                     model_responses.append(response_content)
 
                 log_result(
@@ -380,7 +380,7 @@ def interface(lang: str) -> gr.Blocks:
                     gr.update(visible=True),
                     gr.update(visible=True),
                 )
-            
+
             llm_responses_button.click(
                 on_llm_responses_button,
                 inputs=[
@@ -592,5 +592,5 @@ def interface(lang: str) -> gr.Blocks:
                     inputs=toggle_llm_responses_inputs,
                     outputs=toggle_llm_responses_outputs
                 )
-        
+
         return interface

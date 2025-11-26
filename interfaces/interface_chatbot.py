@@ -41,8 +41,8 @@ def interface() -> gr.Blocks:
                 "temperature": temperature
             }, ensure_ascii=False) + "\n")
         return gpt_response.content
-    
-    def open_turn_feedback_modal(x: gr.LikeData, token_id, school, age, gender, prompt):    
+
+    def open_turn_feedback_modal(x: gr.LikeData, token_id, school, age, gender, prompt):
         return {
             "selected_message": x.value,
             "is_like": x.liked,
@@ -145,7 +145,7 @@ def interface() -> gr.Blocks:
             )
             with gr.Row():
                 temperature = gr.Slider(
-                    visible=False,
+                    visible=True,
                     minimum=0.0,
                     maximum=2.0,
                     value=0.7,
@@ -171,11 +171,11 @@ def interface() -> gr.Blocks:
                     info="Límite de longitud de la respuesta",
                     visible=False
                 )
-            
+
         with gr.Column(visible=False, elem_id='col') as chat_col:
             gr.HTML("<h1 style='text-align: center;'>ChatGPT vía EDIA</h1>")
             gr.HTML("<p>En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Si cerrás la pestaña, no se guarda la conversación, así que recordá copiarlo antes.</p>")
-                    
+
             chatbot = gr.Chatbot(
                 show_copy_button=True,
                 # likeable=True,
@@ -199,7 +199,7 @@ def interface() -> gr.Blocks:
                     submit_btn="Enviar",
                     stop_btn=None,
                 )
-            
+
         ### MODAL
         with Modal(visible=False) as turn_feedback_modal:
             _ = gr.HTML(HTML_FEEDBACK_TITLE)
@@ -263,7 +263,7 @@ def interface() -> gr.Blocks:
             q4_checkbox.change(toggle_slider_visibility, inputs=[q4_checkbox], outputs=[q4])
 
             modal_submit_button = gr.Button("Enviar")
-            
+
         with gr.Column(visible=True) as personal_data_missing:
             gr.Markdown("""
                 ### Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!
@@ -271,7 +271,7 @@ def interface() -> gr.Blocks:
             """
             )
 
-            
+
         def toggle_chat(token_id, school, age, gender, prompt, consent_checkbox):
             if not (token_id is None
                 or school is None
@@ -288,7 +288,7 @@ def interface() -> gr.Blocks:
                 return gr.Column(visible=True), gr.Column(visible=False)
             else:
                 return gr.Column(visible=False), gr.Column(visible=True)
-        
+
         token_id.change(
             fn=toggle_chat,
             inputs=[
@@ -310,7 +310,7 @@ def interface() -> gr.Blocks:
                 prompt,
                 consent_checkbox
             ],
-            outputs=[chat_col, personal_data_missing])  
+            outputs=[chat_col, personal_data_missing])
         age.change(
             fn=toggle_chat,
             inputs=[
@@ -355,7 +355,7 @@ def interface() -> gr.Blocks:
                 consent_checkbox
             ],
             outputs=[chat_col, personal_data_missing])
-        
+
         def update_school_name(school):
             if school is None or school == 0:
                 return (
