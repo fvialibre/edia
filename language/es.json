@@ -305,6 +305,8 @@
       "associated_attributes_prompt": "Qué otro atributo asocias con {identity}? El atributo puede ser una frase larga (e.g. \"usar ropa colorida\")",
       "associated_nationalities_prompt": "¿Qué otras nacionalidades asocias con '{attribute}'?",
       "understood_languages_label": "¿Qué idiomas entiendes?",
-      "associated_attribute_language_label": "¿En qué idioma está este atributo?"
+      "associated_attribute_language_label": "¿En qué idioma está este atributo?",
+      "social_groups_label": "Grupos sociales",
+      "social_groups_placeholder": "Introduce los grupos sociales con los que te identificas..."
     }
 }

@@ -305,6 +305,8 @@
       "associated_attributes_prompt": "Which other attribute do you associate with {identity}?",
       "associated_nationalities_prompt": "Which other nationalities do you associate with '{attribute}'?",
       "understood_languages_label": "Which languages do you understand?",
-      "associated_attribute_language_label": "What language is this attribute in?"
+      "associated_attribute_language_label": "What language is this attribute in?",
+      "social_groups_label": "Social groups",
+      "social_groups_placeholder": "Enter social groups you identify with..."
     }
 }

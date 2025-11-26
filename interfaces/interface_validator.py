@@ -331,7 +331,8 @@ def interface(lang: str = "es") -> gr.Blocks:
         understood_languages,
         associated_attribute_language=None,
         data_point_language=None, # Add data_point_language parameter
-        personal_regions_list=None # Add new parameter for personal regions
+        personal_regions_list=None, # Add new parameter for personal regions
+        social_groups=None
     ):
         # Extract the identity and attribute from data_point correctly
         # data_point here is the English version stored in current_data_point_state
@@ -434,6 +435,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             "gender": gender,
             "nationality_personal_info": nationality_personal_info,
             "personal_regions_list": personal_regions_list, # Log the new field
+            "social_groups": social_groups,
             "consent_checkbox": consent_checkbox,
             "data_point": data_point, # Log the English version
             "data_point_language": data_point_language, # Log the original language
@@ -544,7 +546,14 @@ def interface(lang: str = "es") -> gr.Blocks:
                 allow_custom_value=True,
                 multiselect=True,
                 interactive=False, # Initially disabled
-                scale=1 # Adjust scale as needed, matching nationality dropdown perhaps
+                scale=1, # Adjust scale as needed, matching nationality dropdown perhaps
+                visible=False
+            )
+            social_groups_input = gr.Textbox(
+                label=labels["social_groups_label"],
+                placeholder=labels["social_groups_placeholder"],
+                lines=1,
+                scale=1
             )
 
         gr.HTML("<hr>")
@@ -638,12 +647,14 @@ def interface(lang: str = "es") -> gr.Blocks:
             understood_languages,
             associated_attribute_language, # Add new input parameter
             personal_regions_list, # Add the new personal region dropdown value
+            social_groups,
             current_labels,
             current_data_point, # This is the state [identity_en, attribute_en]
             current_data_point_language # Add language state as input
         ):
             print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
             print(f"[on_submit] Received personal_regions_list: {personal_regions_list}") # DEBUG PRINT
+            print(f"[on_submit] Received social_groups: {social_groups}") # DEBUG PRINT
             print(f"[on_submit] Received current_data_point state: {current_data_point}") # DEBUG PRINT
             print(f"[on_submit] Received understood_languages: {understood_languages}") # DEBUG PRINT
 
@@ -670,7 +681,8 @@ def interface(lang: str = "es") -> gr.Blocks:
                 understood_languages,
                 associated_attribute_language, # Pass the new argument to log_result
                 data_point_language=current_data_point_language, # Pass language from state
-                personal_regions_list=personal_regions_list # Pass the new personal regions
+                personal_regions_list=personal_regions_list, # Pass the new personal regions
+                social_groups=social_groups
             )
             # Get new data point based on currently understood languages
             new_identity, new_attribute, new_language = get_random_data_point(
@@ -807,6 +819,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 understood_languages_checkbox,
                 associated_attribute_language_dropdown, # Add new dropdown to inputs
                 personal_region_dropdown, # Add personal region dropdown to inputs
+                social_groups_input,
                 language_labels_state,
                 current_data_point_state, # Pass state value
                 current_data_point_language_state # Pass language state value
@@ -1186,6 +1199,11 @@ def interface(lang: str = "es") -> gr.Blocks:
                     gr.update(label=new_nat_label, choices=new_nationality_choices),
                     # Update label for the personal region dropdown
                     gr.update(label=new_labels["personal_region_label"]),
+                    # Update label for the social groups input
+                    gr.update(
+                        label=new_labels["social_groups_label"],
+                        placeholder=new_labels["social_groups_placeholder"],
+                    ),
                     # Update label for the associated region dropdown
                     gr.update(label=new_labels["associated_region_label"]),
                     # Update label for the new checkbox group
@@ -1224,6 +1242,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 associated_attributes_input,
                 associated_nationalities_dropdown,
                 personal_region_dropdown, # Add personal region dropdown for label update
+                social_groups_input,
                 associated_region_dropdown,
                 # New checkbox group label update
                 understood_languages_checkbox,
