@@ -551,7 +551,7 @@ def interface(lang: str = "es") -> gr.Blocks:
             )
             social_groups_input = gr.Textbox(
                 label=labels["social_groups_label"],
-                placeholder=labels["social_groups_placeholder"],
+                info=labels["social_groups_info"],
                 lines=1,
                 scale=1
             )
@@ -1202,7 +1202,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                     # Update label for the social groups input
                     gr.update(
                         label=new_labels["social_groups_label"],
-                        placeholder=new_labels["social_groups_placeholder"],
+                        placeholder=new_labels["social_groups_info"],
                     ),
                     # Update label for the associated region dropdown
                     gr.update(label=new_labels["associated_region_label"]),

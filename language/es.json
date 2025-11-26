@@ -307,6 +307,6 @@
       "understood_languages_label": "¿Qué idiomas entiendes?",
       "associated_attribute_language_label": "¿En qué idioma está este atributo?",
       "social_groups_label": "Grupos sociales",
-      "social_groups_placeholder": "Introduce los grupos sociales con los que te identificas..."
+      "social_groups_info": "Introduce los grupos sociales con los que te identificas..."
     }
 }
