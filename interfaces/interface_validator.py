@@ -4,80 +4,23 @@ from datetime import datetime
 
 import country_converter as coco
 import gradio as gr
+from gradio_i18n import Translate, gettext as i18n
 import pandas as pd
 
 from interfaces.data_selection import select_data_point
-from interfaces.nationalities import (nationalities, nationalities_es,
-                                      nationalities_pt,
-                                      translated_nationalities)
+from interfaces.nationalities import (
+    nationalities,
+    nationalities_es,
+    nationalities_pt,
+    translated_nationalities
+)
 
 # --- Language Handling ---
 AVAILABLE_LANGUAGES = {"English": "en", "Español": "es", "Português": "pt"}
 DEFAULT_LANG = "es"  # Default starting language
 
-# --- Nationality Data Handling ---
-NATIONALITY_DATA = {
-    "en": nationalities,
-    "es": nationalities_es,
-    "pt": nationalities_pt,
-}
-
-def get_nationality_choices(lang_code: str):
-    """Generates (label, value) tuples for nationality dropdowns."""
-    # Use English as fallback if lang_code is invalid or list is missing
-    translated_list = NATIONALITY_DATA.get(lang_code, nationalities)
-    choices = list(zip(translated_list, nationalities))
-    return choices
-
-
-# --- Language Handling ---
-def load_language(lang: str):
-    """Loads language labels for the validator interface."""
-    labels_path = f"language/{lang}.json"
-    fallback_path = f"language/en.json"  # English as fallback
-
-    if not os.path.exists(labels_path):
-        print(
-            f"Warning: Language file {labels_path} not found. Defaulting to English.")
-        labels_path = fallback_path
-        lang = "en"  # Update lang if falling back
-
-    try:
-        # Using pandas consistent with interface_crowsPairs.py
-        all_labels = pd.read_json(labels_path)
-        # Use a key consistent with others, e.g., "validator_interface"
-        labels = all_labels["validator_interface"]
-        # Add the current language code to the labels dict for reference
-        labels["current_lang"] = lang
-        print(f"[load_language] Loading lang: {lang}") # DEBUG PRINT
-        # print(f"[load_language] Loaded labels: {labels}") # DEBUG PRINT - Potentially too verbose
-        return labels
-    except KeyError:
-        # Handle missing key - maybe load English as fallback?
-        print(
-            f"Warning: 'validator_interface' key not found in {labels_path}. Loading English."
-        )
-        all_labels = pd.read_json(fallback_path)
-        try:
-            labels = all_labels[
-                "validator_interface"
-            ]  # Assuming English file has the key
-            labels["current_lang"] = "en"  # Mark as fallback lang
-            return labels
-        except KeyError:
-            raise RuntimeError(
-                f"Critical: 'validator_interface' key not found in fallback English file {fallback_path}"
-            )
-    except Exception as e:
-        # Handle other potential errors during loading
-        raise RuntimeError(f"Error loading language file {labels_path}: {e}")
-
-
 # --- Interface ---
-def interface(lang: str = "es") -> gr.Blocks:
-    # --- Initial language load ---
-    labels = load_language(lang)
-
+def interface() -> gr.Blocks:
     # Set up country converter
     # coco.logging.getLogger().setLevel(coco.logging.CRITICAL)
     cc = coco.CountryConverter(only_UNmember=True)
@@ -121,7 +64,7 @@ def interface(lang: str = "es") -> gr.Blocks:
         if not os.path.exists(ws_stereotypes_path_lang):
             pd.DataFrame(
                 columns=["identity", "attribute",
-                         "annotator_id", "annotator_nationalities", "source_language"]
+                        "annotator_id", "annotator_nationalities", "source_language"]
             ).to_csv(ws_stereotypes_path_lang, index=False)
 
         if not os.path.exists(ws_validations_path_lang):
@@ -231,7 +174,7 @@ def interface(lang: str = "es") -> gr.Blocks:
                 df_heseia = pd.read_csv("data/heseia_en.csv")
                 df_heseia['source_language'] = 'en' # Add source language for fallback
             except Exception as e:
-                 raise RuntimeError(f"CRITICAL ERROR: Could not load any HESEIA data, including fallback English: {e}")
+                raise RuntimeError(f"CRITICAL ERROR: Could not load any HESEIA data, including fallback English: {e}")
         else:
             df_heseia = pd.concat(heseia_dfs, ignore_index=True)
             print(f"[get_random_data_point] Concatenated HESEIA data shape: {df_heseia.shape}")
@@ -413,9 +356,9 @@ def interface(lang: str = "es") -> gr.Blocks:
                 )
             # Save these nationality stereotypes to the data point's language file
             if new_nationality_stereotypes:
-                 pd.DataFrame(new_nationality_stereotypes).to_csv(
+                pd.DataFrame(new_nationality_stereotypes).to_csv(
                     dp_ws_stereotypes_path, mode="a", header=False, index=False
-                 )
+                )
 
 
         # Save new attribute stereotypes (from the first part) ONLY if the language is predefined
@@ -453,804 +396,446 @@ def interface(lang: str = "es") -> gr.Blocks:
     initial_identity, initial_attribute, initial_language = get_random_data_point(understood_language_names=["English"])
 
     # Helper function to update input labels based on current data point
-    def update_input_labels(identity, attribute, labels): # Added 'labels' argument
+    def update_input_labels(identity, attribute):
         return (
-            labels["associated_attributes_prompt"].format(identity=identity),
-            labels["associated_nationalities_prompt"].format(
+            i18n("associated_attributes_prompt").format(identity=identity),
+            i18n("associated_nationalities_prompt").format(
                 attribute=attribute),
         )
 
     # Get initial labels (will be set later in the Gradio Blocks definition)
-    initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute, labels) # Pass initial labels
-
-    # Get translated keys for HighlightedText
-    nationality_key = labels.get(
-        "data_point_legend_nationality", "nationality")
-    attribute_key = labels.get("data_point_legend_attribute", "attribute")
-    dynamic_color_map = {nationality_key: "red", attribute_key: "green"}
+    initial_attr_label, initial_nat_label = update_input_labels(initial_identity, initial_attribute)
 
     # Gradio interface
     # Get initial labels for dynamic fields before building the UI
     # The variables initial_attr_label and initial_nat_label are already set correctly above.
-
-    # Get initial nationality choices based on the starting language
-    initial_nationality_choices = get_nationality_choices(lang)
-
-    # Translate the initial identity for display
-    initial_identity_display = translated_nationalities[lang].get(initial_identity, initial_identity)
-
+   
     with gr.Blocks() as interface:
-        # State to hold the current language labels
-        language_labels_state = gr.State(labels)
-        # State to hold the current English data point [identity, attribute]
-        current_data_point_state = gr.State([initial_identity, initial_attribute])
-        # State to hold the language code of the current data point
-        current_data_point_language_state = gr.State(initial_language)
-
-        # Language selectors at the top of the interface
-        with gr.Row():
-            language_radio = gr.Radio(
-                label="Interface Language / Idioma de Interfaz / Idioma da Interface",
-                choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names
-                value=next(key for key, val in AVAILABLE_LANGUAGES.items() if val == lang), # Find key matching default lang code
-                interactive=True,
-                elem_id="language_radio",
-                scale=1
-            )
-            understood_languages_checkbox = gr.CheckboxGroup(
-                label=labels["understood_languages_label"],
-                choices=list(AVAILABLE_LANGUAGES.keys()),
-                interactive=True,
-                elem_id="understood_languages_checkbox",
-                scale=1
-            )
-            with gr.Column():
-                consent_checkbox = gr.Checkbox(
-                    label=labels["consent_label"], value=False
-                )
-                consent_link_html = gr.HTML(
-                    value=f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/' style='color:gray'>{labels['consent_link_text']}</a>",
-                    elem_id="consent_link_html",
-                )
-
-
-        # Personal information row
-        with gr.Row():
-            token_id = gr.Textbox(
-                label=labels["identifier_label"],
-                lines=1,
-            )
-            age = gr.Number(
-                value=0,
-                label=labels["age_label"],
-                visible=True,
-            )
-            gender = gr.Radio(
-                # Assuming M/F/X are universal codes, otherwise these need translation too
-                ["M", "F", "X"],
-                label=labels["gender_label"],
-                value=None,
-                visible=True,
-            )
-            nationality_personal_info = gr.Dropdown(
-                label=labels["nationality_label"],
-                info=labels["nationality_info"],
-                # Use the helper function to generate choices with (label, value) pairs
-                choices=initial_nationality_choices,
-                multiselect=True,
-                allow_custom_value=False,
-            )
-            personal_region_dropdown = gr.Dropdown(
-                label=labels["personal_region_label"], # Use new label
-                choices=[], # Initially empty
-                allow_custom_value=True,
-                multiselect=True,
-                interactive=False, # Initially disabled
-                scale=1, # Adjust scale as needed, matching nationality dropdown perhaps
-                visible=True
-            )
-            social_groups_input = gr.Textbox(
-                label=labels["social_groups_label"],
-                lines=1,
-                scale=1,
-                interactive=True,
-            )
-
-        gr.HTML("<hr>")
-
-        # Create Markdown components within their proper context
-        with gr.Column(visible=True) as personal_data_missing:
-            personal_data_missing_md = gr.Markdown(
-                labels["personal_data_missing_md"])
-        with gr.Column(visible=False, elem_id="col") as validator_col:
-            welcome_md = gr.Markdown(labels["welcome_md"])
+        lang = gr.Radio(
+            choices=[
+                (i18n("English"), "en"),
+                (i18n("Spanish"), "es"),
+                (i18n("Portuguese"), "pt"),
+            ],
+            label=i18n("LanguageLabel"),
+        )
+        with Translate(
+            "language/i18n_validator.json",
+            lang,
+            placeholder_langs=["en", "pt", "es"],
+        ):
+            # Language selectors at the top of the interface
             with gr.Row():
-                with gr.Column(scale=1):
-                    # Assuming color_map keys 'nationality' and 'attribute' are internal identifiers
-                    # If the displayed legend text needs translation, we'd need more complex setup
-                    # For now, let's assume the legend text comes from the tuple values directly
-                    # and the label needs translation.
-                    data_point_box = gr.HighlightedText(
-                        label=labels["data_point_label"],
-                        value=[
-                            # Use dynamic key and translated initial identity
-                            (initial_identity_display, nationality_key),
-                            (initial_attribute, attribute_key),  # Use dynamic key
-                        ],
-                        combine_adjacent=True,
-                        show_legend=True,
-                        interactive=False,
-                        color_map=dynamic_color_map,  # Use dynamic map
-                    )
-                with gr.Column(scale=1):
-                    stereotype_likert = gr.Radio(
-                        [1, 2, 3, 4, 5],  # Assuming numbers are universal
-                        label=labels["likert_label"],
-                        info=labels["likert_info"],
+                token_id = gr.Textbox(
+                    label=i18n("identifier_label"),
+                    lines=1,
+                    interactive=True,
+                )
+                understood_languages = gr.CheckboxGroup(
+                    label=i18n("understood_languages_label"),
+                    choices=list(AVAILABLE_LANGUAGES.keys()),
+                    interactive=True,
+                    # elem_id="understood_languages_checkbox",
+                    scale=1
+                )
+                with gr.Column():
+                    consent_checkbox = gr.Checkbox(
+                        label=i18n("consent_label"),
+                        value=False,
                         interactive=True,
                     )
-            with gr.Row(equal_height=True):
-                with gr.Column(scale=1):
-                    associated_nationalities_dropdown = gr.Dropdown(
-                        label=initial_nat_label,  # Already dynamically set
-                        # Use the helper function to generate choices with (label, value) pairs
-                        choices=initial_nationality_choices,
-                        multiselect=True,
+                    consent_link_html = gr.HTML(
+                        value=f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/' style='color:gray'>Link 🔗</a>",
+                        elem_id="consent_link_html",
                     )
-                associated_region_dropdown = gr.Dropdown(
-                    label=labels["associated_region_label"],
-                    choices=[],
+            # Personal information row
+            with gr.Row():
+                age = gr.Number(
+                    value=0,
+                    label=i18n("age_label"),
+                    visible=True,
+                    interactive=True,
+                )
+                gender = gr.Radio(
+                    # Assuming M/F/X are universal codes, otherwise these need translation too
+                    ["M", "F", "X"],
+                    label=i18n("gender_label"),
+                    value=None,
+                    visible=True,
+                    interactive=True,
+                )
+                nationality_personal_info = gr.Dropdown(
+                    label=i18n("nationality_label"),
+                    info=i18n("nationality_info"),
+                    # Use the helper function to generate choices with (label, value) pairs
+                    choices=nationalities,
+                    multiselect=True,
+                    allow_custom_value=False,
+                    interactive=True,
+                )
+                personal_region_dropdown = gr.Dropdown(
+                    label=i18n("personal_region_label"), # Use new label
+                    choices=[], # Initially empty
                     allow_custom_value=True,
                     multiselect=True,
-                    interactive=False,
+                    interactive=False, # Initially disabled
+                    scale=1, # Adjust scale as needed, matching nationality dropdown perhaps
+                    visible=True
+                )
+                social_groups_input = gr.Textbox(
+                    label=i18n("social_groups_label"),
+                    info=i18n("social_groups_info"),
+                    lines=1,
                     scale=1,
-                    visible=False, # Initially hidden
+                    interactive=True,
                 )
-            with gr.Row(equal_height=True):
-                # Adjust scale for Textbox and add new Dropdown in the same row
-                with gr.Column(scale=3): # Make Textbox wider
-                    associated_attributes_input = gr.Textbox(
-                        label=initial_attr_label,  # Already dynamically set
-                        placeholder=labels["associated_attributes_placeholder"],
+
+            gr.HTML("<hr>")
+
+            # Create Markdown components within their proper context
+            with gr.Column(visible=True) as personal_data_missing:
+                personal_data_missing_md = gr.Markdown(
+                    i18n("personal_data_missing_md"))
+            with gr.Column(visible=False, elem_id="col") as validator_col:
+                welcome_md = gr.Markdown(i18n("welcome_md"))
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        data_point_box = gr.HighlightedText(
+                            label=i18n("data_point_label"),
+                            value=[
+                                (initial_identity, "nationality"),
+                                (initial_attribute, "attribute"),
+                            ],
+                            combine_adjacent=True,
+                            show_legend=True,
+                            interactive=False,
+                            color_map={"nationality": "red", "attribute": "green"},  # Use dynamic map
+                        )
+                    with gr.Column(scale=1):
+                        stereotype_likert = gr.Radio(
+                            [1, 2, 3, 4, 5],  # Assuming numbers are universal
+                            label=i18n("likert_label"),
+                            info=i18n("likert_info"),
+                            interactive=True,
+                        )
+                with gr.Row(equal_height=True):
+                    with gr.Column(scale=1):
+                        associated_nationalities_dropdown = gr.Dropdown(
+                            label=initial_nat_label,  # Already dynamically set
+                            # Use the helper function to generate choices with (label, value) pairs
+                            choices=nationalities,
+                            multiselect=True,
+                            interactive=True,
+                        )
+                    associated_region_dropdown = gr.Dropdown(
+                        label=i18n("associated_region_label"),
+                        choices=[],
+                        allow_custom_value=True,
+                        multiselect=True,
+                        interactive=False,
+                        scale=1,
+                        visible=False, # Initially hidden
                     )
-                with gr.Column(scale=1): # Add Dropdown column
-                    # Define the new dropdown component
-                    # Find the display name corresponding to the initial language code
-                    initial_lang_name = next((key for key, val in AVAILABLE_LANGUAGES.items() if val == lang), "English")
-                    associated_attribute_language_dropdown = gr.Dropdown(
-                        label=labels["associated_attribute_language_label"],
-                        choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names like "English", "Español"
-                        value=initial_lang_name, # Set initial default value
-                        interactive=True,
-                        allow_custom_value=True, # Allow custom language input
-                        visible=False, # Make sure it's visible
+                with gr.Row(equal_height=True):
+                    # Adjust scale for Textbox and add new Dropdown in the same row
+                    with gr.Column(scale=3): # Make Textbox wider
+                        associated_attributes_input = gr.Textbox(
+                            label=initial_attr_label,  # Already dynamically set
+                            placeholder=i18n("associated_attributes_placeholder"),
+                            interactive=True,
+                        )
+                    # with gr.Column(scale=1): # Add Dropdown column
+                    #     # Define the new dropdown component
+                    #     # Find the display name corresponding to the initial language code
+                    #     initial_lang_name = next((key for key, val in AVAILABLE_LANGUAGES.items() if val == lang), "English")
+                    #     associated_attribute_language_dropdown = gr.Dropdown(
+                    #         label=i18n("associated_attribute_language_label"),
+                    #         choices=list(AVAILABLE_LANGUAGES.keys()), # Use display names like "English", "Español"
+                    #         value=initial_lang_name, # Set initial default value
+                    #         interactive=True,
+                    #         allow_custom_value=True, # Allow custom language input
+                    #         visible=False,
+                    #     )
+                with gr.Row(equal_height=True):
+                    skip_button = gr.Button(
+                        i18n("skip_button_label"), variant="primary", scale=25
                     )
-            with gr.Row(equal_height=True):
-                skip_button = gr.Button(
-                    labels["skip_button_label"], variant="primary", scale=25
-                )
-                submit_button = gr.Button(
-                    labels["submit_button_label"], variant="secondary", scale=75
-                )
+                    submit_button = gr.Button(
+                        i18n("submit_button_label"), variant="secondary", scale=75
+                    )
 
-        def on_submit(
-            token_id,
-            age,
-            gender,
-            nationality_personal_info,
-            consent_checkbox,
-            data_point, # This is the HighlightedText component value, not the state
-            stereotype,
-            associated_nationality_list,
-            associated_regions_list, # This is for the *associated* regions, not personal
-            associated_attributes,
-            understood_languages,
-            associated_attribute_language, # Add new input parameter
-            personal_regions_list, # Add the new personal region dropdown value
-            social_groups_input,
-            current_labels,
-            current_data_point, # This is the state [identity_en, attribute_en]
-            current_data_point_language # Add language state as input
-        ):
-            print(f"[on_submit] Received current_labels from state: {current_labels}") # DEBUG PRINT
-            print(f"[on_submit] Received personal_regions_list: {personal_regions_list}") # DEBUG PRINT
-            print(f"[on_submit] Received current_data_point state: {current_data_point}") # DEBUG PRINT
-            print(f"[on_submit] Received understood_languages: {understood_languages}") # DEBUG PRINT
-
-            # Extract English identity/attribute from state for logging
-            identity_en = current_data_point[0] if current_data_point else None
-            attribute_en = current_data_point[1] if current_data_point and len(current_data_point) >= 2 else None
-
-            # Create a data_point structure with English tokens for logging
-            data_point_for_log = [{"token": identity_en}, {"token": attribute_en}]
-
-            # Log using the English identity/attribute from state
-            # TODO: Pass the actual language of the logged data point later
-            log_result(
+            def on_submit(
                 token_id,
                 age,
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
-                data_point_for_log, # Log with English identity/attribute
+                data_point,
                 stereotype,
                 associated_nationality_list,
-                associated_regions_list,
+                associated_regions_list, # This is for the *associated* regions, not personal
                 associated_attributes,
                 understood_languages,
-                associated_attribute_language, # Pass the new argument to log_result
-                data_point_language=current_data_point_language, # Pass language from state
-                personal_regions_list=personal_regions_list, # Pass the new personal regions
-                social_groups_input=social_groups_input # Pass the social groups input
-            )
-            # Get new data point based on currently understood languages
-            new_identity, new_attribute, new_language = get_random_data_point(
-                token_id=token_id,
-                nationality_personal_info=nationality_personal_info,
-                understood_language_names=understood_languages # Pass selected languages
-            )
+                personal_regions_list, # Add the new personal region dropdown value
+                social_groups_input,
+                lang
+            ):
+                data_point_for_log = [{"token": data_point[0]['token']}, {"token": data_point[1]['token']}]
 
-            # Translate the new identity for display
-            current_lang = current_labels.get("current_lang", "en") # Get current lang from labels state
-            new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
-
-            # Update the input labels with new data point values (using translated identity for prompt format)
-            new_attr_label, new_nat_label = update_input_labels(
-                new_identity_display, new_attribute, current_labels # Pass current_labels and translated identity
-            )
-
-            # Get current legend keys from state
-            nationality_key = current_labels.get(
-                "data_point_legend_nationality", "nationality"
-            )
-            attribute_key = current_labels.get(
-                "data_point_legend_attribute", "attribute"
-            )
-
-            color_map = {nationality_key: "red", attribute_key: "green"}
-
-            print(f"[on_submit] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
-            print(f"[on_submit] New English Identity: {new_identity}, Display Identity: {new_identity_display}, Language: {new_language}") # DEBUG PRINT
-
-            # Find the current language name to reset the dropdown
-            current_lang_code = current_labels.get("current_lang", "en")
-            current_lang_name = next((name for name, code in AVAILABLE_LANGUAGES.items() if code == current_lang_code), "English")
-
-            return (
-                # Update displayed value with translated identity and dynamic keys
-                gr.update(
-                    value=[(new_identity_display, nationality_key),
-                           (new_attribute, attribute_key)],
-                    color_map=color_map,
-                ),
-                # Update the state holding the English data point
-                [new_identity, new_attribute],
-                # Update the state holding the data point language
-                new_language,
-                None,  # Clear likert
-                [],  # Clear nationalities dropdown
-                [],  # Clear regions dropdown
-                "",  # Clear attributes input
-                gr.update(), # Keep current attribute language dropdown value
-                gr.update(label=new_attr_label), # Update attribute label
-                gr.update(label=new_nat_label), # Update nationality label
-            )
-
-        def on_skip(
-            token_id, current_data_point, nationality_personal_info, understood_languages, current_labels,
-            current_data_point_language
-        ):
-            print(f"[on_skip] Received current_labels from state: {current_labels}") # DEBUG PRINT
-            print(f"[on_skip] Received understood_languages: {understood_languages}") # DEBUG PRINT
-            # Extract current English identity and attribute from state
-            if current_data_point and len(current_data_point) >= 2:
-                identity = current_data_point[0]
-                attribute = current_data_point[1]
-
-                # Log the skip if we have valid identity and attribute
-                if identity and attribute:
-                    log_skip(identity, attribute, token_id, data_point_language=current_data_point_language)
-
-            # Get new data point, taking skip counts into consideration and using selected languages
-            new_identity, new_attribute, new_language = get_random_data_point(
-                token_id=token_id,
-                nationality_personal_info=nationality_personal_info,
-                understood_language_names=understood_languages # Pass selected languages
-            )
-
-            # Translate the new identity for display
-            current_lang = current_labels.get("current_lang", "en") # Get current lang from labels state
-            new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
-
-            # Update the input labels with new data point values (using translated identity for prompt format)
-            new_attr_label, new_nat_label = update_input_labels(
-                new_identity_display, new_attribute, current_labels # Pass current_labels and translated identity
-            )
-
-            # Get current legend keys from state
-            nationality_key = current_labels.get(
-                "data_point_legend_nationality", "nationality"
-            )
-            attribute_key = current_labels.get(
-                "data_point_legend_attribute", "attribute"
-            )
-            color_map = {nationality_key: "red", attribute_key: "green"}
-
-            print(f"[on_skip] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
-            print(f"[on_skip] New English Identity: {new_identity}, Display Identity: {new_identity_display}, Language: {new_language}") # DEBUG PRINT
-
-            # Find the current language name to reset the dropdown
-            current_lang_code = current_labels.get("current_lang", "en")
-            current_lang_name = next((name for name, code in AVAILABLE_LANGUAGES.items() if code == current_lang_code), "English")
-
-            return (
-                # Update displayed value with translated identity and dynamic keys
-                gr.update(
-                    value=[(new_identity_display, nationality_key),
-                           (new_attribute, attribute_key)],
-                    color_map=color_map
-                ),
-                # Update the state holding the English data point
-                [new_identity, new_attribute],
-                 # Update the state holding the data point language
-                new_language,
-                None,  # Clear likert
-                [],  # Clear nationalities dropdown
-                "", # Clear attributes input
-                gr.update(), # Keep current attribute language dropdown value
-                gr.update(label=new_attr_label), # Update attribute label
-                gr.update(label=new_nat_label), # Update nationality label
-            )
-
-        submit_button.click(
-            on_submit,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                data_point_box, # Pass component value
-                stereotype_likert,
-                associated_nationalities_dropdown,
-                associated_region_dropdown,
-                associated_attributes_input,
-                understood_languages_checkbox,
-                associated_attribute_language_dropdown, # Add new dropdown to inputs
-                personal_region_dropdown, # Add personal region dropdown to inputs
-                social_groups_input, # Add social groups input to inputs
-                language_labels_state,
-                current_data_point_state, # Pass state value
-                current_data_point_language_state # Pass language state value
-            ],
-            outputs=[
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                stereotype_likert,
-                associated_nationalities_dropdown,
-                associated_region_dropdown, # Added missing output
-                associated_attributes_input, # Added missing output
-                associated_attribute_language_dropdown, # Keep this dropdown value
-                # DO NOT clear personal_region_dropdown here
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-
-        skip_button.click(
-            on_skip,
-            inputs=[
-                token_id,
-                current_data_point_state, # Pass state value
-                nationality_personal_info,
-                understood_languages_checkbox,
-                language_labels_state,
-                current_data_point_language_state
-            ],
-            outputs=[
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                stereotype_likert,
-                associated_nationalities_dropdown,
-                associated_attributes_input, # Added missing output
-                associated_attribute_language_dropdown, # Add new dropdown to outputs (to clear)
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-
-        def toggle_chat(
-            token_id,
-            age,
-            gender,
-            nationality_personal_info,
-            consent_checkbox,
-            understood_languages, # Add understood_languages as input
-            current_labels,
-        ):
-            print(f"[toggle_chat] Received current_labels from state: {current_labels}") # DEBUG PRINT
-            print(f"[toggle_chat] Received understood_languages: {understood_languages}") # DEBUG PRINT
-            is_valid = not (
-                token_id is None
-                or age is None
-                or gender is None
-                or nationality_personal_info is None
-                or consent_checkbox is None
-                or age < 0
-                or age > 100
-                or len(nationality_personal_info) == 0
-                or len(token_id) == 0
-                or not consent_checkbox
-                or understood_languages is None # Check if None
-                or len(understood_languages) == 0 # Check if empty list
-            )
-
-            if is_valid:
-                # Get a personalized data point using the user's information and selected languages
+                # Log using the English identity/attribute from state
+                # TODO: Pass the actual language of the logged data point later
+                log_result(
+                    token_id,
+                    age,
+                    gender,
+                    nationality_personal_info,
+                    consent_checkbox,
+                    data_point_for_log, # Log with English identity/attribute
+                    stereotype,
+                    associated_nationality_list,
+                    associated_regions_list,
+                    associated_attributes,
+                    understood_languages,
+                    data_point_language=lang, # Pass language from state
+                    personal_regions_list=personal_regions_list, # Pass the new personal regions
+                    social_groups_input=social_groups_input # Pass the social groups input
+                )
+                # Get new data point based on currently understood languages
                 new_identity, new_attribute, new_language = get_random_data_point(
                     token_id=token_id,
                     nationality_personal_info=nationality_personal_info,
                     understood_language_names=understood_languages # Pass selected languages
                 )
 
-                # Translate the new identity for display
-                current_lang = current_labels.get("current_lang", "en")
-                new_identity_display = translated_nationalities[current_lang].get(new_identity, new_identity)
-
-                # Update the input labels with new data point values (using translated identity)
+                # Update the input labels with new data point values (using translated identity for prompt format)
                 new_attr_label, new_nat_label = update_input_labels(
-                    new_identity_display, new_attribute, current_labels # Pass current_labels and translated identity
+                    new_identity,
+                    new_attribute,
                 )
 
-                # Get current legend keys from state
-                nationality_key = current_labels.get(
-                    "data_point_legend_nationality", "nationality"
-                )
-                attribute_key = current_labels.get(
-                    "data_point_legend_attribute", "attribute"
-                )
-
-                color_map = {nationality_key: "red", attribute_key: "green"}
-
-                print(f"[toggle_chat] Using keys: Nat='{nationality_key}', Attr='{attribute_key}'") # DEBUG PRINT
-                print(f"[toggle_chat] New English Identity: {new_identity}, Display Identity: {new_identity_display}, Language: {new_language}") # DEBUG PRINT
-
-                # Return updated UI state and the new data point
                 return (
-                    gr.Column(visible=True),
-                    gr.Column(visible=False),
                     # Update displayed value with translated identity and dynamic keys
                     gr.update(
-                        value=[(new_identity_display, nationality_key),
-                               (new_attribute, attribute_key)],
-                        color_map=color_map,
+                        value=[
+                            (new_identity, "nationality"),
+                            (new_attribute, "attribute"),
+                        ],
                     ),
-                    # Update the state holding the English data point
-                    [new_identity, new_attribute],
-                    # Update the state holding the data point language
-                    new_language,
-                    gr.update(label=new_attr_label),
-                    gr.update(label=new_nat_label),
+                    None,  # Clear likert
+                    [],  # Clear nationalities dropdown
+                    [],  # Clear regions dropdown
+                    "",  # Clear attributes input
+                    gr.update(label=new_attr_label), # Update attribute label
+                    gr.update(label=new_nat_label), # Update nationality label
                 )
-            else:
-                # Return original UI state without changing data point, keep existing data point value
+
+            submit_button.click(
+                on_submit,
+                inputs=[
+                    token_id,
+                    age,
+                    gender,
+                    nationality_personal_info,
+                    consent_checkbox,
+                    data_point_box,
+                    stereotype_likert,
+                    associated_nationalities_dropdown,
+                    associated_region_dropdown,
+                    associated_attributes_input,
+                    understood_languages,
+                    personal_region_dropdown, # Add personal region dropdown to inputs
+                    social_groups_input, # Add social groups input to inputs
+                    lang,
+                ],
+                outputs=[
+                    data_point_box,
+                    stereotype_likert,
+                    associated_nationalities_dropdown,
+                    associated_region_dropdown, # Added missing output
+                    associated_attributes_input, # Added missing output
+                    # DO NOT clear personal_region_dropdown here
+                    associated_attributes_input, # Label update target
+                    associated_nationalities_dropdown, # Label update target
+                ],
+            )
+
+            def on_skip(
+                token_id,
+                data_point,
+                nationality_personal_info,
+                understood_languages,
+                lang,
+            ):
+                log_skip(
+                    data_point[0]['token'],
+                    data_point[1]['token'],
+                    token_id,
+                    data_point_language=lang)
+
+                # Get new data point, taking skip counts into consideration and using selected languages
+                new_identity, new_attribute, new_language = get_random_data_point(
+                    token_id=token_id,
+                    nationality_personal_info=nationality_personal_info,
+                    understood_language_names=understood_languages # Pass selected languages
+                )
+
+                # Update the input labels with new data point values (using translated identity for prompt format)
+                new_attr_label, new_nat_label = update_input_labels(
+                    new_identity,
+                    new_attribute
+                )
+
                 return (
-                    gr.Column(visible=False),
-                    gr.Column(visible=True),
-                    gr.update(),  # Keep current data_point_box value
-                    None,  # Keep current data point state (use None for State)
-                    None,  # Keep current data point language state (use None for State)
-                    gr.update(),  # Keep current associated_attributes_input label
-                    gr.update(),  # Keep current associated_nationalities_dropdown label
+                    # Update displayed value with translated identity and dynamic keys
+                    gr.update(
+                        value=[
+                            (new_identity, "nationality"),
+                            (new_attribute, "attribute")
+                        ],
+                    ),
+                    None,  # Clear likert
+                    [],  # Clear nationalities dropdown
+                    "", # Clear attributes input
+                    gr.update(label=new_attr_label), # Update attribute label
+                    gr.update(label=new_nat_label), # Update nationality label
                 )
 
-        # Update the change event connections to include components in outputs (not their labels)
-        # The outputs update the component values/visibility, the labels are updated via gr.update() within toggle_chat
-        token_id.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                understood_languages_checkbox,
-                language_labels_state,
-            ],
-            outputs=[
-                validator_col,
-                personal_data_missing,
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-        age.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                understood_languages_checkbox,
-                language_labels_state,
-            ],
-            outputs=[
-                validator_col,
-                personal_data_missing,
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-        gender.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                understood_languages_checkbox,
-                language_labels_state,
-            ],
-            outputs=[
-                validator_col,
-                personal_data_missing,
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-        nationality_personal_info.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                understood_languages_checkbox,
-                language_labels_state,
-            ],
-            outputs=[
-                validator_col,
-                personal_data_missing,
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-        consent_checkbox.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                understood_languages_checkbox,
-                language_labels_state,
-            ],
-            outputs=[
-                validator_col,
-                personal_data_missing,
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-
-        # Add change listener for the new checkbox group
-        understood_languages_checkbox.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                age,
-                gender,
-                nationality_personal_info,
-                consent_checkbox,
-                understood_languages_checkbox,
-                language_labels_state,
-            ],
-            outputs=[
-                validator_col,
-                personal_data_missing,
-                data_point_box,
-                current_data_point_state,
-                current_data_point_language_state, # Add language state output
-                associated_attributes_input, # Label update target
-                associated_nationalities_dropdown, # Label update target
-            ],
-        )
-
-        # Function to update the PERSONAL region dropdown based on selected PERSONAL nationalities
-        def update_personal_regions(selected_personal_nationalities):
-            if not selected_personal_nationalities:
-                # Disable and clear if no nationalities are selected
-                return gr.update(choices=[], value=[], interactive=False)
-            else:
-                # Get divisions using the helper function
-                region_choices = get_administrative_divisions(selected_personal_nationalities)
-                # Enable and update choices, keep existing selection if possible (Gradio handles this)
-                return gr.update(choices=region_choices, interactive=True)
-
-        # Connect the personal nationality dropdown to update the personal region dropdown
-        nationality_personal_info.change(
-            fn=update_personal_regions,
-            inputs=[nationality_personal_info],
-            outputs=[personal_region_dropdown]
-        )
-
-
-        # Function to update the ASSOCIATED region dropdown based on selected ASSOCIATED nationalities
-        def toggle_and_update_associated_regions(associated_nationalities_list):
-            if not associated_nationalities_list:
-                # Disable and clear if no associated nationalities are selected
-                return gr.update(choices=[], value=[], interactive=False)
-            else:
-                # Get divisions using the helper function
-                region_choices = get_administrative_divisions(associated_nationalities_list)
-                 # Enable and update choices, clear previous selection
-                return gr.update(choices=region_choices, value=[], interactive=True)
-
-        # Connect the associated nationality dropdown to update the associated region dropdown
-        associated_nationalities_dropdown.change(
-            fn=toggle_and_update_associated_regions, # Renamed function for clarity
-            inputs=[associated_nationalities_dropdown],
-            outputs=[associated_region_dropdown],
-        )
-
-
-        # Language change handler function
-        def on_language_change(selected_language_name, current_data_point): # Input is now the selected display name
-            # Convert selected display name back to language code
-            lang_code = AVAILABLE_LANGUAGES.get(selected_language_name, DEFAULT_LANG) # Fallback to default if needed
-
-            # Load new labels for the selected language
-            new_labels = load_language(lang_code)
-
-            # Get the current English data point identity and attribute from state
-            current_identity = current_data_point[0] if current_data_point else initial_identity
-            current_attribute = current_data_point[1] if current_data_point and len(current_data_point) >= 2 \
-                else initial_attribute # Corrected parenthesis placement
-
-            # Get new translated legend keys
-            new_nationality_key = new_labels.get(
-                "data_point_legend_nationality", "nationality"
-            )
-            new_attribute_key = new_labels.get(
-                "data_point_legend_attribute", "attribute"
-            )
-            new_dynamic_color_map = {
-                new_nationality_key: "red",
-                new_attribute_key: "green",
-            }
-
-            # Translate the current English identity using the new language code
-            current_identity_display = translated_nationalities[lang_code].get(current_identity, current_identity)
-
-            # Update dynamic labels (using translated identity for prompt format)
-            new_attr_label, new_nat_label = update_input_labels(
-                current_identity_display, current_attribute, new_labels # Pass new_labels and translated identity
+            skip_button.click(
+                on_skip,
+                inputs=[
+                    token_id,
+                    data_point_box,
+                    nationality_personal_info,
+                    understood_languages,
+                    lang,
+                ],
+                outputs=[
+                    data_point_box,
+                    stereotype_likert,
+                    associated_nationalities_dropdown,
+                    associated_attributes_input, # Added missing output
+                    associated_attributes_input, # Label update target
+                    associated_nationalities_dropdown, # Label update target
+                ],
             )
 
-            # print(f"[on_language_change] New labels for state: {new_labels}") # DEBUG PRINT
-            # print(f"[on_language_change] New keys: Nat='{new_nationality_key}', Attr='{new_attribute_key}'") # DEBUG PRINT
-
-            # Get new nationality choices for the dropdowns
-            new_nationality_choices = get_nationality_choices(lang_code)
-
-            # Update all UI components with new language
-            return (
-                # State update - Return raw value for State component
-                new_labels,
-                # Personal info section
-                gr.update(
-                    label=new_labels["identifier_label"],
-                    info=new_labels["identifier_info"],
-                ),
-                gr.update(label=new_labels["age_label"]),
-                gr.update(label=new_labels["gender_label"]),
-                gr.update(
-                    label=new_labels["nationality_label"],
-                    info=new_labels["nationality_info"],
-                    # Update choices for the personal info nationality dropdown
-                    choices=new_nationality_choices,
-                ),
-                gr.update(label=new_labels["consent_label"]),
-                f"<a href='https://docs.google.com/document/d/18OULBvUTrF9ka_XfARHCT-xath-QCmmB2DkK3zgQUJ8/'>{new_labels['consent_link_text']}</a>",
-                new_labels["personal_data_missing_md"],
-                # Main interface section
-                new_labels["welcome_md"],
-                # Data point display
-                gr.update(
-                    label=new_labels["data_point_label"],
-                    value=[
-                        (current_identity_display, new_nationality_key), # Use translated identity
-                        (current_attribute, new_attribute_key),
-                    ],
-                    color_map=new_dynamic_color_map,
-                ),
-                # Stereotype section
-                gr.update(
-                    label=new_labels["likert_label"], info=new_labels["likert_info"]
-                ),
-                # Associated attributes and nationalities
-                gr.update(
-                    label=new_attr_label,
-                    placeholder=new_labels["associated_attributes_placeholder"],
-                ),
-                    # Update choices for the associated nationalities dropdown
-                    gr.update(label=new_nat_label, choices=new_nationality_choices),
-                    # Update label for the personal region dropdown
-                    gr.update(label=new_labels["personal_region_label"]),
-                    # Update label for the social groups input
-                    gr.update(
-                        label=new_labels["social_groups_label"],
-                        placeholder=new_labels["social_groups_info"],
-                    ),
-                    # Update label for the associated region dropdown
-                    gr.update(label=new_labels["associated_region_label"]),
-                    # Update label for the new checkbox group
-                    gr.update(label=new_labels["understood_languages_label"]),
-                # Update label and value for the new attribute language dropdown
-                gr.update(
-                    label=new_labels["associated_attribute_language_label"],
-                    value=selected_language_name # Set value to the new interface language name
-                ),
-                # Buttons
-                gr.update(value=new_labels["skip_button_label"]),
-                gr.update(value=new_labels["submit_button_label"]),
-            )
-
-        # Connect language radio button change handler to update the UI with the new language
-        language_radio.change( # Changed component reference
-            fn=on_language_change,
-            inputs=[language_radio, current_data_point_state], # Changed component reference
-            outputs=[
-                # State
-                language_labels_state,
-                # Personal info
+            def toggle_annotation(
                 token_id,
                 age,
                 gender,
                 nationality_personal_info,
                 consent_checkbox,
-                consent_link_html,  # Updated to use the named variable
-                personal_data_missing_md,  # Updated to use the named markdown component
-                # Main interface section
-                welcome_md,  # Updated to use the named markdown component
-                # Data display
+                understood_languages,
+            ):
+                is_valid = not (
+                    token_id is None
+                    or age is None
+                    or gender is None
+                    or nationality_personal_info is None
+                    or consent_checkbox is None
+                    or age < 0
+                    or age > 100
+                    or len(nationality_personal_info) == 0
+                    or len(token_id) == 0
+                    or not consent_checkbox
+                    or understood_languages is None # Check if None
+                    or len(understood_languages) == 0 # Check if empty list
+                )
+
+                if is_valid:
+                    # Get a personalized data point using the user's information and selected languages
+                    new_identity, new_attribute, new_language = get_random_data_point(
+                        token_id=token_id,
+                        nationality_personal_info=nationality_personal_info,
+                        understood_language_names=understood_languages # Pass selected languages
+                    )
+
+                    # Update the input labels with new data point values (using translated identity)
+                    new_attr_label, new_nat_label = update_input_labels(
+                        new_identity,
+                        new_attribute
+                    )
+
+                    # Return updated UI state and the new data point
+                    return (
+                        gr.Column(visible=True),
+                        gr.Column(visible=False),
+                        gr.update(
+                            value=[
+                                (new_identity, "nationality"),
+                                (new_attribute, "attribute"),
+                            ],
+                        ),
+                        gr.update(label=new_attr_label),
+                        gr.update(label=new_nat_label),
+                    )
+                else:
+                    # Return original UI state without changing data point, keep existing data point value
+                    return (
+                        gr.Column(visible=False),
+                        gr.Column(visible=True),
+                        gr.update(),  # Keep current data_point_box value
+                        gr.update(),  # Keep current associated_attributes_input label
+                        gr.update(),  # Keep current associated_nationalities_dropdown label
+                    )
+
+            toggle_annotation_inputs = [
+                token_id,
+                age,
+                gender,
+                nationality_personal_info,
+                consent_checkbox,
+                understood_languages,
+            ]
+            toggle_annotation_outputs = [
+                validator_col,
+                personal_data_missing,
                 data_point_box,
-                # Form elements
-                stereotype_likert,
                 associated_attributes_input,
                 associated_nationalities_dropdown,
-                personal_region_dropdown, # Add personal region dropdown for label update
-                social_groups_input,
-                associated_region_dropdown,
-                # New checkbox group label update
-                understood_languages_checkbox,
-                # Add the new dropdown to outputs for label update
-                associated_attribute_language_dropdown,
-                # Buttons
-                skip_button,
-                submit_button,
-            ],
-        )
+            ]
 
-    return interface
+            for component in toggle_annotation_inputs:
+                component.change(
+                    fn=toggle_annotation,
+                    inputs=toggle_annotation_inputs,
+                    outputs=toggle_annotation_outputs
+                )
+
+            # Function to update the PERSONAL region dropdown based on selected PERSONAL nationalities
+            def update_personal_regions(selected_personal_nationalities):
+                if not selected_personal_nationalities:
+                    # Disable and clear if no nationalities are selected
+                    return gr.update(choices=[], value=[], interactive=False)
+                else:
+                    # Get divisions using the helper function
+                    region_choices = get_administrative_divisions(selected_personal_nationalities)
+                    # Enable and update choices, keep existing selection if possible (Gradio handles this)
+                    return gr.update(choices=region_choices, interactive=True)
+
+            # Connect the personal nationality dropdown to update the personal region dropdown
+            nationality_personal_info.change(
+                fn=update_personal_regions,
+                inputs=[nationality_personal_info],
+                outputs=[personal_region_dropdown]
+            )
+
+            # # Function to update the ASSOCIATED region dropdown based on selected ASSOCIATED nationalities
+            # def toggle_and_update_associated_regions(associated_nationalities_list):
+            #     if not associated_nationalities_list:
+            #         # Disable and clear if no associated nationalities are selected
+            #         return gr.update(choices=[], value=[], interactive=False)
+            #     else:
+            #         # Get divisions using the helper function
+            #         region_choices = get_administrative_divisions(associated_nationalities_list)
+            #         # Enable and update choices, clear previous selection
+            #         return gr.update(choices=region_choices, value=[], interactive=True)
+
+            # # Connect the associated nationality dropdown to update the associated region dropdown
+            # associated_nationalities_dropdown.change(
+            #     fn=toggle_and_update_associated_regions, # Renamed function for clarity
+            #     inputs=[associated_nationalities_dropdown],
+            #     outputs=[associated_region_dropdown],
+            # )
+        
+        return interface

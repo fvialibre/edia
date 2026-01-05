@@ -86,9 +86,9 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
+    interface_validator(),
     interface_chatbot(),
     interface_clinicalChatbot(),
-    interface_validator(lang=LANGUAGE),
     interface_cvqa(lang=LANGUAGE),
     interface_typicalPhrases(lang=LANGUAGE),
     # interface_ambiguousReferences(lang=LANGUAGE),
@@ -124,9 +124,9 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
+    labels["stereotypeValidator"],
     "LLM vía EDIA",
     "Chatbot Clínico",
-    labels["stereotypeValidator"],
     labels["cvqa"],
     labels["typicalPhrases"],
     # labels["ambiguousReferences"],
