@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 
 import gradio as gr
+from gradio_i18n import Translate, gettext as i18n
 import pandas as pd
 
 # --- Imports Constants ---
@@ -146,7 +147,20 @@ if LANGUAGE != 'es':
 edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
 with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
-    # _ = gr.HTML(NAVBAR_HTML)
+    _ = gr.HTML(NAVBAR_HTML)
+    # lang = gr.Radio(
+    #     choices=[
+    #         (i18n("English"), "en"),
+    #         (i18n("Spanish"), "es"),
+    #         (i18n("Portuguese"), "pt"),
+    #     ],
+    #     label=i18n("LanguageLabel"),
+    # )
+    # with Translate(
+    #     "language/i18n_typicalPhrases.json",
+    #     lang,
+    #     placeholder_langs=["en", "pt", "es"],
+    # ):
     _ = gr.TabbedInterface(
         interface_list=INTERFACE_LIST,
         tab_names=TAB_NAMES,

@@ -20,7 +20,36 @@ from PIL import Image
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-ds = load_from_disk("cvqa_argentina")
+# LOAD CVQA #################################################
+
+ds = load_from_disk("cvqa_full_dataset")
+
+print("Building index...")
+
+# 1. Fetch metadata
+df = ds.select_columns(["Subset"]).to_pandas()
+
+# 2. Extract 'Country' from the "('Language', 'Country')" string
+# We split by comma, take the last part, and clean up quotes/brackets.
+# Example: "('Bulgarian', 'Bulgaria')" -> "Bulgaria"
+def extract_country(subset_str):
+    if not subset_str: return "Unknown"
+    # Split by comma to separate Language and Country
+    parts = subset_str.split(',')
+    # Grab the last part (Country) and strip: spaces, single quotes, closing paren
+    return parts[-1].strip(" ')")
+
+# Apply this function to create a temporary column
+df['Country_Key'] = df['Subset'].apply(extract_country)
+
+# 3. Group by this new clean Country key
+# Now "Bulgaria" will point to ALL indices, regardless of the language 
+country_indices_map = df.groupby("Country_Key").indices
+
+print("Index built!")
+
+# END LOAD CVQA #############################################
+
 
 secrets = dotenv_values("./.env")
 os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
@@ -29,24 +58,56 @@ os.environ['COHERE_API_KEY'] = secrets['COHERE_API_KEY']
 os.environ['GOOGLE_API_KEY'] = secrets['GOOGLE_API_KEY']
 
 models = {
-    "openai": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="gpt-5-nano", temperature=1, max_retries=3),
+    # "openai": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="gpt-5-nano", temperature=1, max_retries=3),
     # "cohere": ChatCohere(cohere_api_key=secrets["COHERE_API_KEY"], model="command-r", temperature=1, max_retries=3),
     # "google": ChatGoogleGenerativeAI(google_api_key=secrets["GOOGLE_API_KEY"], model="gemini-2.0-flash", temperature=1, max_retries=3),
     "gemma3:4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gemma3:4b"),
     # "llama3.1:8b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llama3.1:8b"),
-    "llava:34b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llava:34b"),
+    # "llava:34b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llava:34b"),
     # "mistral:7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral:7b"),
     # "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
-
+    "qwen3:32b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="qwen3:32b"),
+    "mistral-small3.2:24b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral-small3.2:24b"),
+    # "ministral-3:14b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="ministral-3:14b"),
 }
 
 # --- Interface ---
 def interface(lang: str) -> gr.Blocks:
 
-    def get_random_data_point():
-        data_point = ds.shuffle().select(range(1))[0]
+    def get_random_data_point(token_id, country_of_interest):
+        possible_indices = country_indices_map[country_of_interest]
+        
+        cvqa_logs_df = pd.read_json("logs/logs_cvqa.jsonl", lines=True)
+        cvqa_validation_logs_df = pd.read_json("logs/logs_validation_cvqa.jsonl", lines=True)
+
+        # remove from possible_indices those that have been logged by this token_id
+        logged_indices_by_token = cvqa_logs_df[cvqa_logs_df["token_id"] == token_id]["data_point_IDX"].unique().tolist()
+        possible_indices = [idx for idx in possible_indices if idx not in logged_indices_by_token]
+        
+        # Count logs per data point for possible_indices
+        logs_count = cvqa_logs_df.groupby("data_point_IDX").size()
+        logs_count = logs_count[logs_count.index.isin(possible_indices)]
+        
+        # Filter out data points that already have 5+ validations
+        if not cvqa_validation_logs_df.empty:
+            cvqa_validation_counts = cvqa_validation_logs_df.groupby("data_point_IDX").size()
+            data_points_with_lots_of_validations = cvqa_validation_counts[cvqa_validation_counts > 5].index.tolist()
+        else:
+            data_points_with_lots_of_validations = []
+        
+        # Filter out data points with lots of validations
+        filtered_indices = [idx for idx in logs_count.index if idx not in data_points_with_lots_of_validations]
+        
+        # Sort by log count descending and pick the first one
+        if len(filtered_indices) > 0:
+            random_index = logs_count[filtered_indices].idxmax()
+        else:
+            random_index = random.choice(possible_indices)
+        
+        data_point = ds[int(random_index)]
         return {
             "ID": data_point["ID"],
+            "IDX": int(random_index),
             "image": data_point["image"],
             "Question": data_point["Question"],
             "Options": data_point["Options"],
@@ -58,8 +119,10 @@ def interface(lang: str) -> gr.Blocks:
         age,
         gender,
         nationality_personal_info,
+        country_of_interest,
         consent_checkbox,
         data_point_ID,
+        data_point_IDX,
         data_point_multiple_choice,
         other_question_input,
         correct_answer_input,
@@ -74,8 +137,10 @@ def interface(lang: str) -> gr.Blocks:
             "age": age,
             "gender": gender,
             "nationality_personal_info": nationality_personal_info,
+            "country_of_interest": country_of_interest,
             "consent_checkbox": consent_checkbox,
             "data_point_ID": data_point_ID,
+            "data_point_IDX": data_point_IDX,
             "data_point_multiple_choice": data_point_multiple_choice,
             "other_question_input": other_question_input,
             "correct_answer_input": correct_answer_input,
@@ -86,7 +151,7 @@ def interface(lang: str) -> gr.Blocks:
         with open("logs/logs_cvqa.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-    initial_data_point = get_random_data_point()
+    initial_data_point = get_random_data_point("", "Argentina")
 
     # Gradio interface
     with gr.Blocks() as interface:
@@ -113,6 +178,14 @@ def interface(lang: str) -> gr.Blocks:
                 choices=nationalities,
                 multiselect=True,
                 allow_custom_value=False,
+            )
+            country_of_interest = gr.Dropdown(
+                label="Select the country you would like to contribute questions for",
+                info="You can select only one country",
+                choices=list(country_indices_map.keys()),
+                multiselect=False,
+                allow_custom_value=False,
+                visible=True,
             )
             with gr.Column():
                 consent_checkbox = gr.Checkbox(
@@ -145,6 +218,12 @@ def interface(lang: str) -> gr.Blocks:
                     data_point_ID = gr.Textbox(
                         label="ID",
                         value=initial_data_point["ID"],
+                        interactive=False,
+                        visible=False,
+                    )
+                    data_point_IDX = gr.Textbox(
+                        label="IDX",
+                        value=initial_data_point["IDX"],
                         interactive=False,
                         visible=False,
                     )
@@ -228,12 +307,18 @@ def interface(lang: str) -> gr.Blocks:
                         interactive=False,
                         visible=False,
                     )
+                    modal_data_point_IDX = gr.Textbox(
+                        label="IDX",
+                        value=initial_data_point["IDX"],
+                        interactive=False,
+                        visible=False,
+                    )
                     modal_data_point_image = gr.Image(
                         label="Image",
                         value=initial_data_point["image"],
                         interactive=False,
                     )
-                with gr.Column():
+                with gr.Column(visible=False) as validation_1_col:
                     validation_1_multiple_choice = gr.Radio(
                         label=initial_data_point["Question"],
                         choices=initial_data_point["Options"],
@@ -267,7 +352,7 @@ def interface(lang: str) -> gr.Blocks:
                         multiselect=True,
                         allow_custom_value=True
                     )
-                with gr.Column():
+                with gr.Column(visible=False) as validation_2_col:
                     validation_2_multiple_choice = gr.Radio(
                         label=initial_data_point["Question"],
                         choices=initial_data_point["Options"],
@@ -301,7 +386,7 @@ def interface(lang: str) -> gr.Blocks:
                         multiselect=True,
                         allow_custom_value=True
                     )
-                with gr.Column():
+                with gr.Column(visible=False) as validation_3_col:
                     validation_3_multiple_choice = gr.Radio(
                         label=initial_data_point["Question"],
                         choices=initial_data_point["Options"],
@@ -348,8 +433,10 @@ def interface(lang: str) -> gr.Blocks:
             age,
             gender,
             nationality_personal_info,
+            country_of_interest,
             consent_checkbox,
             data_point_ID,
+            data_point_IDX,
             data_point_image,
             data_point_multiple_choice,
             other_question_input,
@@ -464,8 +551,10 @@ def interface(lang: str) -> gr.Blocks:
                 age,
                 gender,
                 nationality_personal_info,
+                country_of_interest,
                 consent_checkbox,
                 data_point_ID,
+                data_point_IDX,
                 data_point_multiple_choice,
                 other_question_input,
                 correct_answer_input,
@@ -502,8 +591,10 @@ def interface(lang: str) -> gr.Blocks:
                 age,
                 gender,
                 nationality_personal_info,
+                country_of_interest,
                 consent_checkbox,
                 data_point_ID,
+                data_point_IDX,
                 data_point_image,
                 data_point_multiple_choice,
                 other_question_input,
@@ -526,8 +617,10 @@ def interface(lang: str) -> gr.Blocks:
             age,
             gender,
             nationality_personal_info,
+            country_of_interest,
             consent_checkbox,
             data_point_ID,
+            data_point_IDX,
             data_point_image,
             data_point_multiple_choice,
             other_question_input,
@@ -543,8 +636,10 @@ def interface(lang: str) -> gr.Blocks:
                 age,
                 gender,
                 nationality_personal_info,
+                country_of_interest,
                 consent_checkbox,
                 data_point_ID,
+                data_point_IDX,
                 data_point_multiple_choice,
                 other_question_input,
                 correct_answer_input,
@@ -553,13 +648,53 @@ def interface(lang: str) -> gr.Blocks:
                 incorrect_answer_3_input,
             )
             
-            modal_data_point_image = data_point_image 
-            # TODO: Add other datapoints for validation
+            # Check if there are existing logs for this data point            
+            cvqa_logs_df = pd.read_json("logs/logs_cvqa.jsonl", lines=True)
+            existing_logs_for_data_point = cvqa_logs_df[cvqa_logs_df["data_point_IDX"] == int(data_point_IDX)]
+            # Shuffle existing logs so we show different ones each time
+            existing_logs_for_data_point = existing_logs_for_data_point.sample(frac=1).reset_index(drop=True)
+
+            # Determine if we should show the validation modal
+            show_modal = not existing_logs_for_data_point.empty
             
+            # Prepare modal data - get up to 3 unique logs
+            modal_data = []
+            if show_modal:
+                for idx in range(min(3, len(existing_logs_for_data_point))):
+                    log = existing_logs_for_data_point.iloc[idx]
+                    modal_data.append({
+                        "question": log["other_question_input"],
+                        "choices": [
+                            log["correct_answer_input"],
+                            log["incorrect_answer_1_input"],
+                            log["incorrect_answer_2_input"],
+                            log["incorrect_answer_3_input"],
+                        ]
+                    })
             
-            new_data_point = get_random_data_point()
+            # Build return values for validation columns
+            validation_col_updates = []
+            validation_radio_updates = []
+            for i in range(3):
+                if i < len(modal_data):
+                    validation_col_updates.append(gr.Column(visible=True))
+                    validation_radio_updates.append(gr.Radio(
+                        label=modal_data[i]["question"],
+                        choices=modal_data[i]["choices"],
+                        interactive=True,
+                    ))
+                else:
+                    validation_col_updates.append(gr.Column(visible=False))
+                    validation_radio_updates.append(gr.Radio(
+                        label="",
+                        choices=[],
+                        interactive=True,
+                    ))
+            
+            new_data_point = get_random_data_point(token_id, country_of_interest)
             return (
                 new_data_point["ID"],
+                new_data_point["IDX"],
                 new_data_point["image"],
                 gr.Radio(
                     label=new_data_point["Question"],
@@ -571,8 +706,14 @@ def interface(lang: str) -> gr.Blocks:
                 "",
                 "",
                 "",
-                Modal(visible=True),
-                modal_data_point_image
+                Modal(visible=show_modal),
+                data_point_image,
+                validation_col_updates[0],
+                validation_col_updates[1],
+                validation_col_updates[2],
+                validation_radio_updates[0],
+                validation_radio_updates[1],
+                validation_radio_updates[2],
             )
 
 
@@ -583,8 +724,10 @@ def interface(lang: str) -> gr.Blocks:
                 age,
                 gender,
                 nationality_personal_info,
+                country_of_interest,
                 consent_checkbox,
                 data_point_ID,
+                data_point_IDX,
                 data_point_image,
                 data_point_multiple_choice,
                 other_question_input,
@@ -595,6 +738,7 @@ def interface(lang: str) -> gr.Blocks:
             ],
             outputs=[
                 data_point_ID,
+                data_point_IDX,
                 data_point_image,
                 data_point_multiple_choice,
                 other_question_input,
@@ -603,7 +747,13 @@ def interface(lang: str) -> gr.Blocks:
                 incorrect_answer_2_input,
                 incorrect_answer_3_input,
                 validation_modal,
-                modal_data_point_image
+                modal_data_point_image,
+                validation_1_col,
+                validation_2_col,
+                validation_3_col,
+                validation_1_multiple_choice,
+                validation_2_multiple_choice,
+                validation_3_multiple_choice,
             ],
         )
 
@@ -613,7 +763,10 @@ def interface(lang: str) -> gr.Blocks:
             token_id,
             age,
             gender,
+            modal_data_point_ID,
+            modal_data_point_IDX,
             nationality_personal_info,
+            country_of_interest,
             consent_checkbox,
             validation_1_multiple_choice,
             validation_1_q1,
@@ -631,7 +784,10 @@ def interface(lang: str) -> gr.Blocks:
                 "token_id": token_id,
                 "age": age,
                 "gender": gender,
+                "modal_data_point_ID": modal_data_point_ID,
+                "modal_data_point_IDX": modal_data_point_IDX,
                 "nationality_personal_info": nationality_personal_info,
+                "country_of_interest": country_of_interest,
                 "consent_checkbox": consent_checkbox,
                 "validation_1_multiple_choice": validation_1_multiple_choice,
                 "validation_1_q1": validation_1_q1,
@@ -657,7 +813,10 @@ def interface(lang: str) -> gr.Blocks:
                 token_id,
                 age,
                 gender,
+                modal_data_point_ID,
+                modal_data_point_IDX,
                 nationality_personal_info,
+                country_of_interest,
                 consent_checkbox,
                 validation_1_multiple_choice,
                 validation_1_q1,
@@ -692,21 +851,25 @@ def interface(lang: str) -> gr.Blocks:
         # Annotation Toggle
 
         def toggle_annotation(
-            token_id, age, gender, nationality_personal_info, consent_checkbox
+            token_id, age, gender, nationality_personal_info, country_of_interest, consent_checkbox
         ):
             if any([
                 token_id is None,
                 age is None,
                 gender is None,
                 nationality_personal_info is None,
+                country_of_interest is None,
                 consent_checkbox is None,
                 age < 0,
                 age > 100,
                 len(nationality_personal_info) == 0,
+                len(country_of_interest) == 0,
                 len(token_id) == 0,
                 not consent_checkbox
             ]):
                 return (
+                    gr.update(),
+                    gr.update(),
                     gr.update(),
                     gr.update(),
                     gr.Column(visible=False),
@@ -714,9 +877,10 @@ def interface(lang: str) -> gr.Blocks:
                     gr.Column(visible=True)
                 )
             else:
-                new_data_point = get_random_data_point()
+                new_data_point = get_random_data_point(token_id, country_of_interest)
                 return (
                     new_data_point["ID"],
+                    new_data_point["IDX"],
                     new_data_point["image"],
                     gr.Radio(
                         label=new_data_point["Question"],
@@ -733,10 +897,12 @@ def interface(lang: str) -> gr.Blocks:
             age,
             gender,
             nationality_personal_info,
+            country_of_interest,
             consent_checkbox
         ]
         toggle_annotation_outputs = [
             data_point_ID,
+            data_point_IDX,
             data_point_image,
             data_point_multiple_choice,
             annotation_col,

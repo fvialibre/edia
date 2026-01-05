@@ -1,15 +1,7 @@
 NAVBAR_HTML = """
-    <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; top: 0; left: 0; display: flex; justify-content: space-between; align-items: center;">
-        <a href="https://ia.vialibre.org.ar/" style="width: 11em; max-width:20vw; height: auto;">
-            <img src="https://i.imgur.com/t6e2xWz.png">
-        </a>
-        
-        <a href="https://edia.ngrok.app/" style="width: 11em; max-width:20vw; height: auto;">
-            <img src="https://i.imgur.com/b0EkuNi.jpeg">
-        </a>
-        
-        <a href="https://edia.ngrok.app/auth/logout" style="width: 11em; max-width:20vw; height: auto;">
-            <img src="https://i.imgur.com/xyagOy2.png">
+    <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; display: flex; justify-content: center; align-items: center;">
+        <a href="https://ediadev.ngrok.app/" style="display: flex; justify-content: center; align-items: center;">
+            <img src="https://i.imgur.com/b0EkuNi.jpeg" style="max-width: 20vw; width: 11em; height: auto; display: block;">
         </a>
     </div>
 """

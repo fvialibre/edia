@@ -7,7 +7,7 @@ class ModelWrapper:
         self.model = model
 
     def chat_with_model(self, system_prompt, user_prompt, base64_image=None):
-        url = 'https://ollama.ccad.unc.edu.ar/api/chat/completions'
+        url = 'https://chat.ccad.unc.edu.ar/api/chat/completions'
         headers = {
             'Authorization': f'Bearer {self.token}',
             'Content-Type': 'application/json'

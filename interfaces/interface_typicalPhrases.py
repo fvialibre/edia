@@ -29,13 +29,16 @@ os.environ['GOOGLE_API_KEY'] = secrets['GOOGLE_API_KEY']
 
 models = {
     "gemma3:4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gemma3:4b"),
-    "mistral:7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral:7b"),
-    "openai-gpt-4.1": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="gpt-4.1", temperature=1, max_retries=3),
+    # "qwen3:32b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="qwen3:32b"),
+    # "mistral-small3.2:24b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral-small3.2:24b"),
+    "ministral-3:14b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="ministral-3:14b"),
+    # "mistral:7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral:7b"),
+    # "openai-gpt-4.1": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="gpt-4.1", temperature=1, max_retries=3),
     # "cohere": ChatCohere(cohere_api_key=secrets["COHERE_API_KEY"], model="command-r", temperature=1, max_retries=3),
     # "google": ChatGoogleGenerativeAI(google_api_key=secrets["GOOGLE_API_KEY"], model="gemini-2.0-flash", temperature=1, max_retries=3),
     # "llama3.1:8b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llama3.1:8b"),
     # "llava:34b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llava:34b"),
-    # "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
+    "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
 
 }
 
