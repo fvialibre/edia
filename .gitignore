@@ -1,6 +1,13 @@
 __pycache__/
 *.env
-data/
+data/*
+!data/country_borders.csv
+!data/Diccionario de Lunfardo V4.csv
+!data/global_administrative_division.json
+!data/heseia_en.csv
+!data/heseia_es.csv
+!data/heseia_pt.csv
+!data/nationalities.py
 logs/
 ngrok_server/
 extensions/
