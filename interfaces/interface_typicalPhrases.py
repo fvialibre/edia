@@ -2,9 +2,9 @@ import base64
 import json
 import os
 from datetime import datetime
-from langchain_openai import ChatOpenAI
-from langchain_cohere import ChatCohere
-from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_openai import ChatOpenAI
+# from langchain_cohere import ChatCohere
+# from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from modules.module_ollama import ModelWrapper
 import gradio as gr
@@ -28,22 +28,25 @@ os.environ['COHERE_API_KEY'] = secrets['COHERE_API_KEY']
 os.environ['GOOGLE_API_KEY'] = secrets['GOOGLE_API_KEY']
 
 models = {
-    "gemma3:4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gemma3:4b"),
+    "google/gemma-3-12b-it": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="google/gemma-3-12b-it"),
+    # "gemma3:4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gemma3:4b"),
     # "qwen3:32b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="qwen3:32b"),
+    "mistralai/Mistral-7B-Instruct-v0.3": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistralai/Mistral-7B-Instruct-v0.3"),
     # "mistral-small3.2:24b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral-small3.2:24b"),
-    "ministral-3:14b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="ministral-3:14b"),
+    # "ministral-3:14b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="ministral-3:14b"),
     # "mistral:7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral:7b"),
     # "openai-gpt-4.1": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="gpt-4.1", temperature=1, max_retries=3),
     # "cohere": ChatCohere(cohere_api_key=secrets["COHERE_API_KEY"], model="command-r", temperature=1, max_retries=3),
     # "google": ChatGoogleGenerativeAI(google_api_key=secrets["GOOGLE_API_KEY"], model="gemini-2.0-flash", temperature=1, max_retries=3),
+    "meta-llama/Llama-3.2-3B-Instruct": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="meta-llama/Llama-3.2-3B-Instruct"),
     # "llama3.1:8b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llama3.1:8b"),
     # "llava:34b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llava:34b"),
-    "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
+    # "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
 
 }
 
 # --- Interface ---
-def interface(lang: str) -> gr.Blocks:
+def interface(DEFAULT_LANG: str) -> gr.Blocks:
     def get_random_data_point():
         data_point = df.sample().iloc[0]
         return {
@@ -135,17 +138,17 @@ def interface(lang: str) -> gr.Blocks:
             "nationality_personal_info": nationality_personal_info,
             "personal_region_dropdown": personal_region_dropdown,
             "consent_checkbox": consent_checkbox,
-            "data_point_phrase": data_point_phrase,
-            "data_point_definition": data_point_definition,
+            # "data_point_phrase": data_point_phrase,
+            # "data_point_definition": data_point_definition,
             "new_phrase": new_phrase,
             "new_phrase_definition": new_phrase_definition,
             "new_phrase_sentence_example": new_phrase_sentence_example,
             "model_names": model_names,
-            "model_a_response": model_a_response,
+            "model_a_response": model_a_response[0]['token'] if model_a_response else None,
             "model_a_likert": model_a_likert,
-            "model_b_response": model_b_response,
+            "model_b_response": model_b_response[0]['token'] if model_b_response else None,
             "model_b_likert": model_b_likert,
-            "model_c_response": model_c_response,
+            "model_c_response": model_c_response[0]['token'] if model_c_response else None,
             "model_c_likert": model_c_likert
         }
         with open("logs/logs_typicalPhrases.jsonl", "a+", encoding="utf-8") as f:
@@ -161,6 +164,7 @@ def interface(lang: str) -> gr.Blocks:
                 (i18n("Spanish"), "es"),
                 (i18n("Portuguese"), "pt"),
             ],
+            value=DEFAULT_LANG,
             label=i18n("LanguageLabel"),
         )
         with Translate(
@@ -168,45 +172,47 @@ def interface(lang: str) -> gr.Blocks:
             lang,
             placeholder_langs=["en", "pt", "es"],
         ):
-            with gr.Row():
-                token_id = gr.Textbox(
-                    label=i18n("Identifier"),
-                    lines=1,
-                )
-                age = gr.Number(
-                    value=0,
-                    label=i18n("AgeLabel"),
-                    visible=True,
-                )
-                gender = gr.Radio(
-                    ["M", "F", "X"],
-                    label=i18n("GenderLabel"),
-                    value="X",
-                    visible=True,
-                )
-            with gr.Row():
-                nationality_personal_info = gr.Dropdown(
-                    label=i18n("NationalityLabel"),
-                    info=i18n("NationalityInfo"),
-                    choices=nationalities,
-                    multiselect=True,
-                    allow_custom_value=False,
-                )
-                personal_region_dropdown = gr.Dropdown(
-                    label=i18n("PersonalRegionLabel"),
-                    choices=[], # Initially empty
-                    allow_custom_value=True,
-                    multiselect=True,
-                    interactive=False, # Initially disabled
-                    scale=1 # Adjust scale as needed, matching nationality dropdown perhaps
-                )
-                with gr.Column():
+            with gr.Row(equal_height=False, variant="panel"):
+                with gr.Column(scale=1, min_width=200):
+                    with gr.Group():
+                        token_id = gr.Textbox(
+                            label=i18n("Identifier"),
+                            lines=1,
+                        )
+                        age = gr.Number(
+                            value=0,
+                            label=i18n("AgeLabel"),
+                            visible=True,
+                        )
+                        gender = gr.Radio(
+                            ["M", "F", "X"],
+                            label=i18n("GenderLabel"),
+                            value=None,
+                            visible=True,
+                        )
+                with gr.Column(scale=2):
+                    with gr.Group():
+                        nationality_personal_info = gr.Dropdown(
+                            label=i18n("NationalityLabel"),
+                            info=i18n("NationalityInfo"),
+                            choices=nationalities,
+                            multiselect=True,
+                            allow_custom_value=False,
+                        )
+                        personal_region_dropdown = gr.Dropdown(
+                            label=i18n("PersonalRegionLabel"),
+                            choices=[], # Initially empty
+                            allow_custom_value=True,
+                            multiselect=True,
+                            interactive=False, # Initially disabled
+                        )
+                with gr.Column(scale=1, min_width=200):
                     consent_checkbox = gr.Checkbox(
                         label=i18n("ConsentLabel"),
                         value=False,
                     )
                     _ = gr.HTML(
-                        value=f"<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>Link 🔗</a>",
+                        value=f"<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
                     )
             _ = gr.HTML(
                 value="<hr>",
@@ -240,68 +246,61 @@ def interface(lang: str) -> gr.Blocks:
                                 label=i18n("NewPhraseSentenceLabel"),
                                 placeholder=i18n("NewPhraseSentencePlaceholder"),
                             )
+                            llm_responses_button = gr.Button(i18n("LLMResponsesButton"), interactive=False, variant="primary")
 
                 with gr.Column(visible=False, elem_id="llm_responses_col") as llm_responses_col:
                     gr.Markdown(
                         "### " + i18n("LLMHeader")
                     )
-                    with gr.Row():
-                        with gr.Column():
-                            model_a_response = gr.HighlightedText(
-                                label=i18n("ModelSmallLabel"),
-                                value=[],
-                                combine_adjacent=True,
-                                show_legend=False,
-                                interactive=False,
-                            )
-                        with gr.Column():
-                            model_a_likert = gr.Radio(
-                                [1, 2, 3, 4, 5],
-                                label=i18n("LikertLabel"),
-                                info=i18n("LikertInfo"),
-                                value=None,
-                                interactive=True,
-                                visible=False,  # Initially hidden
-                            )
-                    with gr.Row():
-                        with gr.Column():
-                            model_b_response = gr.HighlightedText(
-                                label=i18n("ModelMediumLabel"),
-                                value=[],
-                                combine_adjacent=True,
-                                show_legend=False,
-                                interactive=False,
-                            )
-                        with gr.Column():
-                            model_b_likert = gr.Radio(
-                                [1, 2, 3, 4, 5],
-                                label=i18n("LikertLabel"),
-                                info=i18n("LikertInfo"),
-                                value=None,
-                                interactive=True,
-                                visible=False,  # Initially hidden
-                            )
-                    with gr.Row():
-                        with gr.Column():
-                            model_c_response = gr.HighlightedText(
-                                label=i18n("ModelLargeLabel"),
-                                value=[],
-                                combine_adjacent=True,
-                                show_legend=False,
-                                interactive=False,
-                            )
-                        with gr.Column():
-                            model_c_likert = gr.Radio(
-                                [1, 2, 3, 4, 5],
-                                label=i18n("LikertLabel"),
-                                info=i18n("LikertInfo"),
-                                value=None,
-                                interactive=True,
-                                visible=False,  # Initially hidden
-                            )
-            with gr.Row(equal_height=True, visible=False, elem_id="button_row") as button_row:
-                llm_responses_button = gr.Button(i18n("LLMResponsesButton"), interactive=False, variant="secondary", scale=50)
-                skip_button = gr.Button(i18n("NextButton"), variant="primary", scale=25)
+                    with gr.Row(variant="panel"):
+                        model_a_response = gr.HighlightedText(
+                            label=i18n("ModelSmallLabel"),
+                            value=[],
+                            combine_adjacent=True,
+                            show_legend=False,
+                            interactive=False,
+                        )
+                        model_a_likert = gr.Radio(
+                            [1, 2, 3, 4, 5],
+                            label=i18n("LikertLabel"),
+                            info=i18n("LikertInfo"),
+                            value=None,
+                            interactive=True,
+                            visible=False,
+                        )
+                    with gr.Row(variant="panel"):
+                        model_b_response = gr.HighlightedText(
+                            label=i18n("ModelMediumLabel"),
+                            value=[],
+                            combine_adjacent=True,
+                            show_legend=False,
+                            interactive=False,
+                        )
+                        model_b_likert = gr.Radio(
+                            [1, 2, 3, 4, 5],
+                            label=i18n("LikertLabel"),
+                            info=i18n("LikertInfo"),
+                            value=None,
+                            interactive=True,
+                            visible=False,
+                        )
+                    with gr.Row(variant="panel"):
+                        model_c_response = gr.HighlightedText(
+                            label=i18n("ModelLargeLabel"),
+                            value=[],
+                            combine_adjacent=True,
+                            show_legend=False,
+                            interactive=False,
+                        )
+                        model_c_likert = gr.Radio(
+                            [1, 2, 3, 4, 5],
+                            label=i18n("LikertLabel"),
+                            info=i18n("LikertInfo"),
+                            value=None,
+                            interactive=True,
+                            visible=False,
+                        )
+                    skip_button = gr.Button(i18n("NextButton"), visible=False, interactive=False,  variant="primary")
 
             # Function to update the PERSONAL region dropdown based on selected PERSONAL nationalities
             def update_personal_regions(selected_personal_nationalities):
@@ -382,6 +381,8 @@ def interface(lang: str) -> gr.Blocks:
                     gr.update(visible=True),
                     gr.update(visible=True),
                     gr.update(visible=True),
+                    gr.update(visible=False),
+                    gr.update(visible=True),
                 )
 
             llm_responses_button.click(
@@ -405,7 +406,9 @@ def interface(lang: str) -> gr.Blocks:
                     model_c_response,
                     model_a_likert,
                     model_b_likert,
-                    model_c_likert
+                    model_c_likert,
+                    llm_responses_button,
+                    skip_button
                 ]
             )
 
@@ -459,9 +462,11 @@ def interface(lang: str) -> gr.Blocks:
                     gr.update(value=[]),
                     gr.update(value=[]),
                     gr.update(value=[]),
-                    gr.update(visible=False),
-                    gr.update(visible=False),
-                    gr.update(visible=False),
+                    gr.update(value=None, visible=False),
+                    gr.update(value=None, visible=False),
+                    gr.update(value=None, visible=False),
+                    gr.update(visible=True),
+                    gr.update(visible=False)
                 )
 
 
@@ -497,7 +502,9 @@ def interface(lang: str) -> gr.Blocks:
                     model_c_response,
                     model_a_likert,
                     model_b_likert,
-                    model_c_likert
+                    model_c_likert,
+                    llm_responses_button,
+                    skip_button
                 ],
             )
 
@@ -510,11 +517,10 @@ def interface(lang: str) -> gr.Blocks:
                     token_id is None,
                     age is None,
                     gender is None,
-                    nationality_personal_info is None,
+                    nationality_personal_info is None or len(nationality_personal_info) == 0,
                     consent_checkbox is None,
                     age < 0,
                     age > 100,
-                    len(nationality_personal_info) == 0,
                     len(token_id) == 0,
                     not consent_checkbox
                 ]):
@@ -523,7 +529,6 @@ def interface(lang: str) -> gr.Blocks:
                         gr.update(),
                         gr.Column(visible=False),
                         gr.Column(visible=False),
-                        gr.Row(visible=False),
                         gr.Column(visible=True)
                     )
                 else:
@@ -533,7 +538,6 @@ def interface(lang: str) -> gr.Blocks:
                         f"{i18n('DataPointMeaningPrefix')} {new_data_point['meaning']}",
                         gr.Column(visible=True),
                         gr.Column(visible=True),
-                        gr.Row(visible=True),
                         gr.Column(visible=False),
                     )
 
@@ -549,7 +553,6 @@ def interface(lang: str) -> gr.Blocks:
                 data_point_definition,
                 annotation_col,
                 llm_responses_col,
-                button_row,
                 personal_data_missing
             ]
 
@@ -573,11 +576,11 @@ def interface(lang: str) -> gr.Blocks:
                     new_phrase_sentence_example,
                 ]):
                     return (
-                        gr.Button(i18n("LLMResponsesButton"), interactive=True, variant="secondary", scale=50)
+                        gr.update(interactive=True)
                     )
                 else:
                     return (
-                        gr.Button(i18n("LLMResponsesButton"), interactive=False, variant="secondary", scale=50)
+                        gr.update(interactive=False)
                     )
 
             toggle_llm_responses_inputs = [
@@ -594,6 +597,42 @@ def interface(lang: str) -> gr.Blocks:
                     fn=toggle_llm_responses,
                     inputs=toggle_llm_responses_inputs,
                     outputs=toggle_llm_responses_outputs
+                )
+
+            # Skip Button Toggle
+
+            def toggle_skip_button(
+                model_a_likert,
+                model_b_likert,
+                model_c_likert
+            ):
+                if all([
+                    model_a_likert is not None,
+                    model_b_likert is not None,
+                    model_c_likert is not None,
+                ]):
+                    return (
+                        gr.update(interactive=True)
+                    )
+                else:
+                    return (
+                        gr.update(interactive=False)
+                    )
+
+            toggle_skip_button_inputs = [
+                model_a_likert,
+                model_b_likert,
+                model_c_likert
+            ]
+            toggle_skip_button_outputs = [
+                skip_button
+            ]
+
+            for component in toggle_skip_button_inputs:
+                component.change(
+                    fn=toggle_skip_button,
+                    inputs=toggle_skip_button_inputs,
+                    outputs=toggle_skip_button_outputs
                 )
 
         return interface

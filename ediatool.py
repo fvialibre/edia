@@ -15,13 +15,13 @@ from html_constants import FOOTER_HTML, NAVBAR_HTML, css
 # from interfaces.interface_BiasWordExplorer import \
 #     interface as interface_biasWordExplorer
 from interfaces.interface_chatbot import interface as interface_chatbot
-from interfaces.interface_clinicalChatbot import interface as interface_clinicalChatbot
+# from interfaces.interface_clinicalChatbot import interface as interface_clinicalChatbot
 # from interfaces.interface_data import interface as interface_data
 # from interfaces.interface_logsData import interface as interface_logsData
 from interfaces.interface_validator import interface as interface_validator
-from interfaces.interface_cvqa import interface as interface_cvqa
+# from interfaces.interface_cvqa import interface as interface_cvqa
 from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
-from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
+# from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
 # --- Imports interfaces ---
 # from interfaces.interface_WordExplorer import \
 #     interface as interface_wordExplorer
@@ -86,11 +86,11 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
+    interface_typicalPhrases(DEFAULT_LANG=LANGUAGE),
     interface_chatbot(),
-    interface_clinicalChatbot(),
+    # interface_clinicalChatbot(),
     interface_validator(lang=LANGUAGE),
-    interface_cvqa(lang=LANGUAGE),
-    interface_typicalPhrases(lang=LANGUAGE),
+    # interface_cvqa(lang=LANGUAGE),
     # interface_ambiguousReferences(lang=LANGUAGE),
     # interface_biasPhrase(
     #     spanish_language_model=spanish_lm,
@@ -124,11 +124,11 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
-    "LLM vía EDIA",
-    "Chatbot Clínico",
-    labels["stereotypeValidator"],
-    labels["cvqa"],
     labels["typicalPhrases"],
+    "LLM vía EDIA",
+    # "Chatbot Clínico",
+    labels["stereotypeValidator"],
+    # labels["cvqa"],
     # labels["ambiguousReferences"],
     # labels["phraseExplorer"],
     # labels["dataExplorer"],
