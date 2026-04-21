@@ -1,0 +1,110 @@
+en:
+    # Global Input Labels
+    Identifier: Identifier
+    TokenInfo: Enter the identifier provided in the workshop
+    AgeLabel: Enter your age
+    GenderLabel: Select your gender
+    NationalityLabel: Where are you from?
+    NationalityInfo: Select the nationalities that represent your cultural, personal, or national identity
+    PersonalRegionLabel: Which region?
+    ConsentLabel: I have read and accept the informed consent ⬇️
+    PersonalDataMissingHeading: "# Enter your personal data and confirm your consent to continue."
+
+    # Tab Names
+    TypicalPhrasesTab: Typical Phrases
+
+    # Common Labels
+    ModelALabel: Model A
+    ModelBLabel: Model B
+    ModelCLabel: Model C
+    NextButton: Next
+
+    # Typical Phrases Tab
+    TypicalPhrasesAnnotationTitle: Typical Phrases Activity
+    TypicalPhrasesAnnotationGoal: The goal is to discover whether language models know the meaning of these typical phrases or whether they invent answers.
+    TypicalPhrasesAnnotationInstructions: Please add a typical phrase from your region, provide its meaning, and use it in a sentence.
+    TypicalPhrasesNewPhraseLabel: "Provide a typical phrase from your culture:"
+    TypicalPhrasesNewPhrasePlaceholder: Type the phrase here
+    TypicalPhrasesNewPhraseDefinitionLabel: "Provide a definition:"
+    TypicalPhrasesNewPhraseDefinitionPlaceholder: Type the definition here
+    TypicalPhrasesNewPhraseSentenceLabel: "Use it in a sentence:"
+    TypicalPhrasesNewPhraseSentencePlaceholder: Type the sentence here
+    TypicalPhrasesLLMHeader: Here you will see how language models of different sizes define your phrase.
+    TypicalPhrasesLikertLabel: How correct is this definition?
+    TypicalPhrasesLikertInfo: "1 = Incorrect, 5 = Very correct"
+    TypicalPhrasesLLMResponsesButton: How do language models respond?
+    TypicalPhrasesSystemPromptDefine: Define the following expression clearly. The definition must be in English, be precise and concise, and not exceed 40 words. Do not include additional explanations, examples, or information outside the definition. Respond only with the definition.
+
+es:
+    # Global Input Labels
+    Identifier: Identificador
+    TokenInfo: Ingresa el identificador proporcionado en el taller
+    AgeLabel: Ingresa tu edad
+    GenderLabel: Selecciona tu género
+    NationalityLabel: ¿De dónde eres?
+    NationalityInfo: Selecciona las nacionalidades que representen tu identidad cultural, personal o nacional
+    PersonalRegionLabel: ¿Qué región?
+    ConsentLabel: He leído y acepto el consentimiento informado ⬇️
+    PersonalDataMissingHeading: "# Ingresa tus datos personales y confirma tu consentimiento para continuar."
+
+    # Tab Names
+    TypicalPhrasesTab: Frases Típicas
+
+    # Common Labels
+    ModelALabel: Modelo A
+    ModelBLabel: Modelo B
+    ModelCLabel: Modelo C
+    NextButton: Siguiente
+
+    # Typical Phrases Tab
+    TypicalPhrasesAnnotationTitle: Actividad de Frases Típicas
+    TypicalPhrasesAnnotationGoal: El objetivo es descubrir si los modelos de lenguaje conocen el significado de estas frases típicas o si inventan respuestas.
+    TypicalPhrasesAnnotationInstructions: Por favor agrega una frase típica de tu región, proporciona su significado y úsala en una oración.
+    TypicalPhrasesNewPhraseLabel: "Proporciona una frase típica de tu cultura:"
+    TypicalPhrasesNewPhrasePlaceholder: Escribe la frase aquí
+    TypicalPhrasesNewPhraseDefinitionLabel: "Proporciona una definición:"
+    TypicalPhrasesNewPhraseDefinitionPlaceholder: Escribe la definición aquí
+    TypicalPhrasesNewPhraseSentenceLabel: "Úsala en una oración:"
+    TypicalPhrasesNewPhraseSentencePlaceholder: Escribe la oración aquí
+    TypicalPhrasesLLMHeader: Aquí verás cómo los modelos de lenguaje de diferentes tamaños definen tu frase.
+    TypicalPhrasesLikertLabel: ¿Qué tan correcta es esta definición?
+    TypicalPhrasesLikertInfo: "1 = Incorrecta, 5 = Muy correcta"
+    TypicalPhrasesLLMResponsesButton: ¿Cómo responden los modelos de lenguaje?
+    TypicalPhrasesSystemPromptDefine: Define la siguiente expresión de forma clara. La definición debe estar en español, ser precisa y concisa, y no superar las 40 palabras. No incluyas explicaciones adicionales, ejemplos ni información fuera de la definición. Responde solo con la definición.
+
+pt:
+    # Global Input Labels
+    Identifier: Identificador
+    TokenInfo: Insira o identificador fornecido no workshop
+    AgeLabel: Insira sua idade
+    GenderLabel: Selecione seu gênero
+    NationalityLabel: De onde você é?
+    NationalityInfo: Selecione as nacionalidades que representam sua identidade cultural, pessoal ou nacional
+    PersonalRegionLabel: Qual região?
+    ConsentLabel: Li e aceito o consentimento informado ⬇️
+    PersonalDataMissingHeading: "# Insira seus dados pessoais e confirme seu consentimento para continuar."
+
+    # Tab Names
+    TypicalPhrasesTab: Expressões Típicas
+
+    # Common Labels
+    ModelALabel: Modelo A
+    ModelBLabel: Modelo B
+    ModelCLabel: Modelo C
+    NextButton: Próximo
+
+    # Typical Phrases Tab
+    TypicalPhrasesAnnotationTitle: Atividade de Expressões Típicas
+    TypicalPhrasesAnnotationGoal: O objetivo é descobrir se os modelos de linguagem conhecem o significado dessas expressões típicas ou se inventam respostas.
+    TypicalPhrasesAnnotationInstructions: Por favor, adicione uma expressão típica da sua região, forneça seu significado e use-a em uma frase.
+    TypicalPhrasesNewPhraseLabel: "Forneça uma expressão típica da sua cultura:"
+    TypicalPhrasesNewPhrasePlaceholder: Digite a expressão aqui
+    TypicalPhrasesNewPhraseDefinitionLabel: "Forneça uma definição:"
+    TypicalPhrasesNewPhraseDefinitionPlaceholder: Digite a definição aqui
+    TypicalPhrasesNewPhraseSentenceLabel: "Use-a em uma frase:"
+    TypicalPhrasesNewPhraseSentencePlaceholder: Digite a frase aqui
+    TypicalPhrasesLLMHeader: Aqui você verá como os modelos de linguagem de diferentes tamanhos definem sua expressão.
+    TypicalPhrasesLikertLabel: Quão correta é esta definição?
+    TypicalPhrasesLikertInfo: "1 = Incorreta, 5 = Muito correta"
+    TypicalPhrasesLLMResponsesButton: Como os modelos de linguagem respondem?
+    TypicalPhrasesSystemPromptDefine: Defina a seguinte expressão de forma clara. A definição deve estar em português, ser precisa e concisa, e não ultrapassar 40 palavras. Não inclua explicações adicionais, exemplos ou informações fora da definição. Responda apenas com a definição.
