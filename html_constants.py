@@ -1,6 +1,6 @@
 NAVBAR_HTML = """
     <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; display: flex; justify-content: center; align-items: center;">
-        <a href="https://ediadev.ngrok.app/" style="display: flex; justify-content: center; align-items: center;">
+        <a href="https://edia.ngrok.app/" style="display: flex; justify-content: center; align-items: center;">
             <img src="https://i.imgur.com/b0EkuNi.jpeg" style="max-width: 20vw; width: 11em; height: auto; display: block;">
         </a>
     </div>

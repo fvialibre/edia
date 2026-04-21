@@ -9,6 +9,7 @@ from gradio_i18n import Translate, gettext as i18n
 import pandas as pd
 
 # --- Imports Constants ---
+from auth import SCHOOL_LIST
 from html_constants import FOOTER_HTML, NAVBAR_HTML, css
 # from interfaces.interface_arena import interface as interface_arena
 # from interfaces.interface_biasPhrase import interface as interface_biasPhrase
@@ -108,6 +109,20 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                         multiselect=False,
                         interactive=False,
                     )
+                    with gr.Row():
+                        with gr.Column(scale=1):
+                            school = gr.Number(
+                                label=i18n("SchoolLabel"),
+                                visible=False,
+                            )
+                            school_list_link = gr.HTML(
+                                value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                                visible=False,
+                            )
+                            school_name = gr.HTML(
+                                value=i18n("SchoolNamePlaceholder"),
+                                visible=False,
+                            )
             with gr.Column(scale=1, min_width=200):
                 consent_checkbox = gr.Checkbox(
                     label=i18n("ConsentLabel"),
@@ -128,10 +143,19 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     gender=gender,
                     nationality=nationality,
                     region=region,
+                    school=school,
                     consent_checkbox=consent_checkbox,
                 )
             with gr.Tab(i18n("ChatbotTab")):
-                interface_chatbot()
+                interface_chatbot(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
 
         
         with gr.Row(visible=True) as personal_data_missing:
@@ -182,8 +206,47 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         outputs=[region]
     )
 
+    def toggle_school(region):
+        if region == "Cordoba (Argentina)":
+            return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        else:
+            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+
+    # Connect the personal nationality dropdown to update the personal region dropdown
+    region.change(
+        fn=toggle_school,
+        inputs=[region],
+        outputs=[school, school_list_link, school_name]
+    )
+
+    def update_school_name(school):
+        if school is None or school == 0:
+            return (
+                gr.HTML(
+                    value=f"<p>No seleccionaste ningún colegio</p>",
+                )
+            )
+        elif school not in SCHOOL_LIST:
+            return (
+                gr.HTML(
+                    value=f"<p>El colegio seleccionado no existe</p>",
+                )
+            )
+        else:
+            return (
+                gr.HTML(
+                    value=f"<p>Seleccionaste: {SCHOOL_LIST[school]}</p>",
+                )
+            )
+    
+    school.change(
+        fn=update_school_name,
+        inputs=[school],
+        outputs=[school_name]
+    )
+
     def toggle_annotation(
-        token_id, age, gender, nationality, region, consent_checkbox
+        token_id, age, gender, nationality, region, school, consent_checkbox
     ):
         if any([
             token_id is None,
@@ -191,6 +254,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
             gender is None,
             nationality is None or len(nationality) == 0,
             region is None or len(region) == 0,
+            region == "Cordoba (Argentina)" and school not in SCHOOL_LIST,
             consent_checkbox is None,
             age < 0,
             age > 100,
@@ -213,6 +277,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         gender,
         nationality,
         region,
+        school,
         consent_checkbox
     ]
     toggle_annotation_outputs = [

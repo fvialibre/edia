@@ -7,18 +7,26 @@ import json
 from datetime import datetime
 import os
 from dotenv import dotenv_values
-from auth import school_list
+from auth import SCHOOL_LIST
 from prompts import prompts
 from html_constants import HTML_FEEDBACK_TITLE
 
 
 # --- Interface ---
-def interface() -> gr.Blocks:
+def interface(
+    token_id,
+    age,
+    gender,
+    nationality,
+    region,
+    school,
+    consent_checkbox
+) -> gr.Blocks:
 
     secrets = dotenv_values("./.env")
     os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
 
-    def predict(message, history, token_id, school, age, gender, prompt, temperature, top_p, max_tokens):
+    def predict(message, history, token_id, age, gender, nationality, region, school, prompt, temperature, top_p, max_tokens):
         llm = ChatOpenAI(model="gpt-4o-mini", temperature=temperature, top_p=top_p, max_tokens=max_tokens)
         history_langchain_format = [SystemMessage(content=prompt)]
         for human, ai in history:
@@ -31,9 +39,11 @@ def interface() -> gr.Blocks:
             f.write(json.dumps({
                 "timestamp": datetime.now().isoformat(),
                 "token_id": token_id,
-                "school": school,
                 "age": age,
                 "gender": gender,
+                "nationality": nationality,
+                "region": region,
+                "school": school,
                 "message": message,
                 "response": gpt_response.content,
                 "history": history,
@@ -48,10 +58,12 @@ def interface() -> gr.Blocks:
             "is_like": x.liked,
             "turn_index": x.index,
             "token_id": token_id,
-            "school": school,
             "age": age,
             "gender": gender,
+            "school": school,
             "prompt": prompt,
+            "nationality": nationality,
+            "region": region,
         }, Modal(visible=True)
 
     def send_turn_feedback_modal(turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4):
@@ -70,9 +82,11 @@ def interface() -> gr.Blocks:
                 "q4_checkbox": q4_checkbox,
                 "q4": q4,
                 "token_id": turn_info_for_feedback["token_id"],
-                "school": turn_info_for_feedback["school"],
                 "age": turn_info_for_feedback["age"],
                 "gender": turn_info_for_feedback["gender"],
+                "nationality": turn_info_for_feedback["nationality"],
+                "region": turn_info_for_feedback["region"],
+                "school": turn_info_for_feedback["school"],
                 "prompt": turn_info_for_feedback["prompt"],
             }, ensure_ascii=False) + "\n")
         gr.Info("Feedback enviado con éxito")
@@ -87,57 +101,18 @@ def interface() -> gr.Blocks:
             "is_like": None,
             "turn_index": None,
             "token_id": None,
-            "school": None,
             "age": None,
             "gender": None,
+            "nationality": None,
+            "region": None,
+            "school": None,
             "prompt": None,
         })
-        with gr.Row():
-            with gr.Column(scale=70):
-                token_id = gr.Textbox(
-                    label="Escriba su identificador",
-                    lines=1,
-                )
-            with gr.Column(scale=70, visible=False):
-                with gr.Row():
-                    with gr.Column():
-                        school = gr.Number(
-                            value=10000,
-                            label="Seleccione el identificador de su escuela (Ver ➡️)",
-                            visible=False
-                        )
-                        school_name = gr.HTML(
-                            value=f"<p>No seleccionaste ningún colegio</p>",
-                            visible=False
-                        )
-                    with gr.Column():
-                        _ = gr.HTML(
-                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
-                            visible=False
-                        )
-            with gr.Column(scale=30):
-                with gr.Row():
-                    consent_checkbox = gr.Checkbox(
-                        label='He leído y acepto el consentimiento informado ➡️',
-                        value=False,
-                    )
-                    _ = gr.HTML(
-                        value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
-                    )
-        with gr.Row():
-            with gr.Column():
-                age = gr.Number(
-                    value=99,
-                    label="Seleccione su edad",
-                    visible=False
-                )
-            with gr.Column():
-                gender = gr.Radio(
-                    ["M", "F", "X"],
-                    label="Seleccione su género",
-                    value="X",
-                    visible=False
-                )
+        _ = gr.Markdown(
+            "# " + "LLM via EDIA" + "\n\n" +
+            "### " + "En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Si cerrás la pestaña, no se guarda la conversación, así que recordá copiarlo antes."
+        )
+
         with gr.Row():
             prompt = gr.Textbox(
                 label="Escriba el system prompt (dejar vacío para usar ChatGPT normal)",
@@ -172,33 +147,27 @@ def interface() -> gr.Blocks:
                     visible=False
                 )
 
-        with gr.Column(visible=False, elem_id='col') as chat_col:
-            gr.HTML("<h1 style='text-align: center;'>ChatGPT vía EDIA</h1>")
-            gr.HTML("<p>En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Si cerrás la pestaña, no se guarda la conversación, así que recordá copiarlo antes.</p>")
-
-            chatbot = gr.Chatbot(
-                show_copy_button=True,
-                # likeable=True,
+        chatbot = gr.Chatbot(
+            show_copy_button=True,
+        )
+        _ = gr.ChatInterface(
+                predict,
+                additional_inputs=[
+                    token_id,
+                    age,
+                    gender,
+                    nationality,
+                    region,
+                    school,
+                    prompt,
+                    temperature,
+                    top_p,
+                    max_tokens
+                ],
+                chatbot=chatbot,
+                submit_btn="Enviar",
+                stop_btn=None,
             )
-            chat_interface = gr.ChatInterface(
-                    predict,
-                    additional_inputs=[
-                        token_id,
-                        school,
-                        age,
-                        gender,
-                        prompt,
-                        temperature,
-                        top_p,
-                        max_tokens
-                    ],
-                    chatbot=chatbot,
-                    # retry_btn=None,
-                    # undo_btn=None,
-                    # clear_btn=None,
-                    submit_btn="Enviar",
-                    stop_btn=None,
-                )
 
         ### MODAL
         with Modal(visible=False) as turn_feedback_modal:
@@ -263,124 +232,6 @@ def interface() -> gr.Blocks:
             q4_checkbox.change(toggle_slider_visibility, inputs=[q4_checkbox], outputs=[q4])
 
             modal_submit_button = gr.Button("Enviar")
-
-        with gr.Column(visible=True) as personal_data_missing:
-            gr.Markdown("""
-                ### Ingrese sus datos personales y confirme su consentimiento para poder realizar la consulta!
-
-            """
-            )
-
-
-        def toggle_chat(token_id, school, age, gender, prompt, consent_checkbox):
-            if not (token_id is None
-                or school is None
-                or age is None
-                or gender is None
-                or prompt is None
-                or consent_checkbox is None
-                or age < 0
-                or age > 100
-                or school == 0
-                or school not in school_list
-                or len(token_id) == 0
-                or not consent_checkbox):
-                return gr.Column(visible=True), gr.Column(visible=False)
-            else:
-                return gr.Column(visible=False), gr.Column(visible=True)
-
-        token_id.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                school,
-                age,
-                gender,
-                prompt,
-                consent_checkbox
-            ],
-            outputs=[chat_col, personal_data_missing])
-        school.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                school,
-                age,
-                gender,
-                prompt,
-                consent_checkbox
-            ],
-            outputs=[chat_col, personal_data_missing])
-        age.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                school,
-                age,
-                gender,
-                prompt,
-                consent_checkbox
-            ],
-            outputs=[chat_col, personal_data_missing])
-        gender.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                school,
-                age,
-                gender,
-                prompt,
-                consent_checkbox
-            ],
-            outputs=[chat_col, personal_data_missing])
-        prompt.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                school,
-                age,
-                gender,
-                prompt,
-                consent_checkbox
-            ],
-            outputs=[chat_col, personal_data_missing])
-        consent_checkbox.change(
-            fn=toggle_chat,
-            inputs=[
-                token_id,
-                school,
-                age,
-                gender,
-                prompt,
-                consent_checkbox
-            ],
-            outputs=[chat_col, personal_data_missing])
-
-        def update_school_name(school):
-            if school is None or school == 0:
-                return (
-                    gr.HTML(
-                        value=f"<p>No seleccionaste ningún colegio</p>",
-                    )
-                )
-            elif school not in school_list:
-                return (
-                    gr.HTML(
-                        value=f"<p>El colegio seleccionado no existe</p>",
-                    )
-                )
-            else:
-                return (
-                    gr.HTML(
-                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
-                    )
-                )
-        school.change(
-            fn=update_school_name,
-            inputs=[
-                school
-            ],
-            outputs=[school_name])
 
         chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4], turn_feedback_modal)

@@ -1,4 +1,4 @@
-school_list = {
+SCHOOL_LIST = {
     2: "10 DE JUNIO - RIO CUARTO",
     3: "12 DE OCTUBRE - CAMPO FALCO",
     4: "12 DE OCTUBRE - BAJO HONDO",

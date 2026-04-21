@@ -37,25 +37,18 @@ def interface(
     gender,
     nationality,
     region,
+    school,
     consent_checkbox
 ) -> gr.Blocks:
-    def get_random_data_point():
-        data_point = df.sample().iloc[0]
-        return {
-            "ID": data_point["ID"],
-            "phrase": data_point["phrase"],
-            "meaning": data_point["meaning"],
-        }
-
+    
     def log_result(
         token_id,
         age,
         gender,
         nationality,
         region,
+        school,
         consent_checkbox,
-        data_point_phrase,
-        data_point_definition,
         new_phrase,
         new_phrase_definition,
         new_phrase_sentence_example,
@@ -70,9 +63,8 @@ def interface(
             "gender": gender,
             "nationality": nationality,
             "region": region,
+            "school": school,
             "consent_checkbox": consent_checkbox,
-            "data_point_phrase": data_point_phrase,
-            "data_point_definition": data_point_definition,
             "new_phrase": new_phrase,
             "new_phrase_definition": new_phrase_definition,
             "new_phrase_sentence_example": new_phrase_sentence_example,
@@ -89,9 +81,8 @@ def interface(
         gender,
         nationality,
         region,
+        school,
         consent_checkbox,
-        data_point_phrase,
-        data_point_definition,
         new_phrase,
         new_phrase_definition,
         new_phrase_sentence_example,
@@ -110,9 +101,8 @@ def interface(
             "gender": gender,
             "nationality": nationality,
             "region": region,
+            "school": school,
             "consent_checkbox": consent_checkbox,
-            # "data_point_phrase": data_point_phrase,
-            # "data_point_definition": data_point_definition,
             "new_phrase": new_phrase,
             "new_phrase_definition": new_phrase_definition,
             "new_phrase_sentence_example": new_phrase_sentence_example,
@@ -127,8 +117,6 @@ def interface(
         with open("logs/logs_typicalPhrases.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
 
-    initial_data_point = get_random_data_point()
-
     # Gradio interface
     with gr.Blocks() as interface:
         _ = gr.Markdown(
@@ -138,10 +126,6 @@ def interface(
         )
         with gr.Row():
             with gr.Column():
-                gr.Markdown(i18n("ExampleLabel"), visible=False)
-                data_point_phrase = gr.Markdown(f"{i18n('TypicalPhrasesDataPointPhrasePrefix')} `{initial_data_point['phrase']}`", visible=False)
-                data_point_definition = gr.Markdown(f"{i18n('TypicalPhrasesDataPointMeaningPrefix')} {initial_data_point['meaning']}", visible=False)
-                gr.Markdown(i18n("YourTurnHeading"), visible=False)
                 new_phrase = gr.Textbox(
                     label=i18n("TypicalPhrasesNewPhraseLabel"),
                     placeholder=i18n("TypicalPhrasesNewPhrasePlaceholder"),
@@ -154,10 +138,10 @@ def interface(
                     label=i18n("TypicalPhrasesNewPhraseSentenceLabel"),
                     placeholder=i18n("TypicalPhrasesNewPhraseSentencePlaceholder"),
                 )
-                llm_responses_button = gr.Button(i18n("LLMResponsesButton"), interactive=False, variant="primary")
+                llm_responses_button = gr.Button(i18n("TypicalPhrasesLLMResponsesButton"), interactive=False, variant="primary")
             with gr.Column():
                 gr.Markdown(
-                    "### " + i18n("LLMHeader")
+                    "### " + i18n("TypicalPhrasesLLMHeader")
                 )
                 with gr.Row(variant="panel"):
                     model_a_response = gr.HighlightedText(
@@ -215,9 +199,8 @@ def interface(
             gender,
             nationality,
             region,
+            school,
             consent_checkbox,
-            data_point_phrase,
-            data_point_definition,
             new_phrase,
             new_phrase_definition,
             new_phrase_sentence_example,
@@ -243,8 +226,6 @@ def interface(
                     ])
                     content = response.content.strip()
                 
-                # Remove everything between ◣
-                content = re.sub(r'◣.*?ground', '', content, flags=re.DOTALL).strip()
                 return content
             
             with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -258,9 +239,8 @@ def interface(
                 gender,
                 nationality,
                 region,
+                school,
                 consent_checkbox,
-                data_point_phrase,
-                data_point_definition,
                 new_phrase,
                 new_phrase_definition,
                 new_phrase_sentence_example,
@@ -288,9 +268,8 @@ def interface(
                 gender,
                 nationality,
                 region,
+                school,
                 consent_checkbox,
-                data_point_phrase,
-                data_point_definition,
                 new_phrase,
                 new_phrase_definition,
                 new_phrase_sentence_example,
@@ -313,9 +292,8 @@ def interface(
             gender,
             nationality,
             region,
+            school,
             consent_checkbox,
-            data_point_phrase,
-            data_point_definition,
             new_phrase,
             new_phrase_definition,
             new_phrase_sentence_example,
@@ -333,9 +311,8 @@ def interface(
                 gender,
                 nationality,
                 region,
+                school,
                 consent_checkbox,
-                data_point_phrase,
-                data_point_definition,
                 new_phrase,
                 new_phrase_definition,
                 new_phrase_sentence_example,
@@ -347,10 +324,7 @@ def interface(
                 model_c_response,
                 model_c_likert
             )
-            new_data_point = get_random_data_point()
             return (
-                f"{i18n('TypicalPhrasesDataPointPhrasePrefix')} `{new_data_point['phrase']}`",
-                f"{i18n('TypicalPhrasesDataPointMeaningPrefix')} {new_data_point['meaning']}",
                 "",
                 "",
                 "",
@@ -373,9 +347,8 @@ def interface(
                 gender,
                 nationality,
                 region,
+                school,
                 consent_checkbox,
-                data_point_phrase,
-                data_point_definition,
                 new_phrase,
                 new_phrase_definition,
                 new_phrase_sentence_example,
@@ -387,8 +360,6 @@ def interface(
                 model_c_likert
             ],
             outputs=[
-                data_point_phrase,
-                data_point_definition,
                 new_phrase,
                 new_phrase_definition,
                 new_phrase_sentence_example,
