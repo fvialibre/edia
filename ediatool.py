@@ -21,7 +21,7 @@ from interfaces.interface_chatbot import interface as interface_chatbot
 from interfaces.interface_validator import interface as interface_validator
 # from interfaces.interface_cvqa import interface as interface_cvqa
 from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
-# from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
+from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
 # --- Imports interfaces ---
 # from interfaces.interface_WordExplorer import \
 #     interface as interface_wordExplorer
@@ -30,9 +30,7 @@ from interfaces.interface_typicalPhrases import interface as interface_typicalPh
 # from modules.module_languageModel import LanguageModel
 # from modules.module_vocabulary import Vocabulary
 from modules.utils import parse_cmd_line_args
-
-# from interfaces.interface_crowsPairs import interface as interface_crowsPairs
-
+from data.nationalities import nationalities
 
 
 # --- Tool config ---
@@ -50,128 +48,191 @@ AVAILABLE_WORDCLOUD     = cfg['DATA'].getboolean('available_wordcloud')
 SPANISH_LANGUAGE_MODEL  = cfg['LMODEL']['spanish_language_model']
 ENGLISH_LANGUAGE_MODEL  = cfg['LMODEL']['english_language_model']
 AVAILABLE_LOGS          = cfg['LOGS'].getboolean('available_logs')
+EDIA_THEME              = gr.themes.Base.from_hub('guidoivetta/edia-theme')
 
 # Server
-QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size'])
-REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
+QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size']) if cfg['SERVER']['queue_max_size'] != 'None' else None
+DEFAULT_CONCURRENCY_LIMIT = int(cfg['SERVER']['default_concurrency_limit']) if cfg['SERVER']['default_concurrency_limit'] != 'None' else None
+MAX_THREADS          = int(cfg['SERVER']['max_threads'])
 
-
-# --- Init classes ---
-# embedding = Embedding(
-#     path=EMBEDDINGS_PATH,
-#     limit=100000,
-#     randomizedPCA=False,
-#     max_neighbors=MAX_NEIGHBORS,
-#     nn_method=NN_METHOD
-# )
-
-# vocabulary = Vocabulary(
-#     subset_name=VOCABULARY_SUBSET
-# )
-
-# spanish_lm = LanguageModel(
-#     model_name=SPANISH_LANGUAGE_MODEL
-# )
-
-# english_lm = LanguageModel(
-#     model_name=ENGLISH_LANGUAGE_MODEL
-# )
-
-labels_path = f"language/{LANGUAGE}.json"
-if not os.path.isfile(labels_path):
-    raise FileNotFoundError(labels_path)
-labels = pd.read_json(labels_path)["app"]
 
 
 # # --- Main App ---
-
-INTERFACE_LIST = [
-    interface_typicalPhrases(DEFAULT_LANG=LANGUAGE),
-    interface_chatbot(),
-    # interface_clinicalChatbot(),
-    interface_validator(lang=LANGUAGE),
-    # interface_cvqa(lang=LANGUAGE),
-    # interface_ambiguousReferences(lang=LANGUAGE),
-    # interface_biasPhrase(
-    #     spanish_language_model=spanish_lm,
-    #     english_language_model=english_lm,
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,),
-    # interface_data(
-    #     vocabulary=vocabulary,
-    #     contexts=CONTEXTS_DATASET,
-    #     available_logs=AVAILABLE_LOGS,
-    #     available_wordcloud=AVAILABLE_WORDCLOUD,
-    #     lang=LANGUAGE,),
-    # interface_biasWordExplorer(
-    #     embedding=embedding,
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,),
-    # # interface_arena(),
-    # interface_wordExplorer(
-    #     embedding=embedding,
-    #     available_logs=AVAILABLE_LOGS,
-    #     max_neighbors=MAX_NEIGHBORS,
-    #     lang=LANGUAGE,),
-    # # interface_crowsPairs(
-    # #     language_model=beto_lm,
-    # #     available_logs=AVAILABLE_LOGS,
-    # #     lang=LANGUAGE,
-    # #     user_email=user_email),
-    # interface_logsData(
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,),
-]
-
-TAB_NAMES = [
-    labels["typicalPhrases"],
-    "LLM vía EDIA",
-    # "Chatbot Clínico",
-    labels["stereotypeValidator"],
-    # labels["cvqa"],
-    # labels["ambiguousReferences"],
-    # labels["phraseExplorer"],
-    # labels["dataExplorer"],
-    # labels["biasWordExplorer"],
-    # # "Arena",
-    # labels["wordExplorer"],
-    # # labels["crowsPairsExplorer"],
-    # "Visualizar datos",
-]
-
-if LANGUAGE != 'es':
-    # Skip data tab when using other than spanish language
-    INTERFACE_LIST = INTERFACE_LIST[:2] + INTERFACE_LIST[3:]
-    TAB_NAMES = TAB_NAMES[:2] + TAB_NAMES[3:]
-
-edia_theme = gr.themes.Base.from_hub('guidoivetta/edia-theme')
-
-with gr.Blocks(theme=edia_theme, css=css, title="EDIA") as iface:
+with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     _ = gr.HTML(NAVBAR_HTML)
-    # lang = gr.Radio(
-    #     choices=[
-    #         (i18n("English"), "en"),
-    #         (i18n("Spanish"), "es"),
-    #         (i18n("Portuguese"), "pt"),
-    #     ],
-    #     label=i18n("LanguageLabel"),
-    # )
-    # with Translate(
-    #     "language/i18n_typicalPhrases.json",
-    #     lang,
-    #     placeholder_langs=["en", "pt", "es"],
-    # ):
-    _ = gr.TabbedInterface(
-        interface_list=INTERFACE_LIST,
-        tab_names=TAB_NAMES,
+    lang = gr.Radio(
+        choices=[
+            ("English", "en"),
+            ("Español", "es"),
+            ("Português", "pt"),
+        ],
+        value="es",
+        label="Interface Language / Idioma de Interfaz / Idioma da Interface",
     )
-    _ = gr.HTML(FOOTER_HTML)
+    with Translate(
+        "language/i18n.yaml",
+        lang,
+        placeholder_langs=["en", "pt", "es"],
+    ):
+        with gr.Row(equal_height=False, variant="panel"):
+            with gr.Column(scale=1, min_width=200):
+                with gr.Group():
+                    token_id = gr.Textbox(
+                        label=i18n("Identifier"),
+                        lines=1,
+                    )
+                    age = gr.Number(
+                        value=0,
+                        label=i18n("AgeLabel"),
+                        visible=True,
+                    )
+                    gender = gr.Radio(
+                        ["M", "F", "X"],
+                        label=i18n("GenderLabel"),
+                        value=None,
+                        visible=True,
+                    )
+            with gr.Column(scale=2):
+                with gr.Group():
+                    nationality = gr.Dropdown(
+                        label=i18n("NationalityLabel"),
+                        info=i18n("NationalityInfo"),
+                        choices=nationalities,
+                        multiselect=False,
+                        allow_custom_value=False,
+                    )
+                    region = gr.Dropdown(
+                        label=i18n("PersonalRegionLabel"),
+                        choices=[],
+                        allow_custom_value=True,
+                        multiselect=False,
+                        interactive=False,
+                    )
+            with gr.Column(scale=1, min_width=200):
+                consent_checkbox = gr.Checkbox(
+                    label=i18n("ConsentLabel"),
+                    value=False,
+                )
+                _ = gr.HTML(
+                    value=f"<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
+                )
+        _ = gr.HTML(
+            value="<hr>",
+        )
+
+        with gr.Tabs(visible=False) as annotation_tabs:
+            with gr.Tab(i18n("TypicalPhrasesTab")):
+                interface_typicalPhrases(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("ChatbotTab")):
+                interface_chatbot()
+
+        
+        with gr.Row(visible=True) as personal_data_missing:
+            gr.Markdown(
+                i18n("PersonalDataMissingHeading")
+            )
+        _ = gr.HTML(FOOTER_HTML)
+
+    
+    def get_administrative_divisions(selected_country):
+        """Fetches administrative divisions for a selected country (string)."""
+        if not selected_country:
+            return []
+
+        try:
+            df = pd.read_json("data/global_administrative_division.json")
+            filtered_df = df[df["name"] == selected_country]
+
+            # Format as "Division Name (Country Name)"
+            divisions = [
+                f"{division['name']} ({row['name']})"
+                for _, row in filtered_df.iterrows()
+                for division in row["AD"]
+            ]
+            return sorted(list(set(divisions)))  # Sort and remove duplicates
+        except FileNotFoundError:
+            print("Error: data/global_administrative_division.json not found.")
+            return []
+        except Exception as e:
+            print(f"Error reading or processing administrative divisions: {e}")
+            return []
+
+    # Function to update the PERSONAL region dropdown based on selected PERSONAL nationalities
+    def update_personal_regions(selected_personal_nationalities):
+        if not selected_personal_nationalities:
+            # Disable and clear if no nationalities are selected
+            return gr.update(choices=[], value=[], interactive=False)
+        else:
+            # Get divisions using the helper function
+            region_choices = get_administrative_divisions(selected_personal_nationalities)
+            # Enable and update choices, keep existing selection if possible (Gradio handles this)
+            return gr.update(choices=region_choices, interactive=True)
+
+    # Connect the personal nationality dropdown to update the personal region dropdown
+    nationality.change(
+        fn=update_personal_regions,
+        inputs=[nationality],
+        outputs=[region]
+    )
+
+    def toggle_annotation(
+        token_id, age, gender, nationality, region, consent_checkbox
+    ):
+        if any([
+            token_id is None,
+            age is None,
+            gender is None,
+            nationality is None or len(nationality) == 0,
+            region is None or len(region) == 0,
+            consent_checkbox is None,
+            age < 0,
+            age > 100,
+            len(token_id) == 0,
+            not consent_checkbox
+        ]):
+            return (
+                gr.Tabs(visible=False),
+                gr.Row(visible=True)
+            )
+        else:
+            return (
+                gr.Tabs(visible=True),
+                gr.Row(visible=False)
+            )
+
+    toggle_annotation_inputs = [
+        token_id,
+        age,
+        gender,
+        nationality,
+        region,
+        consent_checkbox
+    ]
+    toggle_annotation_outputs = [
+        annotation_tabs,
+        personal_data_missing
+    ]
+
+    for component in toggle_annotation_inputs:
+        component.change(
+            fn=toggle_annotation,
+            inputs=toggle_annotation_inputs,
+            outputs=toggle_annotation_outputs
+        )
 
 iface.queue(
     max_size=QUEUE_MAX_SIZE,
+    default_concurrency_limit=DEFAULT_CONCURRENCY_LIMIT
 )
 
 iface.launch(
     server_port=cmd_line_args['port'],
-    max_threads = REQUESTS_CONCURRENCY
+    max_threads = MAX_THREADS
 )
