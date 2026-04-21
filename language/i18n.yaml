@@ -9,6 +9,8 @@ en:
     PersonalRegionLabel: Which region?
     ConsentLabel: I have read and accept the informed consent ⬇️
     PersonalDataMissingHeading: "# Enter your personal data and confirm your consent to continue."
+    SchoolLabel: Select your school (See ⬇️)
+    SchoolNamePlaceholder: You did not select any school
 
     # Tab Names
     TypicalPhrasesTab: Typical Phrases
@@ -46,7 +48,9 @@ es:
     PersonalRegionLabel: ¿Qué región?
     ConsentLabel: He leído y acepto el consentimiento informado ⬇️
     PersonalDataMissingHeading: "# Ingresa tus datos personales y confirma tu consentimiento para continuar."
-
+    SchoolLabel: Selecciona tu escuela (Ver ⬇️)
+    SchoolNamePlaceholder: No has seleccionado ninguna escuela
+    
     # Tab Names
     TypicalPhrasesTab: Frases Típicas
 
@@ -83,6 +87,8 @@ pt:
     PersonalRegionLabel: Qual região?
     ConsentLabel: Li e aceito o consentimento informado ⬇️
     PersonalDataMissingHeading: "# Insira seus dados pessoais e confirme seu consentimento para continuar."
+    SchoolLabel: Selecione sua escola (Veja ⬇️)
+    SchoolNamePlaceholder: Você não selecionou nenhuma escola
 
     # Tab Names
     TypicalPhrasesTab: Expressões Típicas
