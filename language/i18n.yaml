@@ -38,7 +38,7 @@ en:
     TypicalPhrasesLikertLabel: How correct is this definition?
     TypicalPhrasesLikertInfo: "1 = Incorrect, 5 = Very correct"
     TypicalPhrasesLLMResponsesButton: How do language models respond?
-    TypicalPhrasesSystemPromptDefine: Define the following expression clearly. The definition must be in English, be precise and concise, and not exceed 40 words. Do not include additional explanations, examples, or information outside the definition. Respond only with the definition.
+    TypicalPhrasesSystemPrompt: Define the following expression clearly. The definition must be in English, be precise and concise, and not exceed 40 words. Do not include additional explanations, examples, or information outside the definition. Respond only with the definition.
 
 es:
     # Global Input Labels
@@ -80,7 +80,7 @@ es:
     TypicalPhrasesLikertLabel: ¿Qué tan correcta es esta definición?
     TypicalPhrasesLikertInfo: "1 = Incorrecta, 5 = Muy correcta"
     TypicalPhrasesLLMResponsesButton: ¿Cómo responden los modelos de lenguaje?
-    TypicalPhrasesSystemPromptDefine: Define la siguiente expresión de forma clara. La definición debe estar en español, ser precisa y concisa, y no superar las 40 palabras. No incluyas explicaciones adicionales, ejemplos ni información fuera de la definición. Responde solo con la definición.
+    TypicalPhrasesSystemPrompt: Define la siguiente expresión de forma clara. La definición debe estar en español, ser precisa y concisa, y no superar las 40 palabras. No incluyas explicaciones adicionales, ejemplos ni información fuera de la definición. Responde solo con la definición.
 
 pt:
     # Global Input Labels
@@ -122,4 +122,4 @@ pt:
     TypicalPhrasesLikertLabel: Quão correta é esta definição?
     TypicalPhrasesLikertInfo: "1 = Incorreta, 5 = Muito correta"
     TypicalPhrasesLLMResponsesButton: Como os modelos de linguagem respondem?
-    TypicalPhrasesSystemPromptDefine: Defina a seguinte expressão de forma clara. A definição deve estar em português, ser precisa e concisa, e não ultrapassar 40 palavras. Não inclua explicações adicionais, exemplos ou informações fora da definição. Responda apenas com a definição.
+    TypicalPhrasesSystemPrompt: Defina a seguinte expressão de forma clara. A definição deve estar em português, ser precisa e concisa, e não ultrapassar 40 palavras. Não inclua explicações adicionais, exemplos ou informações fora da definição. Responda apenas com a definição.
