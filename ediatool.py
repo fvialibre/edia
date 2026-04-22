@@ -20,7 +20,7 @@ from interfaces.interface_chatbot import interface as interface_chatbot
 # from interfaces.interface_data import interface as interface_data
 # from interfaces.interface_logsData import interface as interface_logsData
 from interfaces.interface_validator import interface as interface_validator
-# from interfaces.interface_cvqa import interface as interface_cvqa
+from interfaces.interface_cvqa import interface as interface_cvqa
 from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
 from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
 # --- Imports interfaces ---
@@ -31,7 +31,7 @@ from interfaces.interface_ambiguousReferences import interface as interface_ambi
 # from modules.module_languageModel import LanguageModel
 # from modules.module_vocabulary import Vocabulary
 from modules.utils import parse_cmd_line_args
-from data.nationalities import nationalities
+from data.nationalities import nationalities, CVQA_SUPPORTED_NATIONALITIES
 
 
 # --- Tool config ---
@@ -166,8 +166,17 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
+            with gr.Tab(i18n("CVQATab"), visible=False) as cvqa_tab:
+                interface_cvqa(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
 
-        
         with gr.Row(visible=True) as personal_data_missing:
             gr.Markdown(
                 i18n("PersonalDataMissingHeading")
@@ -207,13 +216,25 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
             # Get divisions using the helper function
             region_choices = get_administrative_divisions(selected_personal_nationalities)
             # Enable and update choices, keep existing selection if possible (Gradio handles this)
-            return gr.update(choices=region_choices, interactive=True)
+            return gr.update(choices=region_choices, value=[], interactive=True)
 
     # Connect the personal nationality dropdown to update the personal region dropdown
     nationality.change(
         fn=update_personal_regions,
         inputs=[nationality],
         outputs=[region]
+    )
+
+    def cvqa_tab_toggle(nationality):
+        if not nationality or nationality not in CVQA_SUPPORTED_NATIONALITIES:
+            return gr.Tab(visible=False)
+        else:
+            return gr.Tab(visible=True)
+
+    nationality.change(
+        fn=cvqa_tab_toggle,
+        inputs=[nationality],
+        outputs=[cvqa_tab]
     )
 
     def toggle_school(region):

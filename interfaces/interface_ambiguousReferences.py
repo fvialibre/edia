@@ -36,12 +36,13 @@ models = {
     "phi4-multi": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/phi4-multi"
     ),
-    "gemma3-4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"),
+    "gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    ),
     "qwen3-vl-2b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3-vl-2b"
     ),
 }
-
 
 # --- Interface ---
 def interface(

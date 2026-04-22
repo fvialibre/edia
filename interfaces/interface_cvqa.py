@@ -2,9 +2,6 @@ import base64
 import json
 import os
 from datetime import datetime
-from langchain_openai import ChatOpenAI
-from langchain_cohere import ChatCohere
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from modules.module_ollama import ModelWrapper
 import gradio as gr
@@ -22,9 +19,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # LOAD CVQA #################################################
 
-ds = load_from_disk("cvqa_full_dataset")
+ds = load_from_disk("data/cvqa_full_dataset")
 
-print("Building index...")
+print("Building CVQA index...")
 
 # 1. Fetch metadata
 df = ds.select_columns(["Subset"]).to_pandas()
@@ -46,33 +43,36 @@ df['Country_Key'] = df['Subset'].apply(extract_country)
 # Now "Bulgaria" will point to ALL indices, regardless of the language 
 country_indices_map = df.groupby("Country_Key").indices
 
-print("Index built!")
+print("CVQA Index built!")
 
 # END LOAD CVQA #############################################
 
 
 secrets = dotenv_values("./.env")
-os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
 os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
-os.environ['COHERE_API_KEY'] = secrets['COHERE_API_KEY']
-os.environ['GOOGLE_API_KEY'] = secrets['GOOGLE_API_KEY']
 
 models = {
-    # "openai": ChatOpenAI(api_key=secrets["OPENAI_API_KEY"], model="gpt-5-nano", temperature=1, max_retries=3),
-    # "cohere": ChatCohere(cohere_api_key=secrets["COHERE_API_KEY"], model="command-r", temperature=1, max_retries=3),
-    # "google": ChatGoogleGenerativeAI(google_api_key=secrets["GOOGLE_API_KEY"], model="gemini-2.0-flash", temperature=1, max_retries=3),
-    "gemma3:4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gemma3:4b"),
-    # "llama3.1:8b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llama3.1:8b"),
-    # "llava:34b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="llava:34b"),
-    # "mistral:7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral:7b"),
-    # "gpt-oss:20b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="gpt-oss:20b"),
-    "qwen3:32b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="qwen3:32b"),
-    "mistral-small3.2:24b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="mistral-small3.2:24b"),
-    # "ministral-3:14b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="ministral-3:14b"),
+    "phi4-multi": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/phi4-multi"
+    ),
+    "gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    ),
+    "qwen3-vl-2b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3-vl-2b"
+    ),
 }
 
 # --- Interface ---
-def interface(lang: str) -> gr.Blocks:
+def interface(
+    token_id,
+    age,
+    gender,
+    nationality,
+    region,
+    school,
+    consent_checkbox
+) -> gr.Blocks:
 
     def get_random_data_point(token_id, country_of_interest):
         possible_indices = country_indices_map[country_of_interest]
@@ -118,8 +118,9 @@ def interface(lang: str) -> gr.Blocks:
         token_id,
         age,
         gender,
-        nationality_personal_info,
-        country_of_interest,
+        nationality,
+        region,
+        school,
         consent_checkbox,
         data_point_ID,
         data_point_IDX,
@@ -136,8 +137,9 @@ def interface(lang: str) -> gr.Blocks:
             "token_id": token_id,
             "age": age,
             "gender": gender,
-            "nationality_personal_info": nationality_personal_info,
-            "country_of_interest": country_of_interest,
+            "nationality": nationality,
+            "region": region,
+            "school": school,
             "consent_checkbox": consent_checkbox,
             "data_point_ID": data_point_ID,
             "data_point_IDX": data_point_IDX,
@@ -155,147 +157,97 @@ def interface(lang: str) -> gr.Blocks:
 
     # Gradio interface
     with gr.Blocks() as interface:
-        with gr.Row():
-            token_id = gr.Textbox(
-                label="Identifier",
-                info="Enter the identifier provided in the workshop",
-                lines=1,
-            )
-            age = gr.Number(
-                value=0,
-                label="Enter your age",
-                visible=False,
-            )
-            gender = gr.Radio(
-                ["M", "F", "X"],
-                label="Select your gender",
-                value="X",
-                visible=False,
-            )
-            nationality_personal_info = gr.Dropdown(
-                label="Where are you from?",
-                info="Select the nationality that represents your cultural, personal, or national identity",
-                choices=nationalities,
-                multiselect=True,
-                allow_custom_value=False,
-            )
-            country_of_interest = gr.Dropdown(
-                label="Select the country you would like to contribute questions for",
-                info="You can select only one country",
-                choices=list(country_indices_map.keys()),
-                multiselect=False,
-                allow_custom_value=False,
-                visible=True,
-            )
-            with gr.Column():
-                consent_checkbox = gr.Checkbox(
-                    label="I have read and accept the informed consent ⬇️", value=False
-                )
-                _ = gr.HTML(
-                    value="<a href='https://docs.google.com/document/d/1YEi0QpFYJwFBSIAjGplPc0VkOxJwnME29dWWyfp37XY/edit?usp=sharing'>Link 🔗</a>",
-                )
-        _ = gr.HTML(
-            value="<hr>",
-        )
-        with gr.Column(visible=True) as personal_data_missing:
-            gr.Markdown(
-                """
-                # Enter your personal data and confirm your consent to proceed with the survey!
+        _ = gr.Markdown(
             """
-            )
-        with gr.Column(visible=False, elem_id="annotation_col") as annotation_col:
-            _ = gr.Markdown(
-                """
-                # Regional Knowledge Activity
+            # Actividad de Conocimiento Regional
 
-                ### Please add multiple choice questions that only someone from your region should be able to answer.
+            ### Por favor, añade preguntas de opción múltiple que sólo alguien de tu región sea capaz de responder.
 
-                ### For each question, provide the question text, several answer options, and indicate the correct answer.
-                """
-            )
-            with gr.Row():
-                with gr.Column(scale=1):
-                    data_point_ID = gr.Textbox(
-                        label="ID",
-                        value=initial_data_point["ID"],
-                        interactive=False,
-                        visible=False,
-                    )
-                    data_point_IDX = gr.Textbox(
-                        label="IDX",
-                        value=initial_data_point["IDX"],
-                        interactive=False,
-                        visible=False,
-                    )
-                    data_point_image = gr.Image(
-                        label="Image",
-                        value=initial_data_point["image"],
-                        interactive=False,
-                    )
-                with gr.Column(scale=2):
-                    gr.Markdown("### Este es un ejemplo:")
-                    data_point_multiple_choice = gr.Radio(
-                        label=initial_data_point["Question"],
-                        choices=initial_data_point["Options"],
-                        interactive=True,
-                    )
-                    gr.Markdown("### A partir de la misma imagen:")
-                    other_question_input = gr.Textbox(
-                        label="Dar otra pregunta que sólo podría responder alguien de tu región:",
-                        placeholder="Escribe aquí la pregunta",
-                    )
-                    correct_answer_input = gr.Textbox(
-                        label="Dar la respuesta correcta:",
-                        placeholder="Respuesta correcta",
-                    )
-                    incorrect_answer_1_input = gr.Textbox(
-                        label="Dar una respuesta incorrecta posible:",
-                        placeholder="Respuesta incorrecta 1",
-                    )
-                    incorrect_answer_2_input = gr.Textbox(
-                        label="Dar una respuesta incorrecta posible:",
-                        placeholder="Respuesta incorrecta 2",
-                    )
-                    incorrect_answer_3_input = gr.Textbox(
-                        label="Dar una respuesta incorrecta posible:",
-                        placeholder="Respuesta incorrecta 3",
-                    )
-            with gr.Row(equal_height=True):
-                llm_responses_button = gr.Button("Cómo responden los modelos de lenguaje?", interactive=False, variant="secondary", scale=50)
-                next_button = gr.Button("Siguiente", variant="primary", scale=25)
+            ### Para cada pregunta, proporciona el texto de la misma, varias opciones razonables de respuesta e indica cuál es la respuesta correcta.
+            """
+        )
+        with gr.Row():
+            with gr.Column(scale=1):
+                data_point_ID = gr.Textbox(
+                    label="ID",
+                    value=initial_data_point["ID"],
+                    interactive=False,
+                    visible=False,
+                )
+                data_point_IDX = gr.Textbox(
+                    label="IDX",
+                    value=initial_data_point["IDX"],
+                    interactive=False,
+                    visible=False,
+                )
+                data_point_image = gr.Image(
+                    label="Image",
+                    value=initial_data_point["image"],
+                    interactive=False,
+                )
+            with gr.Column(scale=2):
+                gr.Markdown("### Este es un ejemplo:")
+                data_point_multiple_choice = gr.Radio(
+                    label=initial_data_point["Question"],
+                    choices=initial_data_point["Options"],
+                    interactive=True,
+                )
+                gr.Markdown("### A partir de la misma imagen:")
+                other_question_input = gr.Textbox(
+                    label="Dar otra pregunta que sólo podría responder alguien de tu región:",
+                    placeholder="Escribe aquí la pregunta",
+                )
+                correct_answer_input = gr.Textbox(
+                    label="Dar la respuesta correcta:",
+                    placeholder="Respuesta correcta",
+                )
+                incorrect_answer_1_input = gr.Textbox(
+                    label="Dar una respuesta incorrecta posible:",
+                    placeholder="Respuesta incorrecta 1",
+                )
+                incorrect_answer_2_input = gr.Textbox(
+                    label="Dar una respuesta incorrecta posible:",
+                    placeholder="Respuesta incorrecta 2",
+                )
+                incorrect_answer_3_input = gr.Textbox(
+                    label="Dar una respuesta incorrecta posible:",
+                    placeholder="Respuesta incorrecta 3",
+                )
+        with gr.Row(equal_height=True):
+            llm_responses_button = gr.Button("Cómo responden los modelos de lenguaje?", interactive=False, variant="secondary", scale=75)
+            next_button = gr.Button("Siguiente imagen", variant="primary", scale=25)
 
-        with gr.Column(visible=False, elem_id="llm_responses_col") as llm_responses_col:
-            gr.Markdown(
-                f"""
-                ### Aquí verás cómo responden diferentes modelos de lenguaje a tu pregunta regional.
-                Las respuestas se generan automáticamente para mostrar cómo {list(models.keys())[0]}, {list(models.keys())[1]} y {list(models.keys())[2]} podrían contestar la pregunta que escribiste.
-                """
+        gr.Markdown(
+            f"""
+            ### Aquí verás cómo responden diferentes modelos de lenguaje a tu pregunta de conocimiento regional.
+            Las respuestas se generan automáticamente para mostrar cómo {list(models.keys())[0]}, {list(models.keys())[1]} y {list(models.keys())[2]} podrían contestar la pregunta que escribiste.
+            """
+        )
+        with gr.Row():
+            model_a_response = gr.HighlightedText(
+                label=list(models.keys())[0],
+                value=[],
+                combine_adjacent=True,
+                show_legend=False,
+                interactive=False,
+                color_map={"✓": "green", "X": "red"}
             )
-            with gr.Row():
-                model_a_response = gr.HighlightedText(
-                    label=list(models.keys())[0],
-                    value=[],
-                    combine_adjacent=True,
-                    show_legend=False,
-                    interactive=False,
-                    color_map={"✓": "green", "X": "red"}
-                )
-                model_b_response = gr.HighlightedText(
-                    label=list(models.keys())[1],
-                    value=[],
-                    combine_adjacent=True,
-                    show_legend=False,
-                    interactive=False,
-                    color_map={"✓": "green", "X": "red"}
-                )
-                model_c_response = gr.HighlightedText(
-                    label=list(models.keys())[2],
-                    value=[],
-                    combine_adjacent=True,
-                    show_legend=False,
-                    interactive=False,
-                    color_map={"✓": "green", "X": "red"}
-                )
+            model_b_response = gr.HighlightedText(
+                label=list(models.keys())[1],
+                value=[],
+                combine_adjacent=True,
+                show_legend=False,
+                interactive=False,
+                color_map={"✓": "green", "X": "red"}
+            )
+            model_c_response = gr.HighlightedText(
+                label=list(models.keys())[2],
+                value=[],
+                combine_adjacent=True,
+                show_legend=False,
+                interactive=False,
+                color_map={"✓": "green", "X": "red"}
+            )
 
         with Modal(visible=False) as validation_modal:
             _ = gr.HTML("<h1>Veamos que preguntas generaron otros participantes!</h1>")
@@ -332,7 +284,7 @@ def interface(lang: str) -> gr.Blocks:
                         label="¿La pregunta está bien hecha?",
                         info="1 es muy mala, 5 es excelente",
                         interactive=True,
-                        show_reset_button=False,
+                        # show_reset_button=False,
                     )
                     validation_1_label = gr.Dropdown(
                         choices=[
@@ -366,7 +318,7 @@ def interface(lang: str) -> gr.Blocks:
                         label="¿La pregunta está bien hecha?",
                         info="1 es muy mala, 5 es excelente",
                         interactive=True,
-                        show_reset_button=False,
+                        # show_reset_button=False,
                     )
                     validation_2_label = gr.Dropdown(
                         choices=[
@@ -400,7 +352,7 @@ def interface(lang: str) -> gr.Blocks:
                         label="¿La pregunta está bien hecha?",
                         info="1 es muy mala, 5 es excelente",
                         interactive=True,
-                        show_reset_button=False,
+                        # show_reset_button=False,
                     )
                     validation_3_label = gr.Dropdown(
                         choices=[
@@ -432,8 +384,9 @@ def interface(lang: str) -> gr.Blocks:
             token_id,
             age,
             gender,
-            nationality_personal_info,
-            country_of_interest,
+            nationality,
+            region,
+            school,
             consent_checkbox,
             data_point_ID,
             data_point_IDX,
@@ -529,7 +482,7 @@ def interface(lang: str) -> gr.Blocks:
                         response_content = response_content.strip()
 
                     response_content = re.sub(r'[^A-Za-z0-9]', '', response_content)
-                    print(f"Response from {model_name}: {response_content}")
+                    # print(f"Response from {model_name}: {response_content}")
                     return idx, response_content
                 except Exception as e:
                     print(f"Error invoking {model_name}: {e}")
@@ -550,8 +503,9 @@ def interface(lang: str) -> gr.Blocks:
                 token_id,
                 age,
                 gender,
-                nationality_personal_info,
-                country_of_interest,
+                nationality,
+                region,
+                school,
                 consent_checkbox,
                 data_point_ID,
                 data_point_IDX,
@@ -590,8 +544,9 @@ def interface(lang: str) -> gr.Blocks:
                 token_id,
                 age,
                 gender,
-                nationality_personal_info,
-                country_of_interest,
+                nationality,
+                region,
+                school,
                 consent_checkbox,
                 data_point_ID,
                 data_point_IDX,
@@ -616,8 +571,9 @@ def interface(lang: str) -> gr.Blocks:
             token_id,
             age,
             gender,
-            nationality_personal_info,
-            country_of_interest,
+            nationality,
+            region,
+            school,
             consent_checkbox,
             data_point_ID,
             data_point_IDX,
@@ -635,8 +591,9 @@ def interface(lang: str) -> gr.Blocks:
                 token_id,
                 age,
                 gender,
-                nationality_personal_info,
-                country_of_interest,
+                nationality,
+                region,
+                school,
                 consent_checkbox,
                 data_point_ID,
                 data_point_IDX,
@@ -655,7 +612,8 @@ def interface(lang: str) -> gr.Blocks:
             existing_logs_for_data_point = existing_logs_for_data_point.sample(frac=1).reset_index(drop=True)
 
             # Determine if we should show the validation modal
-            show_modal = not existing_logs_for_data_point.empty
+            # show_modal = not existing_logs_for_data_point.empty
+            show_modal = False # TEMPORARY
             
             # Prepare modal data - get up to 3 unique logs
             modal_data = []
@@ -691,7 +649,7 @@ def interface(lang: str) -> gr.Blocks:
                         interactive=True,
                     ))
             
-            new_data_point = get_random_data_point(token_id, country_of_interest)
+            new_data_point = get_random_data_point(token_id, nationality)
             return (
                 new_data_point["ID"],
                 new_data_point["IDX"],
@@ -723,8 +681,9 @@ def interface(lang: str) -> gr.Blocks:
                 token_id,
                 age,
                 gender,
-                nationality_personal_info,
-                country_of_interest,
+                nationality,
+                region,
+                school,
                 consent_checkbox,
                 data_point_ID,
                 data_point_IDX,
@@ -765,8 +724,9 @@ def interface(lang: str) -> gr.Blocks:
             gender,
             modal_data_point_ID,
             modal_data_point_IDX,
-            nationality_personal_info,
-            country_of_interest,
+            nationality,
+            region,
+            school,
             consent_checkbox,
             validation_1_multiple_choice,
             validation_1_q1,
@@ -786,8 +746,9 @@ def interface(lang: str) -> gr.Blocks:
                 "gender": gender,
                 "modal_data_point_ID": modal_data_point_ID,
                 "modal_data_point_IDX": modal_data_point_IDX,
-                "nationality_personal_info": nationality_personal_info,
-                "country_of_interest": country_of_interest,
+                "nationality": nationality,
+                "region": region,
+                "school": school,
                 "consent_checkbox": consent_checkbox,
                 "validation_1_multiple_choice": validation_1_multiple_choice,
                 "validation_1_q1": validation_1_q1,
@@ -815,8 +776,9 @@ def interface(lang: str) -> gr.Blocks:
                 gender,
                 modal_data_point_ID,
                 modal_data_point_IDX,
-                nationality_personal_info,
-                country_of_interest,
+                nationality,
+                region,
+                school,
                 consent_checkbox,
                 validation_1_multiple_choice,
                 validation_1_q1,
@@ -847,75 +809,6 @@ def interface(lang: str) -> gr.Blocks:
                 modal_data_point_image
             ],
         )
-
-        # Annotation Toggle
-
-        def toggle_annotation(
-            token_id, age, gender, nationality_personal_info, country_of_interest, consent_checkbox
-        ):
-            if any([
-                token_id is None,
-                age is None,
-                gender is None,
-                nationality_personal_info is None,
-                country_of_interest is None,
-                consent_checkbox is None,
-                age < 0,
-                age > 100,
-                len(nationality_personal_info) == 0,
-                len(country_of_interest) == 0,
-                len(token_id) == 0,
-                not consent_checkbox
-            ]):
-                return (
-                    gr.update(),
-                    gr.update(),
-                    gr.update(),
-                    gr.update(),
-                    gr.Column(visible=False),
-                    gr.Column(visible=False),
-                    gr.Column(visible=True)
-                )
-            else:
-                new_data_point = get_random_data_point(token_id, country_of_interest)
-                return (
-                    new_data_point["ID"],
-                    new_data_point["IDX"],
-                    new_data_point["image"],
-                    gr.Radio(
-                        label=new_data_point["Question"],
-                        choices=new_data_point["Options"],
-                        interactive=True,
-                    ),
-                    gr.Column(visible=True),
-                    gr.Column(visible=True),
-                    gr.Column(visible=False),
-                )
-
-        toggle_annotation_inputs = [
-            token_id,
-            age,
-            gender,
-            nationality_personal_info,
-            country_of_interest,
-            consent_checkbox
-        ]
-        toggle_annotation_outputs = [
-            data_point_ID,
-            data_point_IDX,
-            data_point_image,
-            data_point_multiple_choice,
-            annotation_col,
-            llm_responses_col,
-            personal_data_missing
-        ]
-
-        for component in toggle_annotation_inputs:
-            component.change(
-                fn=toggle_annotation,
-                inputs=toggle_annotation_inputs,
-                outputs=toggle_annotation_outputs
-            )
 
         # LLM Responses Toggle
 

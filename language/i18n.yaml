@@ -16,6 +16,7 @@ en:
     TypicalPhrasesTab: Typical Phrases
     ChatbotTab: LLM via EDIA
     AmbiguousReferencesTab: Ambiguous References
+    CVQATab: Cultural Questions
 
     # Common Labels
     ModelALabel: Model A
@@ -57,6 +58,7 @@ es:
     TypicalPhrasesTab: Frases Típicas
     ChatbotTab: LLM vía EDIA
     AmbiguousReferencesTab: Referencias Ambiguas
+    CVQATab: Preguntas Culturales
 
     # Common Labels
     ModelALabel: Modelo A
@@ -98,6 +100,7 @@ pt:
     TypicalPhrasesTab: Expressões Típicas
     ChatbotTab: LLM vía EDIA
     AmbiguousReferencesTab: Referências Ambíguas
+    CVQATab: Perguntas Culturais
     
     # Common Labels
     ModelALabel: Modelo A
