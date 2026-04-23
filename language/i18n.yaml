@@ -17,6 +17,20 @@ en:
     ChatbotTab: LLM via EDIA
     AmbiguousReferencesTab: Ambiguous References
     CVQATab: Cultural Questions
+    ValidatorTab: Validator
+
+    # Validator Tab
+    ValidatorTitle: Stereotype Validator
+    ValidatorDescription: Rate each association and optionally suggest related nationalities or attributes. Each submission advances to a new data point.
+    ValidatorDataPointLabel: Data point
+    ValidatorLikertLabel: This is a known association in my region
+    ValidatorLikertInfo: "1: Strongly disagree, 5: Strongly agree"
+    ValidatorAssocRegionLabel: Any specific region?
+    ValidatorAssocAttributesPlaceholder: Enter a single attribute
+    ValidatorAssocAttributesPrompt: "Which other attribute do you associate with that nationality?"
+    ValidatorAssocNationalitiesPrompt: "Which other nationalities do you associate with that attribute?"
+    ValidatorSkipButton: Skip
+    ValidatorSubmitButton: Submit
 
     # Common Labels
     ModelALabel: Model A
@@ -59,6 +73,20 @@ es:
     ChatbotTab: LLM vía EDIA
     AmbiguousReferencesTab: Referencias Ambiguas
     CVQATab: Preguntas Culturales
+    ValidatorTab: Validador
+
+    # Validator Tab
+    ValidatorTitle: Validador de Estereotipos
+    ValidatorDescription: Evalúa cada asociación y, opcionalmente, sugiere nacionalidades o atributos relacionados. Cada envío avanza a un nuevo dato.
+    ValidatorDataPointLabel: Dato
+    ValidatorLikertLabel: Esta es una asociación conocida en mi región
+    ValidatorLikertInfo: "1: Muy en desacuerdo, 5: Muy de acuerdo"
+    ValidatorAssocRegionLabel: "¿Alguna región específica?"
+    ValidatorAssocAttributesPlaceholder: Escribe un solo atributo
+    ValidatorAssocAttributesPrompt: "¿Qué otro atributo asocias con esa nacionalidad?"
+    ValidatorAssocNationalitiesPrompt: "¿Con qué otras nacionalidades asocias ese atributo?"
+    ValidatorSkipButton: Omitir
+    ValidatorSubmitButton: Enviar
 
     # Common Labels
     ModelALabel: Modelo A
@@ -101,7 +129,21 @@ pt:
     ChatbotTab: LLM vía EDIA
     AmbiguousReferencesTab: Referências Ambíguas
     CVQATab: Perguntas Culturais
-    
+    ValidatorTab: Validador
+
+    # Validator Tab
+    ValidatorTitle: Validador de Estereótipos
+    ValidatorDescription: Avalie cada associação e, opcionalmente, sugira nacionalidades ou atributos relacionados. Cada envio avança para um novo ponto de dados.
+    ValidatorDataPointLabel: Ponto de dados
+    ValidatorLikertLabel: Esta é uma associação conhecida na minha região
+    ValidatorLikertInfo: "1: Discordo totalmente, 5: Concordo totalmente"
+    ValidatorAssocRegionLabel: Alguma região específica?
+    ValidatorAssocAttributesPlaceholder: Digite um único atributo
+    ValidatorAssocAttributesPrompt: "Qual outro atributo você associa com essa nacionalidade?"
+    ValidatorAssocNationalitiesPrompt: "Quais outras nacionalidades você associa com esse atributo?"
+    ValidatorSkipButton: Pular
+    ValidatorSubmitButton: Enviar
+
     # Common Labels
     ModelALabel: Modelo A
     ModelBLabel: Modelo B

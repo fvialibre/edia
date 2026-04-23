@@ -75,35 +75,19 @@ def interface(
 ) -> gr.Blocks:
 
     def get_random_data_point(token_id, country_of_interest):
-        possible_indices = country_indices_map[country_of_interest]
-        
-        cvqa_logs_df = pd.read_json("logs/logs_cvqa.jsonl", lines=True)
-        cvqa_validation_logs_df = pd.read_json("logs/logs_validation_cvqa.jsonl", lines=True)
+        possible_indices = list(country_indices_map[country_of_interest])
 
-        # remove from possible_indices those that have been logged by this token_id
-        logged_indices_by_token = cvqa_logs_df[cvqa_logs_df["token_id"] == token_id]["data_point_IDX"].unique().tolist()
-        possible_indices = [idx for idx in possible_indices if idx not in logged_indices_by_token]
-        
-        # Count logs per data point for possible_indices
-        logs_count = cvqa_logs_df.groupby("data_point_IDX").size()
-        logs_count = logs_count[logs_count.index.isin(possible_indices)]
-        
-        # Filter out data points that already have 5+ validations
-        if not cvqa_validation_logs_df.empty:
-            cvqa_validation_counts = cvqa_validation_logs_df.groupby("data_point_IDX").size()
-            data_points_with_lots_of_validations = cvqa_validation_counts[cvqa_validation_counts > 5].index.tolist()
-        else:
-            data_points_with_lots_of_validations = []
-        
-        # Filter out data points with lots of validations
-        filtered_indices = [idx for idx in logs_count.index if idx not in data_points_with_lots_of_validations]
-        
-        # Sort by log count descending and pick the first one
-        if len(filtered_indices) > 0:
-            random_index = logs_count[filtered_indices].idxmax()
-        else:
-            random_index = random.choice(possible_indices)
-        
+        cvqa_logs_df = pd.read_json("logs/logs_cvqa.jsonl", lines=True)
+
+        # Remove data points already seen by this user
+        if not cvqa_logs_df.empty:
+            logged_indices_by_token = cvqa_logs_df[cvqa_logs_df["token_id"] == token_id]["data_point_IDX"].unique().tolist()
+            possible_indices = [idx for idx in possible_indices if idx not in logged_indices_by_token]
+
+        if not possible_indices:
+            possible_indices = list(country_indices_map[country_of_interest])
+
+        random_index = random.choice(possible_indices)
         data_point = ds[int(random_index)]
         return {
             "ID": data_point["ID"],
@@ -851,6 +835,49 @@ def interface(
                 inputs=toggle_llm_responses_inputs,
                 outputs=toggle_llm_responses_outputs
             )
+
+        # Reset data point when nationality changes ############################
+
+        def on_nationality_change(token_id, nationality):
+            if not nationality or nationality not in country_indices_map:
+                return (
+                    gr.update(), gr.update(), gr.update(), gr.update(),
+                    "", "", "", "", "",
+                    gr.update(value=[]), gr.update(value=[]), gr.update(value=[]),
+                )
+            new_data_point = get_random_data_point(token_id, nationality)
+            return (
+                new_data_point["ID"],
+                new_data_point["IDX"],
+                new_data_point["image"],
+                gr.Radio(
+                    label=new_data_point["Question"],
+                    choices=new_data_point["Options"],
+                    interactive=True,
+                    value=None,
+                ),
+                "", "", "", "", "",
+                gr.update(value=[]), gr.update(value=[]), gr.update(value=[]),
+            )
+
+        nationality.change(
+            fn=on_nationality_change,
+            inputs=[token_id, nationality],
+            outputs=[
+                data_point_ID,
+                data_point_IDX,
+                data_point_image,
+                data_point_multiple_choice,
+                other_question_input,
+                correct_answer_input,
+                incorrect_answer_1_input,
+                incorrect_answer_2_input,
+                incorrect_answer_3_input,
+                model_a_response,
+                model_b_response,
+                model_c_response,
+            ]
+        )
 
 
 

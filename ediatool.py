@@ -176,6 +176,17 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
+            with gr.Tab(i18n("ValidatorTab")):
+                interface_validator(
+                    lang=lang,
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
 
         with gr.Row(visible=True) as personal_data_missing:
             gr.Markdown(
