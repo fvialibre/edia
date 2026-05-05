@@ -8,7 +8,7 @@ NAVBAR_HTML = """
 
 FOOTER_HTML = """
     <div style="width: 100%; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center;">
-        <img src="https://i.imgur.com/y0MsJRk.jpeg">
+        <img src="https://i.imgur.com/CiQNtey.jpeg">
     </div>
 """
 
