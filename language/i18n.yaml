@@ -1,4 +1,7 @@
 en:
+    AppTitle: "EDIA: Exploring Cultural Biases in Language Models"
+    AppDescription: "Welcome to the EDIA workshop! This interactive tool allows you to contribute to our research by sharing cultural insights and evaluating language model responses. Please navigate through the tabs to participate in different activities designed to uncover cultural biases in language models. Your input is invaluable in helping us understand and mitigate these biases. Let's get started!"
+    
     # Global Input Labels
     Identifier: Identifier
     TokenInfo: Enter the identifier provided in the workshop
@@ -105,9 +108,34 @@ en:
     CVQANextButton: Next image
     CVQALLMHeader: Here you will see how different language models respond to your regional knowledge question. The responses are automatically generated to show how the models might answer the question you wrote.
     CVQAModalHeader: "Let's see what questions other participants generated!"
-    CVQAValidationBiasInfo: You can choose from the list or add one if you think something is missing. You can also select multiple biases.
+    CVQAValidationBiasInfo: You can choose from the list or add one if you think something is missing.
+
+    # Chatbot Tab
+    ChatbotTitle: LLM via EDIA
+    ChatbotDescription: "In this activity you will interact with a language model.\nImportant: If you close the tab, the conversation will not be saved, so remember to copy it before."
+    ChatbotSystemPromptLabel: Write the system prompt (leave empty for default prompt)
+    ChatbotTemperatureLabel: Temperature
+    ChatbotTemperatureInfo: "Controls the creativity of the model (0.0 = deterministic, 2.0 = creative)"
+    ChatbotTopPLabel: Top-p
+    ChatbotTopPInfo: Cumulative probability for nucleus sampling
+    ChatbotMaxTokensLabel: "Max. tokens"
+    ChatbotMaxTokensInfo: Response length limit
+    ChatbotSubmitButton: Send
+    ChatbotFeedbackSentInfo: Feedback sent successfully
+    ChatbotFeedbackAffectLabel: Affect
+    ChatbotFeedbackAffectInfo: "1 is toxic, 7 is empathetic"
+    ChatbotFeedbackVeracityLabel: Veracity
+    ChatbotFeedbackVeracityInfo: "1 is hallucination, 7 is factual"
+    ChatbotFeedbackBiasLabel: Bias
+    ChatbotFeedbackBiasInfo: "1 is biased, 7 is fair"
+    ChatbotFeedbackUtilityLabel: Utility
+    ChatbotFeedbackUtilityInfo: "1 is useless, 7 is valuable"
+    ChatbotFeedbackSubmitButton: Send You can also select multiple biases.
 
 es:
+    AppTitle: "EDIA: Explorando Sesgos Culturales en Modelos de Lenguaje"
+    AppDescription: "¡Bienvenidos al taller de EDIA! Esta herramienta interactiva te permite contribuir a nuestra investigación compartiendo conocimientos culturales y evaluando las respuestas de los modelos de lenguaje. Navega por las pestañas para participar en diferentes actividades diseñadas para descubrir sesgos culturales en los modelos de lenguaje. Tu aporte es invaluable para ayudarnos a entender y mitigar estos sesgos. ¡Comencemos!"
+
     # Global Input Labels
     Identifier: Identificador
     TokenInfo: Ingresá el identificador proporcionado en el taller
@@ -216,7 +244,32 @@ es:
     CVQAModalHeader: "¡Veamos qué preguntas generaron otros participantes!"
     CVQAValidationBiasInfo: "Podés elegir de la lista o completar si considerás que falta alguna. Además podés elegir varios sesgos juntos."
 
+    # Chatbot Tab
+    ChatbotTitle: LLM vía EDIA
+    ChatbotDescription: "En esta oportunidad vas a interactuar con un modelo de lenguaje.\nImportante: Si cerrás la pestaña, no se guarda la conversación, así que recordá copiarlo antes."
+    ChatbotSystemPromptLabel: Escriba el system prompt (dejar vacío para prompt por defecto)
+    ChatbotTemperatureLabel: Temperatura
+    ChatbotTemperatureInfo: "Controla la creatividad del modelo (0.0 = determinista, 2.0 = creativo)"
+    ChatbotTopPLabel: Top-p
+    ChatbotTopPInfo: Probabilidad acumulada para muestreo nuclear
+    ChatbotMaxTokensLabel: "Máx. tokens"
+    ChatbotMaxTokensInfo: Límite de longitud de la respuesta
+    ChatbotSubmitButton: Enviar
+    ChatbotFeedbackSentInfo: Feedback enviado con éxito
+    ChatbotFeedbackAffectLabel: Affect
+    ChatbotFeedbackAffectInfo: "1 es tóxico, 7 es empático"
+    ChatbotFeedbackVeracityLabel: Veracidad
+    ChatbotFeedbackVeracityInfo: "1 es alucinación, 7 es factual"
+    ChatbotFeedbackBiasLabel: Sesgo
+    ChatbotFeedbackBiasInfo: "1 es sesgado, 7 es justo"
+    ChatbotFeedbackUtilityLabel: Utilidad
+    ChatbotFeedbackUtilityInfo: "1 es inútil, 7 es valioso"
+    ChatbotFeedbackSubmitButton: Enviar
+
 pt:
+    AppTitle: "EDIA: Explorando Viés Cultural em Modelos de Linguagem"
+    AppDescription: "Bem-vindo ao workshop EDIA! Esta ferramenta interativa permite que você contribua para nossa pesquisa compartilhando insights culturais e avaliando as respostas dos modelos de linguagem. Navegue pelas abas para participar de diferentes atividades projetadas para descobrir vieses culturais em modelos de linguagem. Sua contribuição é inestimável para nos ajudar a entender e mitigar esses vieses. Vamos começar!"
+
     # Global Input Labels
     Identifier: Identificador
     TokenInfo: Insira o identificador fornecido no workshop
@@ -324,3 +377,25 @@ pt:
     CVQALLMHeader: "Aqui você verá como diferentes modelos de linguagem respondem à sua pergunta de conhecimento regional. As respostas são geradas automaticamente para mostrar como os modelos poderiam responder à pergunta que você escreveu."
     CVQAModalHeader: "Vamos ver que perguntas outros participantes geraram!"
     CVQAValidationBiasInfo: "Você pode escolher da lista ou adicionar se achar que falta algum. Você também pode selecionar vários vieses."
+
+    # Chatbot Tab
+    ChatbotTitle: LLM via EDIA
+    ChatbotDescription: "Nesta atividade você vai interagir com um modelo de linguagem.\nImportante: Se você fechar a aba, a conversa não será salva, portanto lembre-se de copiá-la antes."
+    ChatbotSystemPromptLabel: Escreva o system prompt (deixe vazio para o prompt padrão)
+    ChatbotTemperatureLabel: Temperatura
+    ChatbotTemperatureInfo: "Controla a criatividade do modelo (0.0 = determinístico, 2.0 = criativo)"
+    ChatbotTopPLabel: Top-p
+    ChatbotTopPInfo: Probabilidade acumulada para amostragem nuclear
+    ChatbotMaxTokensLabel: "Máx. tokens"
+    ChatbotMaxTokensInfo: Limite de comprimento da resposta
+    ChatbotSubmitButton: Enviar
+    ChatbotFeedbackSentInfo: Feedback enviado com sucesso
+    ChatbotFeedbackAffectLabel: Afeto
+    ChatbotFeedbackAffectInfo: "1 é tóxico, 7 é empático"
+    ChatbotFeedbackVeracityLabel: Veracidade
+    ChatbotFeedbackVeracityInfo: "1 é alucinação, 7 é factual"
+    ChatbotFeedbackBiasLabel: "Viés"
+    ChatbotFeedbackBiasInfo: "1 é tendencioso, 7 é justo"
+    ChatbotFeedbackUtilityLabel: Utilidade
+    ChatbotFeedbackUtilityInfo: "1 é inútil, 7 é valioso"
+    ChatbotFeedbackSubmitButton: Enviar
