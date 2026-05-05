@@ -121,8 +121,8 @@ def interface(
     with gr.Blocks() as interface:
         _ = gr.Markdown(
             "# " + i18n("TypicalPhrasesAnnotationTitle") + "\n\n" +
-            "### " + i18n("TypicalPhrasesAnnotationGoal") + "\n\n" +
-            "### " + i18n("TypicalPhrasesAnnotationInstructions")
+            i18n("TypicalPhrasesAnnotationGoal") + "\n\n" +
+            i18n("TypicalPhrasesAnnotationInstructions")
         )
         with gr.Row():
             with gr.Column():

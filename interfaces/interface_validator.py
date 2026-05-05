@@ -185,7 +185,7 @@ def interface(lang, token_id, age, gender, nationality, region, school, consent_
         dp_state = gr.State([initial_identity, initial_attribute])
         dp_lang_state = gr.State(initial_dp_lang)
 
-        gr.Markdown("# " + i18n("ValidatorTitle") + "\n\n### " + i18n("ValidatorDescription"))
+        gr.Markdown("# " + i18n("ValidatorTitle") + "\n\n" + i18n("ValidatorDescription"))
 
         with gr.Row():
             with gr.Column(scale=1):
