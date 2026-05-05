@@ -11,28 +11,15 @@ import pandas as pd
 # --- Imports Constants ---
 from auth import SCHOOL_LIST
 from html_constants import FOOTER_HTML, NAVBAR_HTML, css
-# from interfaces.interface_arena import interface as interface_arena
-# from interfaces.interface_biasPhrase import interface as interface_biasPhrase
-# from interfaces.interface_BiasWordExplorer import \
-#     interface as interface_biasWordExplorer
+from data.nationalities import nationalities, CVQA_SUPPORTED_NATIONALITIES
+
+# --- Imports interfaces ---
 from interfaces.interface_chatbot import interface as interface_chatbot
-# from interfaces.interface_clinicalChatbot import interface as interface_clinicalChatbot
-# from interfaces.interface_data import interface as interface_data
-# from interfaces.interface_logsData import interface as interface_logsData
 from interfaces.interface_validator import interface as interface_validator
 from interfaces.interface_cvqa import interface as interface_cvqa
 from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
 from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
-# --- Imports interfaces ---
-# from interfaces.interface_WordExplorer import \
-#     interface as interface_wordExplorer
-# --- Imports modules ---
-# from modules.model_embbeding import Embedding
-# from modules.module_languageModel import LanguageModel
-# from modules.module_vocabulary import Vocabulary
 from modules.utils import parse_cmd_line_args
-from data.nationalities import nationalities, CVQA_SUPPORTED_NATIONALITIES
-
 
 # --- Tool config ---
 cmd_line_args = parse_cmd_line_args()
@@ -56,8 +43,6 @@ QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size']) if cfg['SERVER']['qu
 DEFAULT_CONCURRENCY_LIMIT = int(cfg['SERVER']['default_concurrency_limit']) if cfg['SERVER']['default_concurrency_limit'] != 'None' else None
 MAX_THREADS          = int(cfg['SERVER']['max_threads'])
 
-
-
 # # --- Main App ---
 with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     _ = gr.HTML(NAVBAR_HTML)
@@ -75,6 +60,11 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         lang,
         placeholder_langs=["en", "pt", "es"],
     ):
+        _ = gr.Markdown(
+            "# " + i18n("AppTitle") + "\n\n" +
+            i18n("AppDescription"),
+            elem_id="app-title"
+        )
         with gr.Row(equal_height=False, variant="panel"):
             with gr.Column(scale=1, min_width=200):
                 with gr.Group():
@@ -108,6 +98,10 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                         allow_custom_value=True,
                         multiselect=False,
                         interactive=False,
+                    )
+                    consent_checkbox = gr.Checkbox(
+                        label=i18n("isCourseParticipantLabel"),
+                        value=False,
                     )
                     with gr.Row():
                         with gr.Column(scale=1):
