@@ -3,13 +3,14 @@ en:
     AppDescription: "Welcome to the EDIA workshop! This interactive tool allows you to contribute to our research by sharing cultural insights and evaluating language model responses. Please navigate through the tabs to participate in different activities designed to uncover cultural biases in language models. Your input is invaluable in helping us understand and mitigate these biases. Let's get started!"
     
     # Global Input Labels
-    Identifier: Identifier
+    Identifier: Enter your ID
     TokenInfo: Enter the identifier provided in the workshop
     AgeLabel: Enter your age
     GenderLabel: Select your gender
     NationalityLabel: Where are you from?
     NationalityInfo: Select the nationalities that represent your cultural, personal, or national identity
     PersonalRegionLabel: Which region?
+    isCourseParticipantLabel: Are you taking the AI Fundamentals course to broaden cultural horizons?
     ConsentLabel: I have read and accept the informed consent ⬇️
     PersonalDataMissingHeading: "# Enter your personal data and confirm your consent to continue."
     SchoolLabel: Select your school (See ⬇️)
@@ -137,13 +138,14 @@ es:
     AppDescription: "¡Bienvenidos al taller de EDIA! Esta herramienta interactiva te permite contribuir a nuestra investigación compartiendo conocimientos culturales y evaluando las respuestas de los modelos de lenguaje. Navega por las pestañas para participar en diferentes actividades diseñadas para descubrir sesgos culturales en los modelos de lenguaje. Tu aporte es invaluable para ayudarnos a entender y mitigar estos sesgos. ¡Comencemos!"
 
     # Global Input Labels
-    Identifier: Identificador
+    Identifier: Ingresá tu DNI
     TokenInfo: Ingresá el identificador proporcionado en el taller
     AgeLabel: Ingresá tu edad
     GenderLabel: Seleccioná tu género
     NationalityLabel: ¿De dónde sos?
     NationalityInfo: Seleccioná las nacionalidades que representen tu identidad cultural, personal o nacional
     PersonalRegionLabel: ¿De qué región?
+    isCourseParticipantLabel: ¿Estás realizando el curso Fundamentos de la IA para ampliar horizontes culturales?
     ConsentLabel: He leído y acepto el consentimiento informado ⬇️
     PersonalDataMissingHeading: "# Ingresá tus datos personales y confirmá tu consentimiento para continuar."
     SchoolLabel: Seleccioná tu escuela (Ver ⬇️)
@@ -271,13 +273,14 @@ pt:
     AppDescription: "Bem-vindo ao workshop EDIA! Esta ferramenta interativa permite que você contribua para nossa pesquisa compartilhando insights culturais e avaliando as respostas dos modelos de linguagem. Navegue pelas abas para participar de diferentes atividades projetadas para descobrir vieses culturais em modelos de linguagem. Sua contribuição é inestimável para nos ajudar a entender e mitigar esses vieses. Vamos começar!"
 
     # Global Input Labels
-    Identifier: Identificador
+    Identifier: Digite seu CPF
     TokenInfo: Insira o identificador fornecido no workshop
     AgeLabel: Insira sua idade
     GenderLabel: Selecione seu gênero
     NationalityLabel: De onde você é?
     NationalityInfo: Selecione as nacionalidades que representam sua identidade cultural, pessoal ou nacional
     PersonalRegionLabel: Qual região?
+    isCourseParticipantLabel: Você está fazendo o curso Fundamentos de IA para ampliar horizontes culturais?
     ConsentLabel: Li e aceito o consentimento informado ⬇️
     PersonalDataMissingHeading: "# Insira seus dados pessoais e confirme seu consentimento para continuar."
     SchoolLabel: Selecione sua escola (Veja ⬇️)
