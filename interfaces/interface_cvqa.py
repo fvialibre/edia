@@ -5,6 +5,7 @@ from datetime import datetime
 from langchain_core.messages import SystemMessage, HumanMessage
 from modules.module_ollama import ModelWrapper
 import gradio as gr
+from gradio_i18n import Translate, gettext as i18n
 from gradio_modal import Modal
 import pandas as pd
 from data.nationalities import nationalities
@@ -142,13 +143,9 @@ def interface(
     # Gradio interface
     with gr.Blocks() as interface:
         _ = gr.Markdown(
-            """
-            # Actividad de Conocimiento Regional
-
-            ### Por favor, añade preguntas de opción múltiple que sólo alguien de tu región sea capaz de responder.
-
-            ### Para cada pregunta, proporciona el texto de la misma, varias opciones razonables de respuesta e indica cuál es la respuesta correcta.
-            """
+            "# " + i18n("CVQAAnnotationTitle") + "\n\n" +
+            i18n("CVQAAnnotationGoal") + "\n\n" +
+            i18n("CVQAAnnotationInstructions")
         )
         with gr.Row():
             with gr.Column(scale=1):
@@ -170,42 +167,39 @@ def interface(
                     interactive=False,
                 )
             with gr.Column(scale=2):
-                gr.Markdown("### Este es un ejemplo:")
+                gr.Markdown("### " + i18n("CVQAExampleHeader"))
                 data_point_multiple_choice = gr.Radio(
                     label=initial_data_point["Question"],
                     choices=initial_data_point["Options"],
                     interactive=True,
                 )
-                gr.Markdown("### A partir de la misma imagen:")
+                gr.Markdown("### " + i18n("CVQASameImageHeader"))
                 other_question_input = gr.Textbox(
-                    label="Dar otra pregunta que sólo podría responder alguien de tu región:",
-                    placeholder="Escribe aquí la pregunta",
+                    label=i18n("CVQAOtherQuestionLabel"),
+                    placeholder=i18n("CVQAOtherQuestionPlaceholder"),
                 )
                 correct_answer_input = gr.Textbox(
-                    label="Dar la respuesta correcta:",
-                    placeholder="Respuesta correcta",
+                    label=i18n("CVQACorrectAnswerLabel"),
+                    placeholder=i18n("CVQACorrectAnswerPlaceholder"),
                 )
                 incorrect_answer_1_input = gr.Textbox(
-                    label="Dar una respuesta incorrecta posible:",
-                    placeholder="Respuesta incorrecta 1",
+                    label=i18n("CVQAIncorrectAnswerLabel"),
+                    placeholder=i18n("CVQAIncorrectAnswer1Placeholder"),
                 )
                 incorrect_answer_2_input = gr.Textbox(
-                    label="Dar una respuesta incorrecta posible:",
-                    placeholder="Respuesta incorrecta 2",
+                    label=i18n("CVQAIncorrectAnswerLabel"),
+                    placeholder=i18n("CVQAIncorrectAnswer2Placeholder"),
                 )
                 incorrect_answer_3_input = gr.Textbox(
-                    label="Dar una respuesta incorrecta posible:",
-                    placeholder="Respuesta incorrecta 3",
+                    label=i18n("CVQAIncorrectAnswerLabel"),
+                    placeholder=i18n("CVQAIncorrectAnswer3Placeholder"),
                 )
         with gr.Row(equal_height=True):
-            llm_responses_button = gr.Button("Cómo responden los modelos de lenguaje?", interactive=False, variant="secondary", scale=75)
-            next_button = gr.Button("Siguiente imagen", variant="primary", scale=25)
+            llm_responses_button = gr.Button(i18n("CVQALLMResponsesButton"), interactive=False, variant="secondary", scale=75)
+            next_button = gr.Button(i18n("CVQANextButton"), variant="primary", scale=25)
 
         gr.Markdown(
-            f"""
-            ### Aquí verás cómo responden diferentes modelos de lenguaje a tu pregunta de conocimiento regional.
-            Las respuestas se generan automáticamente para mostrar cómo {list(models.keys())[0]}, {list(models.keys())[1]} y {list(models.keys())[2]} podrían contestar la pregunta que escribiste.
-            """
+            "### " + i18n("CVQALLMHeader")
         )
         with gr.Row():
             model_a_response = gr.HighlightedText(
@@ -234,7 +228,7 @@ def interface(
             )
 
         with Modal(visible=False) as validation_modal:
-            _ = gr.HTML("<h1>Veamos que preguntas generaron otros participantes!</h1>")
+            _ = gr.Markdown("# " + i18n("CVQAModalHeader"))
             with gr.Row():
                 with gr.Column():
                     modal_data_point_ID = gr.Textbox(
@@ -265,26 +259,26 @@ def interface(
                         5,
                         value=None,
                         step=1,
-                        label="¿La pregunta está bien hecha?",
-                        info="1 es muy mala, 5 es excelente",
+                        label=i18n("AmbiguousReferencesValidationQualityLabel"),
+                        info=i18n("AmbiguousReferencesValidationQualityInfo"),
                         interactive=True,
                         # show_reset_button=False,
                     )
                     validation_1_label = gr.Dropdown(
                         choices=[
-                            "Apariencia Física",
-                            "Discapacidad",
-                            "Edad",
-                            "Etnia",
-                            "Género",
-                            "Nacionalidad",
-                            "Orientación sexual",
-                            "Profesión",
-                            "Religión",
-                            "Situación Socioeconómica"
+                            i18n("AmbiguousReferencesValidationBiasPhysicalAppearance"),
+                            i18n("AmbiguousReferencesValidationBiasDisability"),
+                            i18n("AmbiguousReferencesValidationBiasAge"),
+                            i18n("AmbiguousReferencesValidationBiasEthnicity"),
+                            i18n("AmbiguousReferencesValidationBiasGender"),
+                            i18n("AmbiguousReferencesValidationBiasNationality"),
+                            i18n("AmbiguousReferencesValidationBiasSexualOrientation"),
+                            i18n("AmbiguousReferencesValidationBiasProfession"),
+                            i18n("AmbiguousReferencesValidationBiasReligion"),
+                            i18n("AmbiguousReferencesValidationBiasSocioeconomicStatus"),
                         ],
-                        label="Qué tipos de sesgo se exploran aquí?",
-                        info="Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
+                        label=i18n("AmbiguousReferencesValidationBiasLabel"),
+                        info=i18n("CVQAValidationBiasInfo"),
                         multiselect=True,
                         allow_custom_value=True
                     )
@@ -299,26 +293,26 @@ def interface(
                         5,
                         value=None,
                         step=1,
-                        label="¿La pregunta está bien hecha?",
-                        info="1 es muy mala, 5 es excelente",
+                        label=i18n("AmbiguousReferencesValidationQualityLabel"),
+                        info=i18n("AmbiguousReferencesValidationQualityInfo"),
                         interactive=True,
                         # show_reset_button=False,
                     )
                     validation_2_label = gr.Dropdown(
                         choices=[
-                            "Apariencia Física",
-                            "Discapacidad",
-                            "Edad",
-                            "Etnia",
-                            "Género",
-                            "Nacionalidad",
-                            "Orientación sexual",
-                            "Profesión",
-                            "Religión",
-                            "Situación Socioeconómica"
+                            i18n("AmbiguousReferencesValidationBiasPhysicalAppearance"),
+                            i18n("AmbiguousReferencesValidationBiasDisability"),
+                            i18n("AmbiguousReferencesValidationBiasAge"),
+                            i18n("AmbiguousReferencesValidationBiasEthnicity"),
+                            i18n("AmbiguousReferencesValidationBiasGender"),
+                            i18n("AmbiguousReferencesValidationBiasNationality"),
+                            i18n("AmbiguousReferencesValidationBiasSexualOrientation"),
+                            i18n("AmbiguousReferencesValidationBiasProfession"),
+                            i18n("AmbiguousReferencesValidationBiasReligion"),
+                            i18n("AmbiguousReferencesValidationBiasSocioeconomicStatus"),
                         ],
-                        label="Qué tipos de sesgo se exploran aquí?",
-                        info="Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
+                        label=i18n("AmbiguousReferencesValidationBiasLabel"),
+                        info=i18n("CVQAValidationBiasInfo"),
                         multiselect=True,
                         allow_custom_value=True
                     )
@@ -333,32 +327,32 @@ def interface(
                         5,
                         value=None,
                         step=1,
-                        label="¿La pregunta está bien hecha?",
-                        info="1 es muy mala, 5 es excelente",
+                        label=i18n("AmbiguousReferencesValidationQualityLabel"),
+                        info=i18n("AmbiguousReferencesValidationQualityInfo"),
                         interactive=True,
                         # show_reset_button=False,
                     )
                     validation_3_label = gr.Dropdown(
                         choices=[
-                            "Apariencia Física",
-                            "Discapacidad",
-                            "Edad",
-                            "Etnia",
-                            "Género",
-                            "Nacionalidad",
-                            "Orientación sexual",
-                            "Profesión",
-                            "Religión",
-                            "Situación Socioeconómica"
+                            i18n("AmbiguousReferencesValidationBiasPhysicalAppearance"),
+                            i18n("AmbiguousReferencesValidationBiasDisability"),
+                            i18n("AmbiguousReferencesValidationBiasAge"),
+                            i18n("AmbiguousReferencesValidationBiasEthnicity"),
+                            i18n("AmbiguousReferencesValidationBiasGender"),
+                            i18n("AmbiguousReferencesValidationBiasNationality"),
+                            i18n("AmbiguousReferencesValidationBiasSexualOrientation"),
+                            i18n("AmbiguousReferencesValidationBiasProfession"),
+                            i18n("AmbiguousReferencesValidationBiasReligion"),
+                            i18n("AmbiguousReferencesValidationBiasSocioeconomicStatus")
                         ],
-                        label="Qué tipos de sesgo se exploran aquí?",
-                        info="Podés elegir de la lista o completar si consideras que falta alguna. Además podés elegir varios sesgos juntos.",
+                        label=i18n("AmbiguousReferencesValidationBiasLabel"),
+                        info=i18n("CVQAValidationBiasInfo"),
                         multiselect=True,
                         allow_custom_value=True
                     )
             with gr.Row():
-                modal_skip_button = gr.Button("Omitir", variant="secondary", scale=75)
-                modal_next_button = gr.Button("Siguiente", variant="primary", scale=25)
+                modal_skip_button = gr.Button(i18n("SkipButton"), variant="secondary", scale=75)
+                modal_next_button = gr.Button(i18n("NextButton"), variant="primary", scale=25)
 
         # Functions ###########################################################
 
@@ -811,11 +805,11 @@ def interface(
                 incorrect_answer_3_input
             ]):
                 return (
-                    gr.Button("Cómo responden los modelos de lenguaje?", interactive=True, variant="secondary", scale=50)
+                    gr.Button(i18n("CVQALLMResponsesButton"), interactive=True, variant="secondary", scale=50)
                 )
             else:
                 return (
-                    gr.Button("Cómo responden los modelos de lenguaje?", interactive=False, variant="secondary", scale=50)
+                    gr.Button(i18n("CVQALLMResponsesButton"), interactive=False, variant="secondary", scale=50)
                 )
 
         toggle_llm_responses_inputs = [
