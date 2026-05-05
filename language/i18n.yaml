@@ -90,16 +90,16 @@ en:
 es:
     # Global Input Labels
     Identifier: Identificador
-    TokenInfo: Ingresa el identificador proporcionado en el taller
-    AgeLabel: Ingresa tu edad
-    GenderLabel: Selecciona tu género
-    NationalityLabel: ¿De dónde eres?
-    NationalityInfo: Selecciona las nacionalidades que representen tu identidad cultural, personal o nacional
-    PersonalRegionLabel: ¿Qué región?
+    TokenInfo: Ingresá el identificador proporcionado en el taller
+    AgeLabel: Ingresá tu edad
+    GenderLabel: Seleccioná tu género
+    NationalityLabel: ¿De dónde sos?
+    NationalityInfo: Seleccioná las nacionalidades que representen tu identidad cultural, personal o nacional
+    PersonalRegionLabel: ¿De qué región?
     ConsentLabel: He leído y acepto el consentimiento informado ⬇️
-    PersonalDataMissingHeading: "# Ingresa tus datos personales y confirma tu consentimiento para continuar."
-    SchoolLabel: Selecciona tu escuela (Ver ⬇️)
-    SchoolNamePlaceholder: No has seleccionado ninguna escuela
+    PersonalDataMissingHeading: "# Ingresá tus datos personales y confirmá tu consentimiento para continuar."
+    SchoolLabel: Seleccioná tu escuela (Ver ⬇️)
+    SchoolNamePlaceholder: No seleccionaste ninguna escuela
     
     # Tab Names
     TypicalPhrasesTab: Frases Típicas
