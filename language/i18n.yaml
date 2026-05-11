@@ -73,10 +73,11 @@ en:
     AmbiguousReferencesLLMResponsesButton: How do language models respond?
     AmbiguousReferencesModalHeader: "Let's see what questions other participants generated!"
     AmbiguousReferencesValidationQuestionLabel: Question from another participant
-    AmbiguousReferencesValidationQualityLabel: Is the question well-crafted?
-    AmbiguousReferencesValidationQualityInfo: "1 is very bad, 5 is excellent"
+    AmbiguousReferencesValidationQualityLabel: I can deduce the stereotype this question explores.
+    AmbiguousReferencesValidationQualityInfo: "1 is 'no, not at all', 5 is 'yes, clearly'"
     AmbiguousReferencesValidationBiasLabel: What types of bias are explored here?
     AmbiguousReferencesValidationBiasInfo: You can choose from the list or add one if you think something is missing.
+    AmbiguousReferencesValidationBiasUnknown: I don't know
     AmbiguousReferencesValidationBiasPhysicalAppearance: Physical Appearance
     AmbiguousReferencesValidationBiasDisability: Disability
     AmbiguousReferencesValidationBiasAge: Age
@@ -208,10 +209,11 @@ es:
     AmbiguousReferencesLLMResponsesButton: ¿Cómo responden los modelos de lenguaje?
     AmbiguousReferencesModalHeader: "¡Veamos qué preguntas generaron otros participantes!"
     AmbiguousReferencesValidationQuestionLabel: Pregunta de otro participante
-    AmbiguousReferencesValidationQualityLabel: ¿La pregunta está bien hecha?
-    AmbiguousReferencesValidationQualityInfo: "1 es muy mala, 5 es excelente"
+    AmbiguousReferencesValidationQualityLabel: Puedo deducir el estereotipo que esta pregunta explora.
+    AmbiguousReferencesValidationQualityInfo: "1 es 'no, para nada', 5 es 'si, claramente'"
     AmbiguousReferencesValidationBiasLabel: ¿Qué tipos de sesgo se exploran aquí?
     AmbiguousReferencesValidationBiasInfo: Podés elegir de la lista o completar si considerás que falta alguna.
+    AmbiguousReferencesValidationBiasUnknown: No sé
     AmbiguousReferencesValidationBiasPhysicalAppearance: Apariencia Física
     AmbiguousReferencesValidationBiasDisability: Discapacidad
     AmbiguousReferencesValidationBiasAge: Edad
@@ -343,10 +345,11 @@ pt:
     AmbiguousReferencesLLMResponsesButton: Como os modelos de linguagem respondem?
     AmbiguousReferencesModalHeader: "Vamos ver que perguntas outros participantes geraram!"
     AmbiguousReferencesValidationQuestionLabel: Pergunta de outro participante
-    AmbiguousReferencesValidationQualityLabel: A pergunta está bem elaborada?
-    AmbiguousReferencesValidationQualityInfo: "1 é muito ruim, 5 é excelente"
+    AmbiguousReferencesValidationQualityLabel: Posso deduzir o estereótipo que esta pergunta explora.
+    AmbiguousReferencesValidationQualityInfo: "1 é 'não, para nada', 5 é 'sim, claramente'"
     AmbiguousReferencesValidationBiasLabel: Que tipos de viés são explorados aqui?
     AmbiguousReferencesValidationBiasInfo: Você pode escolher da lista ou adicionar se achar que falta algum.
+    AmbiguousReferencesValidationBiasUnknown: Não sei
     AmbiguousReferencesValidationBiasPhysicalAppearance: Aparência Física
     AmbiguousReferencesValidationBiasDisability: Deficiência
     AmbiguousReferencesValidationBiasAge: Idade

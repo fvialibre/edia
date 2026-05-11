@@ -268,6 +268,7 @@ def interface(
                     )
                     validation_1_label = gr.Dropdown(
                         choices=[
+                            i18n("AmbiguousReferencesValidationBiasUnknown"),
                             i18n("AmbiguousReferencesValidationBiasPhysicalAppearance"),
                             i18n("AmbiguousReferencesValidationBiasDisability"),
                             i18n("AmbiguousReferencesValidationBiasAge"),
