@@ -34,15 +34,14 @@ os.environ["COHERE_API_KEY"] = secrets["COHERE_API_KEY"]
 os.environ["GOOGLE_API_KEY"] = secrets["GOOGLE_API_KEY"]
 
 models = {
-    # "gemma3:27b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="ollama/gemma3:27b"),
-    "phi4-multi": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/phi4-multi"
+    "vllm/qwen3.5-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
     ),
-    "gemma3-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    "vllm/ministral3-8b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
-    "qwen3-vl-2b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3-vl-2b"
+    "vllm/gemma4-26b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
     ),
 }
 
@@ -87,6 +86,8 @@ def interface(
         question_input,
         biased_answer_input,
         bias_type_input,
+        models,
+        model_responses,
     ):
         result = {
             "timestamp": datetime.now().isoformat(),
@@ -101,6 +102,8 @@ def interface(
             "question_input": question_input,
             "biased_answer_input": biased_answer_input,
             "bias_type_input": bias_type_input,
+            "models": list(models.keys()),
+            "model_responses": model_responses,
         }
         with open("logs/logs_ambiguous_references.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
@@ -201,6 +204,7 @@ def interface(
                         variant="secondary",
                         scale=25,
                     )
+                    next_button = gr.Button(i18n("NextButton"), variant="primary", visible=False)
 
         gr.Markdown(
             i18n("AmbiguousReferencesLLMHeader")
@@ -231,9 +235,6 @@ def interface(
                     interactive=False,
                     color_map={"✓": "green", "X": "red"},
                 )
-
-        with gr.Row():
-            next_button = gr.Button(i18n("NextButton"), variant="primary", visible=False)
 
         ### MODAL
         with Modal(visible=False) as validation_modal:
@@ -390,6 +391,8 @@ def interface(
                 question_input,
                 biased_answer_input,
                 bias_type_input,
+                models,
+                model_responses,
             )
 
             return (
@@ -397,6 +400,8 @@ def interface(
                 gr.update(value=highlight_response(model_responses[1])),
                 gr.update(value=highlight_response(model_responses[2])),
                 gr.update(visible=True),
+                gr.update(visible=False),
+                gr.update(visible=False),
             )
 
         llm_responses_button.click(
@@ -416,7 +421,7 @@ def interface(
                 biased_answer_input,
                 bias_type_input,
             ],
-            outputs=[model_a_response, model_b_response, model_c_response, next_button],
+            outputs=[model_a_response, model_b_response, model_c_response, next_button, llm_responses_button, skip_images_button],
         )
 
         def on_next_button(token_id):
@@ -505,6 +510,8 @@ def interface(
                 gr.update(value=None),
                 gr.update(value=[]),
                 gr.update(interactive=False),
+                gr.update(visible=True),
+                gr.update(visible=True),
             )
 
         def on_modal_next_button(
@@ -556,6 +563,8 @@ def interface(
             validation_1_q1,
             validation_1_label,
             modal_next_button,
+            llm_responses_button,
+            skip_images_button,
         ]
 
         modal_next_button.click(

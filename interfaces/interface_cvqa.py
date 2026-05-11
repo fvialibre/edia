@@ -53,14 +53,14 @@ secrets = dotenv_values("./.env")
 os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
 
 models = {
-    "phi4-multi": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/phi4-multi"
+    "vllm/qwen3.5-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
     ),
-    "gemma3-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    "vllm/ministral3-8b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
-    "qwen3-vl-2b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3-vl-2b"
+    "vllm/gemma4-26b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
     ),
 }
 

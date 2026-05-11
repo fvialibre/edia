@@ -25,9 +25,15 @@ secrets = dotenv_values("./.env")
 os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
 
 models = {
-    "vllm/gemma3-4b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"),
-    "vllm/qwen3-vl-2b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3-vl-2b"),
-    "vllm/mistral-7b": ModelWrapper(token=secrets["OLLAMA_API_KEY"], model="vllm/mistral-7b"),
+    "vllm/qwen3.5-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
+    ),
+    "vllm/ministral3-8b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
+    ),
+    "vllm/gemma4-26b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
+    ),
 }
 
 # --- Interface ---

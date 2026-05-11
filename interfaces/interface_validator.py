@@ -228,7 +228,7 @@ def interface(lang, token_id, age, gender, nationality, region, school, consent_
         )
 
         with gr.Row():
-            skip_button = gr.Button(i18n("ValidatorSkipButton"), variant="primary", scale=25)
+            skip_button = gr.Button(i18n("SkipButton"), variant="primary", scale=25)
             submit_button = gr.Button(i18n("ValidatorSubmitButton"), variant="secondary", scale=75, interactive=False)
 
         # --- Event handlers ---

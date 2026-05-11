@@ -1,8 +1,8 @@
 import gradio as gr
 from gradio_modal import Modal
+from gradio_i18n import gettext as i18n
 import pandas as pd
-from langchain_openai import ChatOpenAI
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
+import requests
 import json
 from datetime import datetime
 import os
@@ -10,7 +10,9 @@ from dotenv import dotenv_values
 from auth import SCHOOL_LIST
 from prompts import prompts
 from html_constants import HTML_FEEDBACK_TITLE
+secrets = dotenv_values("./.env")
 
+MODEL = "vllm/gemma4-26b"
 
 # --- Interface ---
 def interface(
@@ -23,17 +25,27 @@ def interface(
     consent_checkbox
 ) -> gr.Blocks:
 
-    secrets = dotenv_values("./.env")
-    os.environ["OPENAI_API_KEY"] = secrets["OPENAI_API_KEY"]
-
     def predict(message, history, token_id, age, gender, nationality, region, school, prompt, temperature, top_p, max_tokens):
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=temperature, top_p=top_p, max_tokens=max_tokens)
-        history_langchain_format = [SystemMessage(content=prompt)]
+        messages = []
+        if prompt:
+            messages.append({"role": "system", "content": prompt})
         for human, ai in history:
-            history_langchain_format.append(HumanMessage(content=human))
-            history_langchain_format.append(AIMessage(content=ai))
-        history_langchain_format.append(HumanMessage(content=message))
-        gpt_response = llm.invoke(history_langchain_format)
+            messages.append({"role": "user", "content": human})
+            messages.append({"role": "assistant", "content": ai})
+        messages.append({"role": "user", "content": message})
+
+        url = 'https://chat.ccad.unc.edu.ar/api/chat/completions'
+        headers = {
+            'Authorization': f'Bearer {secrets["OLLAMA_API_KEY"]}',
+            'Content-Type': 'application/json'
+        }
+        data = {
+            "model": MODEL,
+            "messages": messages,
+            "temperature": temperature
+        }
+        response = requests.post(url, headers=headers, json=data).json()
+        content = response['choices'][0]['message']['content']
 
         with open("./logs/logs_chatbot.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
@@ -45,12 +57,13 @@ def interface(
                 "region": region,
                 "school": school,
                 "message": message,
-                "response": gpt_response.content,
+                "response": content,
                 "history": history,
                 "current_prompt": prompt,
-                "temperature": temperature
+                "temperature": temperature,
+                "model": MODEL
             }, ensure_ascii=False) + "\n")
-        return gpt_response.content
+        return content
 
     def open_turn_feedback_modal(x: gr.LikeData, token_id, school, age, gender, prompt):
         return {
@@ -89,7 +102,7 @@ def interface(
                 "school": turn_info_for_feedback["school"],
                 "prompt": turn_info_for_feedback["prompt"],
             }, ensure_ascii=False) + "\n")
-        gr.Info("Feedback enviado con éxito")
+        gr.Info(i18n("ChatbotFeedbackSentInfo"))
         return Modal(visible=False)
 
     with gr.Blocks(css=".contain { display: flex !important; flex-direction: column !important; }"
@@ -109,13 +122,13 @@ def interface(
             "prompt": None,
         })
         _ = gr.Markdown(
-            "# " + "LLM via EDIA" + "\n\n" +
-            "### " + "En esta oportunidad vas a interactuar con el modelo de lenguaje ChatGPT.\nImportante: Si cerrás la pestaña, no se guarda la conversación, así que recordá copiarlo antes."
+            "# " + i18n("ChatbotTitle") + "\n\n" +
+            i18n("ChatbotDescription")
         )
 
         with gr.Row():
             prompt = gr.Textbox(
-                label="Escriba el system prompt (dejar vacío para usar ChatGPT normal)",
+                label=i18n("ChatbotSystemPromptLabel"),
                 lines=3,
             )
             with gr.Row():
@@ -125,16 +138,16 @@ def interface(
                     maximum=2.0,
                     value=0.7,
                     step=0.01,
-                    label="Temperatura",
-                    info="Controla la creatividad del modelo (0.0 = determinista, 2.0 = creativo)"
+                    label=i18n("ChatbotTemperatureLabel"),
+                    info=i18n("ChatbotTemperatureInfo")
                 )
                 top_p = gr.Slider(
                     minimum=0.0,
                     maximum=1.0,
                     value=1.0,
                     step=0.01,
-                    label="Top-p",
-                    info="Probabilidad acumulada para muestreo nuclear",
+                    label=i18n("ChatbotTopPLabel"),
+                    info=i18n("ChatbotTopPInfo"),
                     visible=False
                 )
                 max_tokens = gr.Slider(
@@ -142,13 +155,13 @@ def interface(
                     maximum=4096,
                     value=1024,
                     step=1,
-                    label="Máx. tokens",
-                    info="Límite de longitud de la respuesta",
+                    label=i18n("ChatbotMaxTokensLabel"),
+                    info=i18n("ChatbotMaxTokensInfo"),
                     visible=False
                 )
 
         chatbot = gr.Chatbot(
-            show_copy_button=True,
+            # show_copy_button=True,
         )
         _ = gr.ChatInterface(
                 predict,
@@ -165,7 +178,7 @@ def interface(
                     max_tokens
                 ],
                 chatbot=chatbot,
-                submit_btn="Enviar",
+                submit_btn=i18n("ChatbotSubmitButton"),
                 stop_btn=None,
             )
 
@@ -175,50 +188,50 @@ def interface(
 
             with gr.Row():
                 with gr.Column():
-                    q1_checkbox = gr.Checkbox(label="Affect")
+                    q1_checkbox = gr.Checkbox(label=i18n("ChatbotFeedbackAffectLabel"))
                     q1 = gr.Slider(
                         1,
                         7,
                         value=4,
                         step=1,
-                        label="Affect",
-                        info="1 es tóxico, 7 es empático",
+                        label=i18n("ChatbotFeedbackAffectLabel"),
+                        info=i18n("ChatbotFeedbackAffectInfo"),
                         interactive=True,
                         visible=False,
                     )
                 with gr.Column():
-                    q2_checkbox = gr.Checkbox(label="Veracidad")
+                    q2_checkbox = gr.Checkbox(label=i18n("ChatbotFeedbackVeracityLabel"))
                     q2 = gr.Slider(
                         1,
                         7,
                         value=4,
                         step=1,
-                        label="Veracidad",
-                        info="1 es alucinación, 7 es factual",
+                        label=i18n("ChatbotFeedbackVeracityLabel"),
+                        info=i18n("ChatbotFeedbackVeracityInfo"),
                         interactive=True,
                         visible=False,
                     )
                 with gr.Column():
-                    q3_checkbox = gr.Checkbox(label="Sesgo")
+                    q3_checkbox = gr.Checkbox(label=i18n("ChatbotFeedbackBiasLabel"))
                     q3 = gr.Slider(
                         1,
                         7,
                         value=4,
                         step=1,
-                        label="Sesgo",
-                        info="1 es sesgado, 7 es justo",
+                        label=i18n("ChatbotFeedbackBiasLabel"),
+                        info=i18n("ChatbotFeedbackBiasInfo"),
                         interactive=True,
                         visible=False,
                     )
                 with gr.Column():
-                    q4_checkbox = gr.Checkbox(label="Utilidad")
+                    q4_checkbox = gr.Checkbox(label=i18n("ChatbotFeedbackUtilityLabel"))
                     q4 = gr.Slider(
                         1,
                         7,
                         value=4,
                         step=1,
-                        label="Utilidad",
-                        info="1 es inútil, 7 es valioso",
+                        label=i18n("ChatbotFeedbackUtilityLabel"),
+                        info=i18n("ChatbotFeedbackUtilityInfo"),
                         interactive=True,
                         visible=False,
                     )
@@ -231,8 +244,8 @@ def interface(
             q3_checkbox.change(toggle_slider_visibility, inputs=[q3_checkbox], outputs=[q3])
             q4_checkbox.change(toggle_slider_visibility, inputs=[q4_checkbox], outputs=[q4])
 
-            modal_submit_button = gr.Button("Enviar")
+            modal_submit_button = gr.Button(i18n("ChatbotFeedbackSubmitButton"))
 
-        chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
+        # chatbot.like(open_turn_feedback_modal, [token_id, school, age, gender, prompt], [turn_info_for_feedback, turn_feedback_modal])
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, q1_checkbox, q1, q2_checkbox, q2, q3_checkbox, q3, q4_checkbox, q4], turn_feedback_modal)
     return interface
