@@ -82,7 +82,7 @@ def interface(
         return fig
 
     with iface:
-        gr.Markdown("## " + i18n("LogsDataTitle"))
+        gr.Markdown("# " + i18n("LogsDataTitle"))
         gr.Markdown(i18n("LogsDataDescription"))
 
         btn = gr.Button(value=i18n("LogsDataButton"))
