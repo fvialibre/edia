@@ -34,15 +34,18 @@ os.environ["COHERE_API_KEY"] = secrets["COHERE_API_KEY"]
 os.environ["GOOGLE_API_KEY"] = secrets["GOOGLE_API_KEY"]
 
 models = {
+    "vllm/gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    ),
     "vllm/qwen3.5-4b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
     ),
     "vllm/ministral3-8b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
-    "vllm/gemma4-26b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
-    ),
+    # "vllm/gemma4-26b": ModelWrapper(
+    #     token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
+    # ),
 }
 
 # --- Interface ---
@@ -88,9 +91,14 @@ def interface(
         bias_type_input,
         models,
         model_responses,
+        model_a_likert,
+        model_b_likert,
+        model_c_likert,
+        source,
     ):
         result = {
             "timestamp": datetime.now().isoformat(),
+            "source": source,
             "token_id": token_id,
             "age": age,
             "gender": gender,
@@ -104,6 +112,9 @@ def interface(
             "bias_type_input": bias_type_input,
             "models": list(models.keys()),
             "model_responses": model_responses,
+            "model_a_likert": model_a_likert,
+            "model_b_likert": model_b_likert,
+            "model_c_likert": model_c_likert,
         }
         with open("logs/logs_ambiguous_references.jsonl", "a+", encoding="utf-8") as f:
             f.write(json.dumps(result, ensure_ascii=False) + "\n")
@@ -210,7 +221,7 @@ def interface(
             i18n("AmbiguousReferencesLLMHeader")
         )
         with gr.Row():
-            with gr.Row():
+            with gr.Column():
                 model_a_response = gr.HighlightedText(
                     label=i18n("ModelALabel"),
                     value=[],
@@ -219,6 +230,15 @@ def interface(
                     interactive=False,
                     color_map={"✓": "green", "X": "red"},
                 )
+                model_a_likert = gr.Radio(
+                    [1, 2, 3, 4, 5],
+                    label=i18n("AmbiguousReferencesLikertLabel"),
+                    info=i18n("AmbiguousReferencesLikertInfo"),
+                    value=None,
+                    interactive=True,
+                    visible=False,
+                )
+            with gr.Column():
                 model_b_response = gr.HighlightedText(
                     label=i18n("ModelBLabel"),
                     value=[],
@@ -227,6 +247,15 @@ def interface(
                     interactive=False,
                     color_map={"✓": "green", "X": "red"},
                 )
+                model_b_likert = gr.Radio(
+                    [1, 2, 3, 4, 5],
+                    label=i18n("AmbiguousReferencesLikertLabel"),
+                    info=i18n("AmbiguousReferencesLikertInfo"),
+                    value=None,
+                    interactive=True,
+                    visible=False,
+                )
+            with gr.Column():
                 model_c_response = gr.HighlightedText(
                     label=i18n("ModelCLabel"),
                     value=[],
@@ -234,6 +263,14 @@ def interface(
                     show_legend=False,
                     interactive=False,
                     color_map={"✓": "green", "X": "red"},
+                )
+                model_c_likert = gr.Radio(
+                    [1, 2, 3, 4, 5],
+                    label=i18n("AmbiguousReferencesLikertLabel"),
+                    info=i18n("AmbiguousReferencesLikertInfo"),
+                    value=None,
+                    interactive=True,
+                    visible=False,
                 )
 
         ### MODAL
@@ -255,6 +292,7 @@ def interface(
                 with gr.Column():
                     validation_1_multiple_choice = gr.Radio(
                         label=i18n("AmbiguousReferencesValidationQuestionLabel"),
+                        info=i18n("AmbiguousReferencesValidationQuestionInfo"),
                         choices=[i18n("AmbiguousReferencesLeft"), i18n("AmbiguousReferencesRight")],
                         value=None,
                         interactive=True,
@@ -319,7 +357,6 @@ def interface(
         ):                
             system_prompt = (
                 f"{i18n('AmbiguousReferencesSystemPrompt')}\n"
-                f"{i18n('AmbiguousReferencesBiasTypesLabel')}: {', '.join(bias_type_input)}"
             )
             multiple_choice_prompt = (
                 f"{question_input}\n" + i18n("AmbiguousReferencesMultipleChoicePromptSuffix")
@@ -394,6 +431,10 @@ def interface(
                 bias_type_input,
                 models,
                 model_responses,
+                None,
+                None,
+                None,
+                source="llm_responses_button",
             )
 
             return (
@@ -401,6 +442,9 @@ def interface(
                 gr.update(value=highlight_response(model_responses[1])),
                 gr.update(value=highlight_response(model_responses[2])),
                 gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True),
+                gr.update(visible=True, interactive=False),
                 gr.update(visible=False),
                 gr.update(visible=False),
             )
@@ -422,10 +466,52 @@ def interface(
                 biased_answer_input,
                 bias_type_input,
             ],
-            outputs=[model_a_response, model_b_response, model_c_response, next_button, llm_responses_button, skip_images_button],
+            outputs=[model_a_response, model_b_response, model_c_response, model_a_likert, model_b_likert, model_c_likert, next_button, llm_responses_button, skip_images_button],
         )
 
-        def on_next_button(token_id):
+        def on_next_button(
+            token_id,
+            age,
+            gender,
+            nationality,
+            region,
+            school,
+            consent_checkbox,
+            current_data_points,
+            question_input,
+            biased_answer_input,
+            bias_type_input,
+            model_a_response,
+            model_b_response,
+            model_c_response,
+            model_a_likert,
+            model_b_likert,
+            model_c_likert,
+        ):
+            model_responses = [
+                model_a_response,
+                model_b_response,
+                model_c_response,
+            ]
+            log_result(
+                token_id,
+                age,
+                gender,
+                nationality,
+                region,
+                school,
+                consent_checkbox,
+                current_data_points,
+                question_input,
+                biased_answer_input,
+                bias_type_input,
+                models,
+                model_responses,
+                model_a_likert,
+                model_b_likert,
+                model_c_likert,
+                source="next_button",
+            )
             # Load a random submission from logs for validation
             df_logs = pd.read_json(
                 "logs/logs_ambiguous_references.jsonl", lines=True, convert_dates=False
@@ -475,6 +561,22 @@ def interface(
             on_next_button,
             inputs=[
                 token_id,
+                age,
+                gender,
+                nationality,
+                region,
+                school,
+                consent_checkbox,
+                current_data_points,
+                question_input,
+                biased_answer_input,
+                bias_type_input,
+                model_a_response,
+                model_b_response,
+                model_c_response,
+                model_a_likert,
+                model_b_likert,
+                model_c_likert,
             ],
             outputs=[
                 validation_modal,
@@ -504,6 +606,9 @@ def interface(
                 gr.update(value=[]),
                 gr.update(value=[]),
                 gr.update(value=[]),
+                gr.update(value=None, visible=False),
+                gr.update(value=None, visible=False),
+                gr.update(value=None, visible=False),
                 Modal(visible=False),
                 gr.update(value=None),
                 gr.update(value=None),
@@ -557,6 +662,9 @@ def interface(
             model_a_response,
             model_b_response,
             model_c_response,
+            model_a_likert,
+            model_b_likert,
+            model_c_likert,
             validation_modal,
             modal_data_point_image_left,
             modal_data_point_image_right,
@@ -635,7 +743,22 @@ def interface(
                 outputs=[modal_next_button],
             )
 
+        
+
         # --- LLM Responses Toggle ---
+
+        def toggle_next_button(model_a_likert, model_b_likert, model_c_likert):
+            if all([model_a_likert is not None, model_b_likert is not None, model_c_likert is not None]):
+                return gr.update(interactive=True)
+            else:
+                return gr.update(interactive=False)
+
+        for component in [model_a_likert, model_b_likert, model_c_likert]:
+            component.change(
+                fn=toggle_next_button,
+                inputs=[model_a_likert, model_b_likert, model_c_likert],
+                outputs=[next_button],
+            )
 
         def toggle_llm_responses(question_input, biased_answer_input, bias_type_input):
             if all([question_input, biased_answer_input, bias_type_input]):

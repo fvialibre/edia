@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 
 import gradio as gr
+import yaml
 from gradio_i18n import Translate, gettext as i18n
 import pandas as pd
 
@@ -19,6 +20,7 @@ from interfaces.interface_validator import interface as interface_validator
 from interfaces.interface_cvqa import interface as interface_cvqa
 from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
 from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
+from interfaces.interface_logsData import interface as interface_logsData
 from modules.utils import parse_cmd_line_args
 
 # --- Tool config ---
@@ -55,8 +57,10 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         value="es",
         label="Interface Language / Idioma de Interfaz / Idioma da Interface",
     )
+    with open("language/i18n.yaml", "r", encoding="utf-8") as _f:
+        _i18n_dict = yaml.safe_load(_f)
     with Translate(
-        "language/i18n.yaml",
+        _i18n_dict,
         lang,
         placeholder_langs=["en", "pt", "es"],
     ):
@@ -99,9 +103,10 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                         multiselect=False,
                         interactive=False,
                     )
-                    consent_checkbox = gr.Checkbox(
+                    is_course_participant_checkbox = gr.Checkbox(
                         label=i18n("isCourseParticipantLabel"),
                         value=False,
+                        interactive=True,
                     )
                     with gr.Row():
                         with gr.Column(scale=1):
@@ -181,10 +186,21 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
+            with gr.Tab(i18n("LogsDataTab")):
+                interface_logsData(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
 
         with gr.Row(visible=True) as personal_data_missing:
             gr.Markdown(
-                i18n("PersonalDataMissingHeading")
+                i18n("PersonalDataMissingHeading"),
+                elem_id="app-personal-data-missing-heading"
             )
         _ = gr.HTML(FOOTER_HTML)
 
@@ -242,16 +258,15 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         outputs=[cvqa_tab]
     )
 
-    def toggle_school(region):
-        if region == "Cordoba (Argentina)":
+    def toggle_school(is_course_participant):
+        if is_course_participant:
             return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
         else:
             return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
 
-    # Connect the personal nationality dropdown to update the personal region dropdown
-    region.change(
+    is_course_participant_checkbox.change(
         fn=toggle_school,
-        inputs=[region],
+        inputs=[is_course_participant_checkbox],
         outputs=[school, school_list_link, school_name]
     )
 
@@ -282,7 +297,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     )
 
     def toggle_annotation(
-        token_id, age, gender, nationality, region, school, consent_checkbox
+        token_id, age, gender, nationality, region, is_course_participant_checkbox, school, consent_checkbox
     ):
         if any([
             token_id is None,
@@ -290,7 +305,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
             gender is None,
             nationality is None or len(nationality) == 0,
             region is None or len(region) == 0,
-            region == "Cordoba (Argentina)" and school not in SCHOOL_LIST,
+            is_course_participant_checkbox and school not in SCHOOL_LIST,
             consent_checkbox is None,
             age < 0,
             age > 100,
@@ -313,6 +328,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         gender,
         nationality,
         region,
+        is_course_participant_checkbox,
         school,
         consent_checkbox
     ]

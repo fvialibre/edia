@@ -53,9 +53,12 @@ secrets = dotenv_values("./.env")
 os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
 
 models = {
-    "vllm/qwen3.5-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
+    "vllm/gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
     ),
+    # "vllm/qwen3.5-4b": ModelWrapper(
+    #     token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
+    # ),
     "vllm/ministral3-8b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
@@ -203,7 +206,7 @@ def interface(
         )
         with gr.Row():
             model_a_response = gr.HighlightedText(
-                label=list(models.keys())[0],
+                label=i18n("ModelALabel"),
                 value=[],
                 combine_adjacent=True,
                 show_legend=False,
@@ -211,7 +214,7 @@ def interface(
                 color_map={"✓": "green", "X": "red"}
             )
             model_b_response = gr.HighlightedText(
-                label=list(models.keys())[1],
+                label=i18n("ModelBLabel"),
                 value=[],
                 combine_adjacent=True,
                 show_legend=False,
@@ -219,7 +222,7 @@ def interface(
                 color_map={"✓": "green", "X": "red"}
             )
             model_c_response = gr.HighlightedText(
-                label=list(models.keys())[2],
+                label=i18n("ModelCLabel"),
                 value=[],
                 combine_adjacent=True,
                 show_legend=False,

@@ -12,7 +12,7 @@ from prompts import prompts
 from html_constants import HTML_FEEDBACK_TITLE
 secrets = dotenv_values("./.env")
 
-MODEL = "vllm/gemma4-26b"
+MODEL = "vllm/ministral3-8b"
 
 # --- Interface ---
 def interface(
@@ -42,7 +42,8 @@ def interface(
         data = {
             "model": MODEL,
             "messages": messages,
-            "temperature": temperature
+            "temperature": temperature,
+            "max_tokens": max_tokens,
         }
         response = requests.post(url, headers=headers, json=data).json()
         content = response['choices'][0]['message']['content']
@@ -153,7 +154,7 @@ def interface(
                 max_tokens = gr.Slider(
                     minimum=1,
                     maximum=4096,
-                    value=1024,
+                    value=300,
                     step=1,
                     label=i18n("ChatbotMaxTokensLabel"),
                     info=i18n("ChatbotMaxTokensInfo"),

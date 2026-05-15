@@ -18,6 +18,7 @@ font-size: 8em;
 }
 #examples {color: black !important}
 #app-title { padding-left: 0.8em; }
+#app-personal-data-missing-heading { padding-left: 0.8em; }
 """
 
 HTML_FEEDBACK_TITLE = """
