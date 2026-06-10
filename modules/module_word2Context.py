@@ -1,4 +1,7 @@
-from datasets import load_dataset, interleave_datasets
+import os
+import zipfile
+import json as _json
+from datasets import IterableDataset, interleave_datasets
 from modules.module_segmentedWordCloud import SegmentedWordCloud
 from modules.module_customSubsetsLabel import CustomSubsetsLabel
 from random import sample as random_sample
@@ -135,8 +138,8 @@ class Word2Context:
 
         splits_list = [random_sample(s_list, 1)[0] for s_list in splits_list]
 
-        ds_list = [ 
-            load_dataset(path=self.context_ds_name, name=split, streaming=True, split='all') 
+        ds_list = [
+            self._load_split(split)
             for split in splits_list
         ]
 
@@ -145,6 +148,26 @@ class Word2Context:
             datasets = interleave_datasets(ds_list, probabilities=None)
 
         return datasets
+
+    def _load_split(self, split: str) -> IterableDataset:
+        """Load a corpus split from a local zip file."""
+        corpus = split.split("_")[0]
+        num = split.split("_")[1]
+        base_path = self.context_ds_name
+        zip_path = os.path.join(
+            base_path, 'data', corpus,
+            f'preprocessed_{corpus}_lower_{num}.zip'
+        )
+        json_name = f'preprocessed_{corpus}_lower_{num}.json'
+
+        def gen():
+            with zipfile.ZipFile(zip_path) as zf:
+                with zf.open(json_name) as f:
+                    data = _json.load(f)
+            for idx, text in data['text'].items():
+                yield {'idx': int(idx), 'text': text.strip(), 'subset': split}
+
+        return IterableDataset.from_generator(gen)
 
     def findContexts(
         self, 

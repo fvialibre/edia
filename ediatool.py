@@ -11,24 +11,24 @@ import pandas as pd
 # --- Imports Constants ---
 from html_constants import FOOTER_HTML, NAVBAR_HTML, css
 # from interfaces.interface_arena import interface as interface_arena
-# from interfaces.interface_biasPhrase import interface as interface_biasPhrase
-# from interfaces.interface_BiasWordExplorer import \
-#     interface as interface_biasWordExplorer
-from interfaces.interface_chatbot import interface as interface_chatbot
+from interfaces.interface_biasPhrase import interface as interface_biasPhrase
+from interfaces.interface_BiasWordExplorer import \
+    interface as interface_biasWordExplorer
+# from interfaces.interface_chatbot import interface as interface_chatbot
 # from interfaces.interface_clinicalChatbot import interface as interface_clinicalChatbot
-# from interfaces.interface_data import interface as interface_data
+from interfaces.interface_data import interface as interface_data
 # from interfaces.interface_logsData import interface as interface_logsData
-from interfaces.interface_validator import interface as interface_validator
+# from interfaces.interface_validator import interface as interface_validator
 # from interfaces.interface_cvqa import interface as interface_cvqa
-from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
+# from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
 # from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
 # --- Imports interfaces ---
-# from interfaces.interface_WordExplorer import \
-#     interface as interface_wordExplorer
+from interfaces.interface_WordExplorer import \
+    interface as interface_wordExplorer
 # --- Imports modules ---
-# from modules.model_embbeding import Embedding
-# from modules.module_languageModel import LanguageModel
-# from modules.module_vocabulary import Vocabulary
+from modules.model_embbeding import Embedding
+from modules.module_languageModel import LanguageModel
+from modules.module_vocabulary import Vocabulary
 from modules.utils import parse_cmd_line_args
 
 # from interfaces.interface_crowsPairs import interface as interface_crowsPairs
@@ -57,25 +57,25 @@ REQUESTS_CONCURRENCY = int(cfg['SERVER']['requests_concurrency'])
 
 
 # --- Init classes ---
-# embedding = Embedding(
-#     path=EMBEDDINGS_PATH,
-#     limit=100000,
-#     randomizedPCA=False,
-#     max_neighbors=MAX_NEIGHBORS,
-#     nn_method=NN_METHOD
-# )
+embedding = Embedding(
+    path=EMBEDDINGS_PATH,
+    limit=100000,
+    randomizedPCA=False,
+    max_neighbors=MAX_NEIGHBORS,
+    nn_method=NN_METHOD
+)
 
-# vocabulary = Vocabulary(
-#     subset_name=VOCABULARY_SUBSET
-# )
+vocabulary = Vocabulary(
+    subset_name=VOCABULARY_SUBSET
+)
 
-# spanish_lm = LanguageModel(
-#     model_name=SPANISH_LANGUAGE_MODEL
-# )
+spanish_lm = LanguageModel(
+    model_name=SPANISH_LANGUAGE_MODEL
+)
 
-# english_lm = LanguageModel(
-#     model_name=ENGLISH_LANGUAGE_MODEL
-# )
+english_lm = LanguageModel(
+    model_name=ENGLISH_LANGUAGE_MODEL
+)
 
 labels_path = f"language/{LANGUAGE}.json"
 if not os.path.isfile(labels_path):
@@ -86,33 +86,33 @@ labels = pd.read_json(labels_path)["app"]
 # # --- Main App ---
 
 INTERFACE_LIST = [
-    interface_typicalPhrases(DEFAULT_LANG=LANGUAGE),
-    interface_chatbot(),
-    # interface_clinicalChatbot(),
-    interface_validator(lang=LANGUAGE),
+    interface_biasPhrase(
+        spanish_language_model=spanish_lm,
+        english_language_model=english_lm,
+        available_logs=AVAILABLE_LOGS,
+        lang=LANGUAGE,),
     # interface_cvqa(lang=LANGUAGE),
+    # interface_typicalPhrases(DEFAULT_LANG=LANGUAGE),
+    # interface_chatbot(),
+    # interface_clinicalChatbot(),
+    # interface_validator(lang=LANGUAGE),
     # interface_ambiguousReferences(lang=LANGUAGE),
-    # interface_biasPhrase(
-    #     spanish_language_model=spanish_lm,
-    #     english_language_model=english_lm,
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,),
-    # interface_data(
-    #     vocabulary=vocabulary,
-    #     contexts=CONTEXTS_DATASET,
-    #     available_logs=AVAILABLE_LOGS,
-    #     available_wordcloud=AVAILABLE_WORDCLOUD,
-    #     lang=LANGUAGE,),
-    # interface_biasWordExplorer(
-    #     embedding=embedding,
-    #     available_logs=AVAILABLE_LOGS,
-    #     lang=LANGUAGE,),
+    interface_data(
+        vocabulary=vocabulary,
+        contexts=CONTEXTS_DATASET,
+        available_logs=AVAILABLE_LOGS,
+        available_wordcloud=AVAILABLE_WORDCLOUD,
+        lang=LANGUAGE,),
+    interface_biasWordExplorer(
+        embedding=embedding,
+        available_logs=AVAILABLE_LOGS,
+        lang=LANGUAGE,),
     # # interface_arena(),
-    # interface_wordExplorer(
-    #     embedding=embedding,
-    #     available_logs=AVAILABLE_LOGS,
-    #     max_neighbors=MAX_NEIGHBORS,
-    #     lang=LANGUAGE,),
+    interface_wordExplorer(
+        embedding=embedding,
+        available_logs=AVAILABLE_LOGS,
+        max_neighbors=MAX_NEIGHBORS,
+        lang=LANGUAGE,),
     # # interface_crowsPairs(
     # #     language_model=beto_lm,
     # #     available_logs=AVAILABLE_LOGS,
@@ -124,17 +124,18 @@ INTERFACE_LIST = [
 ]
 
 TAB_NAMES = [
-    labels["typicalPhrases"],
-    "LLM vía EDIA",
-    # "Chatbot Clínico",
-    labels["stereotypeValidator"],
+    "Sesgo en frases",
+    labels["dataExplorer"],
+    labels["biasWordExplorer"],
+    labels["wordExplorer"],
     # labels["cvqa"],
+    # labels["typicalPhrases"],
+    # "LLM vía EDIA",
+    # "Chatbot Clínico",
+    # labels["stereotypeValidator"],
     # labels["ambiguousReferences"],
     # labels["phraseExplorer"],
-    # labels["dataExplorer"],
-    # labels["biasWordExplorer"],
     # # "Arena",
-    # labels["wordExplorer"],
     # # labels["crowsPairsExplorer"],
     # "Visualizar datos",
 ]

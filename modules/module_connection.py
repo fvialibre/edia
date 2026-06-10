@@ -39,6 +39,8 @@ class Connector(ABC):
         array_in_string: str
     ) -> List[str]:
 
+        if array_in_string is None:
+            return []
         words = array_in_string.strip()
         if not words:
             return []
@@ -609,10 +611,10 @@ class Word2ContextExplorerConnector(Connector):
             self.headers,
             word,
             subset_choice,
-            token_id.strip(),
+            token_id.strip() if token_id is not None else "",
             school,
             age,
-            gender.strip(),
+            gender.strip() if gender is not None else "",
             highlight_query,
             model_name,
         )

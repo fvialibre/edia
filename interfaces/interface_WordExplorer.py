@@ -41,40 +41,50 @@ def interface(
                 token_id = gr.Textbox(
                     label="Escriba su correo electrónico",
                     lines=1,
+                    value="test",
+                    visible=False,
                 )
             with gr.Column(scale=70):
                 with gr.Row():
                     with gr.Column():
                         school = gr.Number(
-                            value=0,
+                            value=20,
                             label="Seleccione el identificador de su escuela (Ver ➡️)",
+                            visible=False,
                         )
                         school_name = gr.HTML(
                             value=f"<p>No seleccionaste ningún colegio</p>",
+                            visible=False,
                         )
                     with gr.Column():
                         _ = gr.HTML(
                             value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                            visible=False,
                         )
         with gr.Row():
             with gr.Column():
                 age = gr.Number(
-                    value=0,
+                    value=20,
                     label="Seleccione su edad",
+                    visible=False,
                 )
             with gr.Column():
                 gender = gr.Radio(
                     ["M", "F", "X"],
                     label="Seleccione su género",
+                    value="X",
+                    visible=False,
                 )
             with gr.Column():
                 with gr.Row():
                     consent_checkbox = gr.Checkbox(
                         label='He leído y acepto el consentimiento informado ➡️',
-                        value=False
+                        value=True,
+                        visible=False,
                     )
                     _ = gr.HTML(
                         value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
+                        visible=False,
                     )
         with gr.Row():
             with gr.Column(scale=3):

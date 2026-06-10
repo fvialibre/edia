@@ -182,17 +182,6 @@ def interface(
                 elem_id="examples"
             )
 
-        with gr.Group():
-            with gr.Row():
-                btn_get_logs = gr.Button(
-                    value=labels["see_queries_made"]
-                )
-            with gr.Row():
-                df_get_logs = gr.DataFrame(
-                    value=pd.DataFrame([], columns=['']),
-                    label=None
-                )
-
         def update_school_name(school):
             if school is None or school == 0:
                 return (
@@ -239,17 +228,6 @@ def interface(
             ], 
             outputs=[out_msj, out],
             api_name="bias_phrase"
-        )
-        
-        btn_get_logs.click(
-            fn=connector.get_logs,
-            inputs=[
-                token_id,
-                gr.Textbox(
-                    value=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None, visible=False
-                )
-            ],
-            outputs=[out_msj, df_get_logs]
         )
 
     return iface
