@@ -41,6 +41,7 @@ en:
     ModelALabel: Model A
     ModelBLabel: Model B
     ModelCLabel: Model C
+    ModelNotWorkingError: This model is not working right now.
     NextButton: Next
 
     # Typical Phrases Tab
@@ -197,6 +198,7 @@ es:
     ModelALabel: Modelo A
     ModelBLabel: Modelo B
     ModelCLabel: Modelo C
+    ModelNotWorkingError: Este modelo no está funcionando en este momento.
     NextButton: Siguiente
 
     # Typical Phrases Tab
@@ -353,6 +355,7 @@ pt:
     ModelALabel: Modelo A
     ModelBLabel: Modelo B
     ModelCLabel: Modelo C
+    ModelNotWorkingError: Este modelo não está funcionando no momento.
     NextButton: Próximo
 
     # Typical Phrases Tab

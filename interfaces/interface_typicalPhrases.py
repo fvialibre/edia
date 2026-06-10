@@ -25,14 +25,17 @@ secrets = dotenv_values("./.env")
 os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
 
 models = {
-    "vllm/qwen3.5-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
-    ),
     "vllm/ministral3-8b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
+    "vllm/qwen3.5-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
+    ),
     "vllm/gemma4-26b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
+    ),
+    "vllm/gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
     ),
 }
 
@@ -214,30 +217,60 @@ def interface(
 
             # Prompts
             system_prompt = i18n("TypicalPhrasesSystemPrompt")
-            model_responses = []
-            
-            def invoke_model(model_name, model):
-                if isinstance(model, ModelWrapper):
-                    response = model.invoke(
-                        system_prompt,
-                        new_phrase,
-                    )
-                    content = response['content'].strip()
-                else:
-                    response = model.invoke([
-                        SystemMessage(content=system_prompt),
-                        HumanMessage(content=[
-                            {"type": "text", "text": new_phrase},
+            model_list = list(models.items())
+            primary_models = model_list[:3]
+            fallback_models = model_list[3:]
+
+            def try_invoke(model):
+                name, m = model
+                try:
+                    if isinstance(m, ModelWrapper):
+                        response = m.invoke(
+                            system_prompt,
+                            new_phrase,
+                        )
+                        return name, response['content'].strip()
+                    else:
+                        response = m.invoke([
+                            SystemMessage(content=system_prompt),
+                            HumanMessage(content=[
+                                {"type": "text", "text": new_phrase},
+                            ])
                         ])
-                    ])
-                    content = response.content.strip()
-                
-                return content
-            
+                        return name, response.content.strip()
+                except Exception as e:
+                    error_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "tab": "typicalPhrases",
+                        "model": name,
+                        "error": str(e),
+                    }
+                    with open("logs/api_errors.jsonl", "a+", encoding="utf-8") as ef:
+                        ef.write(json.dumps(error_entry, ensure_ascii=False) + "\n")
+                    return name, None
+
+            # Run primaries in parallel
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                futures = {executor.submit(invoke_model, name, model): name for name, model in models.items()}
-                for future in concurrent.futures.as_completed(futures):
-                    model_responses.append(future.result())
+                primary_futures = [executor.submit(try_invoke, m) for m in primary_models]
+                results = [f.result() for f in primary_futures]
+            model_names = [name for name, _ in results]
+            model_responses = [content for _, content in results]
+
+            # Fill failed slots with fallbacks (no model used more than once)
+            fallback_iter = iter(fallback_models)
+            for i, response in enumerate(model_responses):
+                if response is None:
+                    content = None
+                    while content is None:
+                        fallback = next(fallback_iter, None)
+                        if fallback is None:
+                            model_names[i] = None
+                            content = i18n("ModelNotWorkingError")
+                            break
+                        fb_name, content = try_invoke(fallback)
+                        if content is not None:
+                            model_names[i] = fb_name
+                    model_responses[i] = content
 
             log_result(
                 token_id,
@@ -251,7 +284,7 @@ def interface(
                 new_phrase_definition,
                 new_phrase_sentence_example,
                 system_prompt,
-                list(models.keys()),
+                model_names,
                 model_responses
             )
 

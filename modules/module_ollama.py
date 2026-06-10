@@ -6,7 +6,7 @@ class ModelWrapper:
         self.token = token
         self.model = model
 
-    def chat_with_model(self, system_prompt, user_prompt, base64_image=None):
+    def chat_with_model(self, system_prompt, user_prompt, base64_image=None, base64_image_2=None):
         url = 'https://chat.ccad.unc.edu.ar/api/chat/completions'
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -19,6 +19,13 @@ class ModelWrapper:
                 "type": "image_url",
                 "image_url": {
                     "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+            })
+        if base64_image_2:
+            user_content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image_2}"
                 }
             })
         user_content.append({"type": "text", "text": user_prompt})
@@ -43,5 +50,5 @@ class ModelWrapper:
         response['content'] = response['choices'][0]['message']['content']
         return response
 
-    def invoke(self, system_prompt, user_prompt, base64_image=None):
-        return self.chat_with_model(system_prompt, user_prompt, base64_image)
+    def invoke(self, system_prompt, user_prompt, base64_image=None, base64_image_2=None):
+        return self.chat_with_model(system_prompt, user_prompt, base64_image, base64_image_2)

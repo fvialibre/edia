@@ -16,7 +16,7 @@ import random
 import re
 from PIL import Image
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 
 # LOAD CVQA #################################################
 
@@ -53,17 +53,17 @@ secrets = dotenv_values("./.env")
 os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
 
 models = {
-    "vllm/gemma3-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
-    ),
-    # "vllm/qwen3.5-4b": ModelWrapper(
-    #     token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
-    # ),
     "vllm/ministral3-8b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
+    "vllm/qwen3.5-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
+    ),
     "vllm/gemma4-26b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
+    ),
+    "vllm/gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
     ),
 }
 
@@ -422,7 +422,7 @@ def interface(
             )
 
             timestamp_str = datetime.now().strftime("%Y%m%d%H%M%S")
-            image_path = f"/tmp/{token_id}_{timestamp_str}_data_point_image.png"
+            image_path = f"/home/givetta/edia/data/tmp/{token_id}_{timestamp_str}_data_point_image.png"
             # Create PIL image from array and resize so max dimension is 256
             img = Image.fromarray(data_point_image)
             try:
@@ -440,46 +440,65 @@ def interface(
             img.save(image_path, format="PNG", optimize=True, compress_level=9)
             with open(image_path, "rb") as f:
                 base64_image = base64.b64encode(f.read()).decode("utf-8")
-            model_responses = []
-            items = list(models.items())
+            model_list = list(models.items())
+            primary_models = model_list[:3]
+            fallback_models = model_list[3:]
 
-            def _call_model(idx, model_name, model):
+            def try_invoke(model):
+                name, m = model
                 try:
-                    if isinstance(model, ModelWrapper):
-                        response = model.invoke(
+                    if isinstance(m, ModelWrapper):
+                        response = m.invoke(
                             system_prompt,
                             multiple_choice_prompt,
                             base64_image=base64_image
                         )
                         response_content = response['content'].strip()
                     else:
-                        response = model.invoke([
+                        response = m.invoke([
                             SystemMessage(content=system_prompt),
                             HumanMessage(content=[
                                 {"type": "text", "text": multiple_choice_prompt},
                                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
                             ])
                         ])
-                        # support objects with .content or dict-like responses
                         response_content = getattr(response, "content", None) or (response.get('content') if isinstance(response, dict) else None) or str(response)
                         response_content = response_content.strip()
-
                     response_content = re.sub(r'[^A-Za-z0-9]', '', response_content)
-                    # print(f"Response from {model_name}: {response_content}")
-                    return idx, response_content
+                    return name, response_content
                 except Exception as e:
-                    print(f"Error invoking {model_name}: {e}")
-                    return idx, ""
+                    error_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "tab": "cvqa",
+                        "model": name,
+                        "error": str(e),
+                    }
+                    with open("logs/api_errors.jsonl", "a+", encoding="utf-8") as ef:
+                        ef.write(json.dumps(error_entry, ensure_ascii=False) + "\n")
+                    return name, None
 
-            # Run model invocations in parallel and preserve original order
-            results = [None] * len(items)
-            with ThreadPoolExecutor(max_workers=min(8, len(items))) as ex:
-                futures = {ex.submit(_call_model, i, name, m): i for i, (name, m) in enumerate(items)}
-                for fut in as_completed(futures):
-                    idx, resp = fut.result()
-                    results[idx] = resp
+            # Run primaries in parallel
+            with ThreadPoolExecutor(max_workers=min(8, len(primary_models))) as ex:
+                primary_futures = [ex.submit(try_invoke, m) for m in primary_models]
+                results = [f.result() for f in primary_futures]
+            model_names = [name for name, _ in results]
+            model_responses = [content for _, content in results]
 
-            model_responses.extend(results)
+            # Fill failed slots with fallbacks (no model used more than once)
+            fallback_iter = iter(fallback_models)
+            for i, response in enumerate(model_responses):
+                if response is None:
+                    content = None
+                    while content is None:
+                        fallback = next(fallback_iter, None)
+                        if fallback is None:
+                            model_names[i] = None
+                            content = i18n("ModelNotWorkingError")
+                            break
+                        fb_name, content = try_invoke(fallback)
+                        if content is not None:
+                            model_names[i] = fb_name
+                    model_responses[i] = content
 
             log_result(
                 "LLM_RESPONSES",
@@ -501,6 +520,8 @@ def interface(
             )
 
             def highlight_response(response):
+                if response == i18n("ModelNotWorkingError"):
+                    return [(response, None)]
                 # Retrieve the option without the letter in response
                 option_text = None
                 for opt in lettered_options:

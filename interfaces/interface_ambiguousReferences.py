@@ -34,18 +34,18 @@ os.environ["COHERE_API_KEY"] = secrets["COHERE_API_KEY"]
 os.environ["GOOGLE_API_KEY"] = secrets["GOOGLE_API_KEY"]
 
 models = {
-    "vllm/gemma3-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    "vllm/ministral3-8b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
     "vllm/qwen3.5-4b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
     ),
-    "vllm/ministral3-8b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
+    "vllm/gemma4-26b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
     ),
-    # "vllm/gemma4-26b": ModelWrapper(
-    #     token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
-    # ),
+    "vllm/gemma3-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    ),
 }
 
 # --- Interface ---
@@ -110,7 +110,7 @@ def interface(
             "question_input": question_input,
             "biased_answer_input": biased_answer_input,
             "bias_type_input": bias_type_input,
-            "models": list(models.keys()),
+            "models": models if isinstance(models, list) else list(models.keys()),
             "model_responses": model_responses,
             "model_a_likert": model_a_likert,
             "model_b_likert": model_b_likert,
@@ -333,12 +333,14 @@ def interface(
 
         def image_to_base64(image_array):
             timestamp_str = datetime.now().strftime("%Y%m%d%H%M%S%f")
-            image_path = f"/tmp/edia_{timestamp_str}.png"
+            image_path = f"/home/givetta/edia/data/tmp/edia_{timestamp_str}.png"
             img = Image.fromarray(image_array)
             img.thumbnail((800, 800), Image.LANCZOS)
             img.save(image_path, quality=75, optimize=True)
             with open(image_path, "rb") as f:
-                return base64.b64encode(f.read()).decode("utf-8")
+                encoded = base64.b64encode(f.read()).decode("utf-8")
+            os.remove(image_path)
+            return encoded
 
         def on_llm_responses_button(
             token_id,
@@ -365,49 +367,82 @@ def interface(
             base64_left = image_to_base64(data_point_image_left)
             base64_right = image_to_base64(data_point_image_right)
 
-            def call_model(model_name, model):
-                if isinstance(model, ModelWrapper):
-                    response = model.invoke(
-                        system_prompt,
-                        multiple_choice_prompt,
-                        base64_image=base64_left,
-                        base64_image_2=base64_right,
-                    )
-                    response_content = response["content"].strip()
-                else:
-                    response = model.invoke(
-                        [
-                            SystemMessage(content=system_prompt),
-                            HumanMessage(
-                                content=[
-                                    {
-                                        "type": "image_url",
-                                        "image_url": {
-                                            "url": f"data:image/png;base64,{base64_left}"
-                                        },
-                                    },
-                                    {
-                                        "type": "image_url",
-                                        "image_url": {
-                                            "url": f"data:image/png;base64,{base64_right}"
-                                        },
-                                    },
-                                    {"type": "text", "text": multiple_choice_prompt},
-                                ]
-                            ),
-                        ]
-                    )
-                    response_content = response.content.strip()
-                return response_content
+            model_list = list(models.items())
+            primary_models = model_list[:3]
+            fallback_models = model_list[3:]
 
+            def try_invoke(model):
+                name, m = model
+                try:
+                    if isinstance(m, ModelWrapper):
+                        response = m.invoke(
+                            system_prompt,
+                            multiple_choice_prompt,
+                            base64_image=base64_left,
+                            base64_image_2=base64_right,
+                        )
+                        return name, response["content"].strip()
+                    else:
+                        response = m.invoke(
+                            [
+                                SystemMessage(content=system_prompt),
+                                HumanMessage(
+                                    content=[
+                                        {
+                                            "type": "image_url",
+                                            "image_url": {
+                                                "url": f"data:image/png;base64,{base64_left}"
+                                            },
+                                        },
+                                        {
+                                            "type": "image_url",
+                                            "image_url": {
+                                                "url": f"data:image/png;base64,{base64_right}"
+                                            },
+                                        },
+                                        {"type": "text", "text": multiple_choice_prompt},
+                                    ]
+                                ),
+                            ]
+                        )
+                        return name, response.content.strip()
+                except Exception as e:
+                    error_entry = {
+                        "timestamp": datetime.now().isoformat(),
+                        "tab": "ambiguousReferences",
+                        "model": name,
+                        "error": str(e),
+                    }
+                    with open("logs/api_errors.jsonl", "a+", encoding="utf-8") as ef:
+                        ef.write(json.dumps(error_entry, ensure_ascii=False) + "\n")
+                    return name, None
+
+            # Run primaries in parallel
             with ThreadPoolExecutor() as executor:
-                futures = {
-                    executor.submit(call_model, name, model): name
-                    for name, model in models.items()
-                }
-                model_responses = [future.result() for future in futures]
+                primary_futures = [executor.submit(try_invoke, m) for m in primary_models]
+                results = [f.result() for f in primary_futures]
+            model_names = [name for name, _ in results]
+            model_responses = [content for _, content in results]
+
+            # Fill failed slots with fallbacks (no model used more than once)
+            fallback_iter = iter(fallback_models)
+            for i, response in enumerate(model_responses):
+                if response is None:
+                    content = None
+                    while content is None:
+                        fallback = next(fallback_iter, None)
+                        if fallback is None:
+                            model_names[i] = None
+                            content = i18n("ModelNotWorkingError")
+                            break
+                        fb_name, content = try_invoke(fallback)
+                        if content is not None:
+                            model_names[i] = fb_name
+                    model_responses[i] = content
 
             def highlight_response(response):
+                if response == i18n("ModelNotWorkingError"):
+                    return [(response, None)]
                 lines = response.strip().split("\n", 1)
                 answer_line = lines[0].strip()
                 rest = lines[1].strip() if len(lines) > 1 else ""
@@ -429,7 +464,7 @@ def interface(
                 question_input,
                 biased_answer_input,
                 bias_type_input,
-                models,
+                model_names,
                 model_responses,
                 None,
                 None,
@@ -505,7 +540,7 @@ def interface(
                 question_input,
                 biased_answer_input,
                 bias_type_input,
-                models,
+                list(models.keys()),
                 model_responses,
                 model_a_likert,
                 model_b_likert,
@@ -527,7 +562,7 @@ def interface(
             my_validations = df_validations[
                 df_validations["validator_token_id"] == token_id
             ]["validated_submission"]
-            already_validated = my_validations.apply(lambda x: x["timestamp"]).tolist()
+            already_validated = my_validations.dropna().apply(lambda x: x["timestamp"]).tolist()
             other_submissions = other_submissions[
                 ~other_submissions["timestamp"].isin(already_validated)
             ]
