@@ -20,7 +20,7 @@ def interface(
     consent_checkbox,
 ) -> gr.Blocks:
 
-    LOG_FILE = "logs/df_ft_11-06-2026-vf.jsonl"
+    LOG_FILE = "logs/logs_typicalPhrases.jsonl"
     VALIDATOR_LOG_FILE = "logs/logs_typicalPhrasesValidator.jsonl"
 
     def _phrase_html(text):
