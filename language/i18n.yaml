@@ -18,6 +18,7 @@ en:
 
     # Tab Names
     TypicalPhrasesTab: Typical Phrases
+    TypicalPhrasesValidatorTab: Phrase Validator
     ChatbotTab: LLM via EDIA
     AmbiguousReferencesTab: Ambiguous References
     CVQATab: Cultural Questions
@@ -59,6 +60,41 @@ en:
     TypicalPhrasesLikertInfo: "1 = Incorrect, 5 = Very correct"
     TypicalPhrasesLLMResponsesButton: How do language models respond?
     TypicalPhrasesSystemPrompt: Define the following expression clearly. The definition must be in English, be precise and concise, and not exceed 40 words. Do not include additional explanations, examples, or information outside the definition. Respond only with the definition.
+
+    # Typical Phrases Validator Tab
+    TypicalPhrasesValidatorTitle: Typical Phrases Validator
+    TypicalPhrasesValidatorDescription: Validate typical phrases contributed by other users. Read each phrase, its definition, and an example sentence, then share your perspective.
+    TypicalPhrasesValidatorNoData: No phrases available to validate right now. Come back later!
+    TypicalPhrasesValidatorPhraseSection: Phrase
+    TypicalPhrasesValidatorAwarenessLabel: Are you aware of this phrase?
+    TypicalPhrasesValidatorAwarenessYes: "Yes"
+    TypicalPhrasesValidatorAwarenessNo: "No"
+    TypicalPhrasesValidatorAwarenessDontKnow: "I don't know"
+    TypicalPhrasesValidatorToxicityLabel: How toxic or negative is this phrase?
+    TypicalPhrasesValidatorToxicityNotToxic: Not toxic
+    TypicalPhrasesValidatorToxicitySlightly: Slightly toxic
+    TypicalPhrasesValidatorToxicityModerately: Moderately toxic
+    TypicalPhrasesValidatorToxicityVery: Very toxic
+    TypicalPhrasesValidatorToxicityExtremely: Extremely toxic
+    TypicalPhrasesValidatorToxicityDependsContext: Depends on the context
+    TypicalPhrasesValidatorToxicityLikertInfo: "1 = not toxic, 5 = extremely toxic"
+    TypicalPhrasesValidatorUseFreqLabel: How much do you use this phrase?
+    TypicalPhrasesValidatorHearFreqLabel: How much do you hear this phrase in your community?
+    TypicalPhrasesValidatorDefinitionSection: Definition
+    TypicalPhrasesValidatorDefinitionCorrectnessLabel: How much do you agree with this definition?
+    TypicalPhrasesValidatorLikertInfo: "1 = disagree, 5 = completely agree"
+    TypicalPhrasesValidatorAltDefinitionLabel: Propose another definition (optional)
+    TypicalPhrasesValidatorAltDefinitionPlaceholder: Type your definition here
+    TypicalPhrasesValidatorSentenceSection: Example sentence
+    TypicalPhrasesValidatorSentenceCorrectnessLabel: Is the phrase used correctly in this sentence?
+    TypicalPhrasesValidatorSentenceLikertInfo: "1 = incorrect, 5 = completely correct"
+    TypicalPhrasesValidatorAltSentenceLabel: Propose another sentence with the phrase (optional)
+    TypicalPhrasesValidatorAltSentencePlaceholder: Type your sentence here
+    FreqNever: Never
+    FreqRarely: Rarely
+    FreqSometimes: Sometimes
+    FreqOften: Often
+    FreqAllTheTime: All the time
 
     # Ambiguous References Tab
     AmbiguousReferencesAnnotationTitle: Ambiguous Reference Activity
@@ -175,10 +211,11 @@ es:
     
     # Tab Names
     TypicalPhrasesTab: Frases Típicas
+    TypicalPhrasesValidatorTab: Validador de Frases
     ChatbotTab: LLM vía EDIA
     AmbiguousReferencesTab: Referencias Ambiguas
     CVQATab: Preguntas Culturales
-    ValidatorTab: Validador
+    ValidatorTab: Validador de Estereotipos
     LogsDataTab: Mis Contribuciones
 
     # Validator Tab
@@ -216,6 +253,41 @@ es:
     TypicalPhrasesLikertInfo: "1 = Incorrecta, 5 = Muy correcta"
     TypicalPhrasesLLMResponsesButton: ¿Cómo responden los modelos de lenguaje?
     TypicalPhrasesSystemPrompt: Define la siguiente expresión de forma clara. La definición debe estar en español, ser precisa y concisa, y no superar las 40 palabras. No incluyas explicaciones adicionales, ejemplos ni información fuera de la definición. Responde solo con la definición.
+
+    # Typical Phrases Validator Tab
+    TypicalPhrasesValidatorTitle: Validador de Frases Típicas
+    TypicalPhrasesValidatorDescription: Validá frases típicas aportadas por otros usuarios. Leé cada frase, su definición y un ejemplo de uso, luego compartí tu perspectiva.
+    TypicalPhrasesValidatorNoData: No hay frases disponibles para validar en este momento. ¡Volvé más tarde!
+    TypicalPhrasesValidatorPhraseSection: Frase
+    TypicalPhrasesValidatorAwarenessLabel: "¿Conocés esta frase?"
+    TypicalPhrasesValidatorAwarenessYes: "Sí"
+    TypicalPhrasesValidatorAwarenessNo: "No"
+    TypicalPhrasesValidatorAwarenessDontKnow: "No sé"
+    TypicalPhrasesValidatorToxicityLabel: "¿Qué tan tóxica o negativa es esta frase?"
+    TypicalPhrasesValidatorToxicityNotToxic: Nada tóxica
+    TypicalPhrasesValidatorToxicitySlightly: Algo tóxica
+    TypicalPhrasesValidatorToxicityModerately: Moderadamente tóxica
+    TypicalPhrasesValidatorToxicityVery: Muy tóxica
+    TypicalPhrasesValidatorToxicityExtremely: Extremadamente tóxica
+    TypicalPhrasesValidatorToxicityDependsContext: Depende del contexto
+    TypicalPhrasesValidatorToxicityLikertInfo: "1 = nada tóxica, 5 = extremadamente tóxica"
+    TypicalPhrasesValidatorUseFreqLabel: "¿Con qué frecuencia usás esta frase?"
+    TypicalPhrasesValidatorHearFreqLabel: "¿Con qué frecuencia escuchás esta frase en tu comunidad?"
+    TypicalPhrasesValidatorDefinitionSection: "Definición"
+    TypicalPhrasesValidatorDefinitionCorrectnessLabel: "¿Qué tanto estás de acuerdo con esta definición?"
+    TypicalPhrasesValidatorLikertInfo: "1 = en desacuerdo, 5 = muy de acuerdo"
+    TypicalPhrasesValidatorAltDefinitionLabel: Proponé otra definición (opcional)
+    TypicalPhrasesValidatorAltDefinitionPlaceholder: Escribí tu definición acá
+    TypicalPhrasesValidatorSentenceSection: Ejemplo de uso
+    TypicalPhrasesValidatorSentenceCorrectnessLabel: "¿Se usa correctamente la frase en este ejemplo?"
+    TypicalPhrasesValidatorSentenceLikertInfo: "1 = incorrecta, 5 = completamente correcta"
+    TypicalPhrasesValidatorAltSentenceLabel: Proponé otra oración con la frase (opcional)
+    TypicalPhrasesValidatorAltSentencePlaceholder: Escribí tu oración acá
+    FreqNever: Nunca
+    FreqRarely: Raramente
+    FreqSometimes: A veces
+    FreqOften: Frecuentemente
+    FreqAllTheTime: Siempre
 
     # Ambiguous References Tab
     AmbiguousReferencesAnnotationTitle: Actividad de Referencias Ambiguas
@@ -332,6 +404,7 @@ pt:
 
     # Tab Names
     TypicalPhrasesTab: Expressões Típicas
+    TypicalPhrasesValidatorTab: Validador de Expressões
     ChatbotTab: LLM vía EDIA
     AmbiguousReferencesTab: Referências Ambíguas
     CVQATab: Perguntas Culturais
@@ -373,6 +446,41 @@ pt:
     TypicalPhrasesLikertInfo: "1 = Incorreta, 5 = Muito correta"
     TypicalPhrasesLLMResponsesButton: Como os modelos de linguagem respondem?
     TypicalPhrasesSystemPrompt: Defina a seguinte expressão de forma clara. A definição deve estar em português, ser precisa e concisa, e não ultrapassar 40 palavras. Não inclua explicações adicionais, exemplos ou informações fora da definição. Responda apenas com a definição.
+
+    # Typical Phrases Validator Tab
+    TypicalPhrasesValidatorTitle: Validador de Expressões Típicas
+    TypicalPhrasesValidatorDescription: Valide expressões típicas contribuídas por outros usuários. Leia cada expressão, sua definição e um exemplo de uso, e compartilhe sua perspectiva.
+    TypicalPhrasesValidatorNoData: Não há expressões disponíveis para validar no momento. Volte mais tarde!
+    TypicalPhrasesValidatorPhraseSection: Expressão
+    TypicalPhrasesValidatorAwarenessLabel: Você conhece essa expressão?
+    TypicalPhrasesValidatorAwarenessYes: "Sim"
+    TypicalPhrasesValidatorAwarenessNo: "Não"
+    TypicalPhrasesValidatorAwarenessDontKnow: "Não sei"
+    TypicalPhrasesValidatorToxicityLabel: Quão tóxica ou negativa é essa expressão?
+    TypicalPhrasesValidatorToxicityNotToxic: Nada tóxica
+    TypicalPhrasesValidatorToxicitySlightly: Levemente tóxica
+    TypicalPhrasesValidatorToxicityModerately: Moderadamente tóxica
+    TypicalPhrasesValidatorToxicityVery: Muito tóxica
+    TypicalPhrasesValidatorToxicityExtremely: Extremamente tóxica
+    TypicalPhrasesValidatorToxicityDependsContext: Depende do contexto
+    TypicalPhrasesValidatorToxicityLikertInfo: "1 = nada tóxica, 5 = extremamente tóxica"
+    TypicalPhrasesValidatorUseFreqLabel: Com que frequência você usa essa expressão?
+    TypicalPhrasesValidatorHearFreqLabel: Com que frequência você ouve essa expressão na sua comunidade?
+    TypicalPhrasesValidatorDefinitionSection: Definição
+    TypicalPhrasesValidatorDefinitionCorrectnessLabel: O quanto você concorda com esta definição?
+    TypicalPhrasesValidatorLikertInfo: "1 = discordo, 5 = concordo completamente"
+    TypicalPhrasesValidatorAltDefinitionLabel: Proponha outra definição (opcional)
+    TypicalPhrasesValidatorAltDefinitionPlaceholder: Escreva sua definição aqui
+    TypicalPhrasesValidatorSentenceSection: Exemplo de uso
+    TypicalPhrasesValidatorSentenceCorrectnessLabel: A expressão é usada corretamente nessa frase?
+    TypicalPhrasesValidatorSentenceLikertInfo: "1 = incorreta, 5 = completamente correta"
+    TypicalPhrasesValidatorAltSentenceLabel: Proponha outra frase com a expressão (opcional)
+    TypicalPhrasesValidatorAltSentencePlaceholder: Escreva sua frase aqui
+    FreqNever: Nunca
+    FreqRarely: Raramente
+    FreqSometimes: Às vezes
+    FreqOften: Frequentemente
+    FreqAllTheTime: O tempo todo
 
     # Ambiguous References Tab
     AmbiguousReferencesAnnotationTitle: Atividade de Referências Ambíguas

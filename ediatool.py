@@ -19,6 +19,7 @@ from interfaces.interface_chatbot import interface as interface_chatbot
 from interfaces.interface_validator import interface as interface_validator
 from interfaces.interface_cvqa import interface as interface_cvqa
 from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
+from interfaces.interface_typicalPhrasesValidator import interface as interface_typicalPhrasesValidator
 from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
 from interfaces.interface_logsData import interface as interface_logsData
 from modules.utils import parse_cmd_line_args
@@ -115,7 +116,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                                 visible=False,
                             )
                             school_list_link = gr.HTML(
-                                value="<a href='https://docs.google.com/spreadsheets/d/1dSAbBvqDrxeRuQIVwSttzvoB-yGYhFvs/edit?usp=sharing&ouid=100181504487703415690&rtpof=true&sd=true'>Lista de escuelas 🔗</a>",
+                                value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
                                 visible=False,
                             )
                             school_name = gr.HTML(
@@ -128,7 +129,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     value=False,
                 )
                 _ = gr.HTML(
-                    value=f"<a href='https://drive.google.com/file/d/1_yhbgoeJsl-SZw_oueCJIf5GoljZ59vc/view?usp=sharing'>Link 🔗</a>",
+                    value=f"<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
                 )
         _ = gr.HTML(
             value="<hr>",
@@ -178,6 +179,16 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
             with gr.Tab(i18n("ValidatorTab")):
                 interface_validator(
                     lang=lang,
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("TypicalPhrasesValidatorTab")):
+                interface_typicalPhrasesValidator(
                     token_id=token_id,
                     age=age,
                     gender=gender,
