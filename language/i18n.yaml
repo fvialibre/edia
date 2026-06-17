@@ -78,6 +78,7 @@ en:
     TypicalPhrasesValidatorToxicityExtremely: Extremely toxic
     TypicalPhrasesValidatorToxicityDependsContext: Depends on the context
     TypicalPhrasesValidatorToxicityLikertInfo: "1 = not toxic, 5 = extremely toxic"
+    TypicalPhrasesValidatorFreqLikertInfo: "1 = never, 5 = all the time"
     TypicalPhrasesValidatorUseFreqLabel: How much do you use this phrase?
     TypicalPhrasesValidatorHearFreqLabel: How much do you hear this phrase in your community?
     TypicalPhrasesValidatorDefinitionSection: Definition
@@ -263,19 +264,20 @@ es:
     TypicalPhrasesValidatorAwarenessYes: "Sí"
     TypicalPhrasesValidatorAwarenessNo: "No"
     TypicalPhrasesValidatorAwarenessDontKnow: "No sé"
-    TypicalPhrasesValidatorToxicityLabel: "¿Qué tan negativa es esta frase?"
+    TypicalPhrasesValidatorToxicityLabel: "¿Qué tan negativa es esta frase según esta definición?"
     TypicalPhrasesValidatorToxicityLikertInfo: "1 = nada negativa, 5 = extremadamente negativa"
     TypicalPhrasesValidatorToxicityDependsContext: Depende del contexto
+    TypicalPhrasesValidatorFreqLikertInfo: "1 = nunca, 5 = siempre"
     TypicalPhrasesValidatorUseFreqLabel: "¿Con qué frecuencia usás esta frase?"
     TypicalPhrasesValidatorHearFreqLabel: "¿Con qué frecuencia escuchás esta frase en tu comunidad?"
     TypicalPhrasesValidatorDefinitionSection: "Definición"
-    TypicalPhrasesValidatorDefinitionCorrectnessLabel: "¿Qué tanto estás de acuerdo con esta definición?"
-    TypicalPhrasesValidatorLikertInfo: "1 = nada de acuerdo, 5 = muy de acuerdo"
+    TypicalPhrasesValidatorDefinitionCorrectnessLabel: "¿Qué tan correcta es esta definición?"
+    TypicalPhrasesValidatorLikertInfo: "1 = incorrecta, 5 = muy correcta"
     TypicalPhrasesValidatorAltDefinitionLabel: Proponé otra definición (opcional)
     TypicalPhrasesValidatorAltDefinitionPlaceholder: Escribí tu definición acá
     TypicalPhrasesValidatorSentenceSection: Ejemplo de uso
-    TypicalPhrasesValidatorSentenceCorrectnessLabel: "¿Qué tan de acuerdo estsá con que la frase está bien utilizada en este ejemplo?"
-    TypicalPhrasesValidatorSentenceLikertInfo: "1 = incorrecta, 5 = completamente correcta"
+    TypicalPhrasesValidatorSentenceCorrectnessLabel: "¿Qué tan correcta es el uso de la frase en este ejemplo?"
+    TypicalPhrasesValidatorSentenceLikertInfo: "1 = incorrecta, 5 = muy correcta"
     TypicalPhrasesValidatorAltSentenceLabel: Proponé otra oración con la frase (opcional)
     TypicalPhrasesValidatorAltSentencePlaceholder: Escribí tu oración acá
     FreqNever: Nunca
@@ -459,6 +461,7 @@ pt:
     TypicalPhrasesValidatorToxicityExtremely: Extremamente tóxica
     TypicalPhrasesValidatorToxicityDependsContext: Depende do contexto
     TypicalPhrasesValidatorToxicityLikertInfo: "1 = nada tóxica, 5 = extremamente tóxica"
+    TypicalPhrasesValidatorFreqLikertInfo: "1 = nunca, 5 = o tempo todo"
     TypicalPhrasesValidatorUseFreqLabel: Com que frequência você usa essa expressão?
     TypicalPhrasesValidatorHearFreqLabel: Com que frequência você ouve essa expressão na sua comunidade?
     TypicalPhrasesValidatorDefinitionSection: Definição

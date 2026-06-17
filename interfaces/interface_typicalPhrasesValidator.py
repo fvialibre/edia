@@ -176,37 +176,17 @@ def interface(
                         interactive=True,
                     )
                     with gr.Column(visible=False, variant="panel") as freq_col:
-                        toxicity_radio = gr.Radio(
-                            choices=[
-                                1, 2, 3, 4, 5,
-                                (i18n("TypicalPhrasesValidatorToxicityDependsContext"), "depends_on_context"),
-                            ],
-                            label=i18n("TypicalPhrasesValidatorToxicityLabel"),
-                            info=i18n("TypicalPhrasesValidatorToxicityLikertInfo"),
-                            value=None,
-                            interactive=True,
-                        )
                         use_freq_radio = gr.Radio(
-                            choices=[
-                                (i18n("FreqNever"), "Never"),
-                                (i18n("FreqRarely"), "Rarely"),
-                                (i18n("FreqSometimes"), "Sometimes"),
-                                (i18n("FreqOften"), "Often"),
-                                (i18n("FreqAllTheTime"), "All the time"),
-                            ],
+                            choices=[1, 2, 3, 4, 5],
                             label=i18n("TypicalPhrasesValidatorUseFreqLabel"),
+                            info=i18n("TypicalPhrasesValidatorFreqLikertInfo"),
                             value=None,
                             interactive=True,
                         )
                         hear_freq_radio = gr.Radio(
-                            choices=[
-                                (i18n("FreqNever"), "Never"),
-                                (i18n("FreqRarely"), "Rarely"),
-                                (i18n("FreqSometimes"), "Sometimes"),
-                                (i18n("FreqOften"), "Often"),
-                                (i18n("FreqAllTheTime"), "All the time"),
-                            ],
+                            choices=[1, 2, 3, 4, 5],
                             label=i18n("TypicalPhrasesValidatorHearFreqLabel"),
+                            info=i18n("TypicalPhrasesValidatorFreqLikertInfo"),
                             value=None,
                             interactive=True,
                         )
@@ -223,6 +203,13 @@ def interface(
                             choices=[1, 2, 3, 4, 5],
                             label=i18n("TypicalPhrasesValidatorDefinitionCorrectnessLabel"),
                             info=i18n("TypicalPhrasesValidatorLikertInfo"),
+                            value=None,
+                            interactive=True,
+                        )
+                        toxicity_radio = gr.Radio(
+                            choices=[1, 2, 3, 4, 5],
+                            label=i18n("TypicalPhrasesValidatorToxicityLabel"),
+                            info=i18n("TypicalPhrasesValidatorToxicityLikertInfo"),
                             value=None,
                             interactive=True,
                         )
