@@ -263,23 +263,18 @@ es:
     TypicalPhrasesValidatorAwarenessYes: "Sí"
     TypicalPhrasesValidatorAwarenessNo: "No"
     TypicalPhrasesValidatorAwarenessDontKnow: "No sé"
-    TypicalPhrasesValidatorToxicityLabel: "¿Qué tan tóxica o negativa es esta frase?"
-    TypicalPhrasesValidatorToxicityNotToxic: Nada tóxica
-    TypicalPhrasesValidatorToxicitySlightly: Algo tóxica
-    TypicalPhrasesValidatorToxicityModerately: Moderadamente tóxica
-    TypicalPhrasesValidatorToxicityVery: Muy tóxica
-    TypicalPhrasesValidatorToxicityExtremely: Extremadamente tóxica
+    TypicalPhrasesValidatorToxicityLabel: "¿Qué tan negativa es esta frase?"
+    TypicalPhrasesValidatorToxicityLikertInfo: "1 = nada negativa, 5 = extremadamente negativa"
     TypicalPhrasesValidatorToxicityDependsContext: Depende del contexto
-    TypicalPhrasesValidatorToxicityLikertInfo: "1 = nada tóxica, 5 = extremadamente tóxica"
     TypicalPhrasesValidatorUseFreqLabel: "¿Con qué frecuencia usás esta frase?"
     TypicalPhrasesValidatorHearFreqLabel: "¿Con qué frecuencia escuchás esta frase en tu comunidad?"
     TypicalPhrasesValidatorDefinitionSection: "Definición"
     TypicalPhrasesValidatorDefinitionCorrectnessLabel: "¿Qué tanto estás de acuerdo con esta definición?"
-    TypicalPhrasesValidatorLikertInfo: "1 = en desacuerdo, 5 = muy de acuerdo"
+    TypicalPhrasesValidatorLikertInfo: "1 = nada de acuerdo, 5 = muy de acuerdo"
     TypicalPhrasesValidatorAltDefinitionLabel: Proponé otra definición (opcional)
     TypicalPhrasesValidatorAltDefinitionPlaceholder: Escribí tu definición acá
     TypicalPhrasesValidatorSentenceSection: Ejemplo de uso
-    TypicalPhrasesValidatorSentenceCorrectnessLabel: "¿Se usa correctamente la frase en este ejemplo?"
+    TypicalPhrasesValidatorSentenceCorrectnessLabel: "¿Qué tan de acuerdo estsá con que la frase está bien utilizada en este ejemplo?"
     TypicalPhrasesValidatorSentenceLikertInfo: "1 = incorrecta, 5 = completamente correcta"
     TypicalPhrasesValidatorAltSentenceLabel: Proponé otra oración con la frase (opcional)
     TypicalPhrasesValidatorAltSentencePlaceholder: Escribí tu oración acá
