@@ -11,6 +11,7 @@ en:
     NationalityInfo: Select the nationalities that represent your cultural, personal, or national identity
     PersonalRegionLabel: Which region?
     isCourseParticipantLabel: Are you taking the 'AI Fundamentals course to broaden cultural horizons'?
+    isEthicaiaParticipantLabel: Are you participating in an ETHICAIA workshop?
     ConsentLabel: I have read and accept the informed consent ⬇️
     PersonalDataMissingHeading: "# Enter your personal data and confirm your consent to continue."
     SchoolLabel: Select your school (See ⬇️)
@@ -20,6 +21,7 @@ en:
     TypicalPhrasesTab: Typical Phrases
     TypicalPhrasesValidatorTab: Phrase Validator
     ChatbotTab: LLM via EDIA
+    ClinicalChatbotTab: Clinical Chatbot
     AmbiguousReferencesTab: Ambiguous References
     CVQATab: Cultural Questions
     ValidatorTab: Validator
@@ -176,6 +178,21 @@ en:
     ChatbotFeedbackUtilityInfo: "1 is useless, 7 is valuable"
     ChatbotFeedbackSubmitButton: Send You can also select multiple biases.
 
+    # Clinical Chatbot Tab
+    ClinicalChatbotParticipantAreaLabel: Select your participation area
+    ClinicalChatbotMedicalStudent: Medical student
+    ClinicalChatbotMedicalTeacher: Medical teacher
+    ClinicalChatbotPsychologyStudent: Psychology student
+    ClinicalChatbotPsychologyTeacher: Psychology teacher
+    ClinicalChatbotOther: Other
+    ClinicalChatbotPatientLabel: Select your patient
+    ClinicalChatbotTitle: Clinical Chatbot via EDIA
+    ClinicalChatbotDescription: "In this tab, called <b>Clinical Chatbot</b>, you can interact with simulated patients powered by artificial intelligence. Your role is to be the patients' doctor, practicing both conversational and clinical skills. Keep in mind that patients may have had previous studies, which you can explicitly request during the consultation."
+    ClinicalChatbotSubmitButton: Send
+    ClinicalChatbotFeedbackLabel: Do you have a comment about this message?
+    ClinicalChatbotFeedbackPlaceholder: Write your comment here...
+    ClinicalChatbotPersonalDataMissingHeading: "### Enter your personal data and confirm your consent to continue the consultation!"
+
     # Logs Data Tab
     LogsDataTitle: My Contributions
     LogsDataDescription: Click the button below to see how many submissions you have made in each tool.
@@ -205,6 +222,7 @@ es:
     NationalityInfo: Seleccioná las nacionalidades que representen tu identidad cultural, personal o nacional
     PersonalRegionLabel: ¿De qué región?
     isCourseParticipantLabel: ¿Estás tomando el curso 'Fundamentos de la IA para ampliar horizontes culturales'?
+    isEthicaiaParticipantLabel: ¿Estás participando en un taller de ETHICAIA?
     ConsentLabel: He leído y acepto el consentimiento informado ⬇️
     PersonalDataMissingHeading: "# Ingresá tus datos personales y confirmá tu consentimiento para continuar."
     SchoolLabel: Seleccioná tu escuela (Ver ⬇️)
@@ -214,6 +232,7 @@ es:
     TypicalPhrasesTab: Frases Típicas
     TypicalPhrasesValidatorTab: Validador de Frases
     ChatbotTab: LLM vía EDIA
+    ClinicalChatbotTab: Chatbot Clínico
     AmbiguousReferencesTab: Referencias Ambiguas
     CVQATab: Preguntas Culturales
     ValidatorTab: Validador de Estereotipos
@@ -365,6 +384,21 @@ es:
     ChatbotFeedbackUtilityInfo: "1 es inútil, 7 es valioso"
     ChatbotFeedbackSubmitButton: Enviar
 
+    # Clinical Chatbot Tab
+    ClinicalChatbotParticipantAreaLabel: Seleccioná tu área de participación
+    ClinicalChatbotMedicalStudent: Estudiante de medicina
+    ClinicalChatbotMedicalTeacher: Docente de medicina
+    ClinicalChatbotPsychologyStudent: Estudiante de psicología
+    ClinicalChatbotPsychologyTeacher: Docente de psicología
+    ClinicalChatbotOther: Otro
+    ClinicalChatbotPatientLabel: Seleccioná tu paciente
+    ClinicalChatbotTitle: Chatbot Clínico vía EDIA
+    ClinicalChatbotDescription: "En esta pestaña, llamada <b>Chatbot Clínico</b>, podrás interactuar con diversos pacientes simulados por inteligencia artificial. Tu rol es ser el médico de estos pacientes, practicando tanto tus habilidades conversacionales como clínicas. Tené en cuenta que los pacientes pueden haber tenido estudios previos, los cuales podés solicitar explícitamente durante la consulta."
+    ClinicalChatbotSubmitButton: Enviar
+    ClinicalChatbotFeedbackLabel: "¿Tenés algún comentario sobre este mensaje?"
+    ClinicalChatbotFeedbackPlaceholder: Escribí tu comentario aquí...
+    ClinicalChatbotPersonalDataMissingHeading: "### ¡Ingresá tus datos personales y confirmá tu consentimiento para poder realizar la consulta!"
+
     # Logs Data Tab
     LogsDataTitle: Mis contribuciones
     LogsDataDescription: Hacé clic en el botón para ver cuántos datos contribuiste en cada herramienta.
@@ -394,6 +428,7 @@ pt:
     NationalityInfo: Selecione as nacionalidades que representam sua identidade cultural, pessoal ou nacional
     PersonalRegionLabel: Qual região?
     isCourseParticipantLabel: Você está fazendo o curso 'Fundamentos de IA para ampliar horizontes culturais'?
+    isEthicaiaParticipantLabel: Você está participando de um workshop da ETHICAIA?
     ConsentLabel: Li e aceito o consentimento informado ⬇️
     PersonalDataMissingHeading: "# Insira seus dados pessoais e confirme seu consentimento para continuar."
     SchoolLabel: Selecione sua escola (Veja ⬇️)
@@ -403,6 +438,7 @@ pt:
     TypicalPhrasesTab: Expressões Típicas
     TypicalPhrasesValidatorTab: Validador de Expressões
     ChatbotTab: LLM vía EDIA
+    ClinicalChatbotTab: Chatbot Clínico
     AmbiguousReferencesTab: Referências Ambíguas
     CVQATab: Perguntas Culturais
     ValidatorTab: Validador
@@ -558,6 +594,21 @@ pt:
     ChatbotFeedbackUtilityLabel: Utilidade
     ChatbotFeedbackUtilityInfo: "1 é inútil, 7 é valioso"
     ChatbotFeedbackSubmitButton: Enviar
+
+    # Clinical Chatbot Tab
+    ClinicalChatbotParticipantAreaLabel: Selecione sua área de participação
+    ClinicalChatbotMedicalStudent: Estudante de medicina
+    ClinicalChatbotMedicalTeacher: Professor de medicina
+    ClinicalChatbotPsychologyStudent: Estudante de psicologia
+    ClinicalChatbotPsychologyTeacher: Professor de psicologia
+    ClinicalChatbotOther: Outro
+    ClinicalChatbotPatientLabel: Selecione seu paciente
+    ClinicalChatbotTitle: Chatbot Clínico via EDIA
+    ClinicalChatbotDescription: "Nesta aba, chamada <b>Chatbot Clínico</b>, você poderá interagir com diversos pacientes simulados por inteligência artificial. Seu papel é ser o médico desses pacientes, praticando suas habilidades conversacionais e clínicas. Tenha em mente que os pacientes podem ter realizado estudos anteriores, que você pode solicitar explicitamente durante a consulta."
+    ClinicalChatbotSubmitButton: Enviar
+    ClinicalChatbotFeedbackLabel: Você tem algum comentário sobre esta mensagem?
+    ClinicalChatbotFeedbackPlaceholder: Escreva seu comentário aqui...
+    ClinicalChatbotPersonalDataMissingHeading: "### Insira seus dados pessoais e confirme seu consentimento para realizar a consulta!"
 
     # Logs Data Tab
     LogsDataTitle: Minhas contribuições
