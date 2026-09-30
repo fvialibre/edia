@@ -192,6 +192,10 @@ en:
     ClinicalChatbotFeedbackLabel: Do you have a comment about this message?
     ClinicalChatbotFeedbackPlaceholder: Write your comment here...
     ClinicalChatbotPersonalDataMissingHeading: "### Enter your personal data and confirm your consent to continue the consultation!"
+    ClinicalChatbotComplementaryStudiesTitle: Complementary Studies
+    ClinicalChatbotComplementaryStudiesOpenButton: Open
+    ClinicalChatbotComplementaryStudiesCloseButton: Close
+    ClinicalChatbotComplementaryStudiesPlaceholder: No complementary studies have been loaded for this patient yet.
 
     # Logs Data Tab
     LogsDataTitle: My Contributions
@@ -398,6 +402,10 @@ es:
     ClinicalChatbotFeedbackLabel: "¿Tenés algún comentario sobre este mensaje?"
     ClinicalChatbotFeedbackPlaceholder: Escribí tu comentario aquí...
     ClinicalChatbotPersonalDataMissingHeading: "### ¡Ingresá tus datos personales y confirmá tu consentimiento para poder realizar la consulta!"
+    ClinicalChatbotComplementaryStudiesTitle: Estudios Complementarios
+    ClinicalChatbotComplementaryStudiesOpenButton: Abrir
+    ClinicalChatbotComplementaryStudiesCloseButton: Cerrar
+    ClinicalChatbotComplementaryStudiesPlaceholder: Todavía no se cargaron estudios complementarios para este paciente.
 
     # Logs Data Tab
     LogsDataTitle: Mis contribuciones
@@ -609,6 +617,10 @@ pt:
     ClinicalChatbotFeedbackLabel: Você tem algum comentário sobre esta mensagem?
     ClinicalChatbotFeedbackPlaceholder: Escreva seu comentário aqui...
     ClinicalChatbotPersonalDataMissingHeading: "### Insira seus dados pessoais e confirme seu consentimento para realizar a consulta!"
+    ClinicalChatbotComplementaryStudiesTitle: Estudos Complementares
+    ClinicalChatbotComplementaryStudiesOpenButton: Abrir
+    ClinicalChatbotComplementaryStudiesCloseButton: Fechar
+    ClinicalChatbotComplementaryStudiesPlaceholder: Ainda não há estudos complementares carregados para este paciente.
 
     # Logs Data Tab
     LogsDataTitle: Minhas contribuições

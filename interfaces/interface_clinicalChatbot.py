@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 import os
 from dotenv import dotenv_values
-from data.clinical_patients.clinical_prompts import clinical_prompts
+from data.clinical_patients.clinical_prompts import clinical_prompts, clinical_extra_studies
 from html_constants import HTML_FEEDBACK_TITLE
 
 
@@ -123,6 +123,24 @@ def interface(
         gr.Info("Feedback enviado con éxito")
         return (Modal(visible=False), "")
 
+    def toggle_complementary_studies(is_open, patient_id):
+        is_open = not is_open
+        if is_open:
+            text = clinical_extra_studies.get(patient_id, i18n("ClinicalChatbotComplementaryStudiesPlaceholder"))
+            text_box = gr.Textbox(value=text, visible=True)
+            button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesCloseButton"))
+        else:
+            text_box = gr.Textbox(visible=False)
+            button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"))
+        return is_open, text_box, button
+
+    def reset_complementary_studies():
+        return False, gr.Textbox(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"))
+
+    def reset_on_patient_change():
+        is_open, text_box, button = reset_complementary_studies()
+        return is_open, text_box, button, []
+
     with gr.Blocks(css=".contain { display: flex !important; flex-direction: column !important; }"
     "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }"
     "#chatbot { flex-grow: 1 !important; overflow: auto !important;}"
@@ -140,28 +158,39 @@ def interface(
             "patient_id": None,
             "participant_area": None
         })
-        with gr.Column(visible=True, elem_id='col') as chat_col:
-            gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
-            gr.Markdown(i18n("ClinicalChatbotDescription"))
-            chatbot = gr.Chatbot(
-                show_copy_button=True,
-                # likeable=True,
-            )
-            chat_interface = gr.ChatInterface(
-                    predict,
-                    additional_inputs=[
-                        token_id,
-                        age,
-                        gender,
-                        nationality,
-                        region,
-                        school,
-                        patient_id,
-                        participant_area
-                    ],
-                    chatbot=chatbot,
-                    submit_btn=i18n("ClinicalChatbotSubmitButton"),
-                    stop_btn=None,
+        with gr.Row(visible=True, elem_id='col') as chat_col:
+            with gr.Column(scale=3):
+                gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
+                gr.Markdown(i18n("ClinicalChatbotDescription"))
+                chatbot = gr.Chatbot(
+                    show_copy_button=True,
+                    # likeable=True,
+                )
+                chat_interface = gr.ChatInterface(
+                        predict,
+                        additional_inputs=[
+                            token_id,
+                            age,
+                            gender,
+                            nationality,
+                            region,
+                            school,
+                            patient_id,
+                            participant_area
+                        ],
+                        chatbot=chatbot,
+                        submit_btn=i18n("ClinicalChatbotSubmitButton"),
+                        stop_btn=None,
+                    )
+            with gr.Column(scale=1):
+                gr.Markdown("### " + i18n("ClinicalChatbotComplementaryStudiesTitle"))
+                complementary_studies_is_open = gr.State(False)
+                complementary_studies_open_button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"))
+                complementary_studies_text = gr.Textbox(
+                    show_label=False,
+                    lines=15,
+                    interactive=False,
+                    visible=False,
                 )
             
         ### MODAL
@@ -183,4 +212,14 @@ def interface(
             [turn_info_for_feedback, turn_feedback_modal],
         )
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, text_feedback], [turn_feedback_modal, text_feedback])
+        complementary_studies_open_button.click(
+            toggle_complementary_studies,
+            [complementary_studies_is_open, patient_id],
+            [complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button],
+        )
+        patient_id.change(
+            reset_on_patient_change,
+            None,
+            [complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button, chatbot],
+        )
     return interface
