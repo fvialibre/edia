@@ -11,6 +11,9 @@ from dotenv import dotenv_values
 from data.clinical_patients.clinical_prompts import clinical_prompts, clinical_extra_studies
 from html_constants import HTML_FEEDBACK_TITLE
 
+# Empty consulting room, shown behind the chat so the scene feels set before a patient is picked.
+CLINICAL_CHATBOT_BACKGROUND_URI = "https://static.wixstatic.com/media/7869d1_db0f138ff51d4f5a9e8190165eea41a3~mv2.jpg/v1/fill/w_1000,h_583,al_c,q_85,usm_0.66_1.00_0.01/7869d1_db0f138ff51d4f5a9e8190165eea41a3~mv2.jpg"
+
 
 # --- Interface ---
 def interface(
@@ -141,9 +144,17 @@ def interface(
         is_open, text_box, button = reset_complementary_studies()
         return is_open, text_box, button, []
 
+    chat_placeholder = (
+        f'<img src="{CLINICAL_CHATBOT_BACKGROUND_URI}" '
+        'style="max-width:min(100%,480px); border-radius:12px; margin-bottom:1em;" /><div>'
+        + i18n("ClinicalChatbotChatPlaceholder")
+        + "</div>"
+    )
+
     with gr.Blocks(css=".contain { display: flex !important; flex-direction: column !important; }"
     "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }"
     "#chatbot { flex-grow: 1 !important; overflow: auto !important;}"
+    f"#chatbot .bubble-wrap, #chatbot .wrap {{ background-image: url('{CLINICAL_CHATBOT_BACKGROUND_URI}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }}"
     "#col { height: 100vh !important; }") as interface:
         turn_info_for_feedback = gr.State({
             "selected_message": None,
@@ -163,7 +174,9 @@ def interface(
                 gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
                 gr.Markdown(i18n("ClinicalChatbotDescription"))
                 chatbot = gr.Chatbot(
+                    elem_id="chatbot",
                     show_copy_button=True,
+                    placeholder=chat_placeholder,
                     # likeable=True,
                 )
                 chat_interface = gr.ChatInterface(

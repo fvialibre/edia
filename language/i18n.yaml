@@ -188,6 +188,7 @@ en:
     ClinicalChatbotPatientLabel: Select your patient
     ClinicalChatbotTitle: Clinical Chatbot via EDIA
     ClinicalChatbotDescription: "In this tab, called <b>Clinical Chatbot</b>, you can interact with simulated patients powered by artificial intelligence. Your role is to be the patients' doctor, practicing both conversational and clinical skills. Keep in mind that patients may have had previous studies, which you can explicitly request during the consultation."
+    ClinicalChatbotChatPlaceholder: "<h3>🩺 The consulting room is ready</h3>Select a patient and say hello to begin the consultation."
     ClinicalChatbotSubmitButton: Send
     ClinicalChatbotFeedbackLabel: Do you have a comment about this message?
     ClinicalChatbotFeedbackPlaceholder: Write your comment here...
@@ -398,6 +399,7 @@ es:
     ClinicalChatbotPatientLabel: Seleccioná tu paciente
     ClinicalChatbotTitle: Chatbot Clínico vía EDIA
     ClinicalChatbotDescription: "En esta pestaña, llamada <b>Chatbot Clínico</b>, podrás interactuar con diversos pacientes simulados por inteligencia artificial. Tu rol es ser el médico de estos pacientes, practicando tanto tus habilidades conversacionales como clínicas. Tené en cuenta que los pacientes pueden haber tenido estudios previos, los cuales podés solicitar explícitamente durante la consulta."
+    ClinicalChatbotChatPlaceholder: "<h3>🩺 El consultorio está listo</h3>Seleccioná un paciente y saludá para comenzar la consulta."
     ClinicalChatbotSubmitButton: Enviar
     ClinicalChatbotFeedbackLabel: "¿Tenés algún comentario sobre este mensaje?"
     ClinicalChatbotFeedbackPlaceholder: Escribí tu comentario aquí...
@@ -613,6 +615,7 @@ pt:
     ClinicalChatbotPatientLabel: Selecione seu paciente
     ClinicalChatbotTitle: Chatbot Clínico via EDIA
     ClinicalChatbotDescription: "Nesta aba, chamada <b>Chatbot Clínico</b>, você poderá interagir com diversos pacientes simulados por inteligência artificial. Seu papel é ser o médico desses pacientes, praticando suas habilidades conversacionais e clínicas. Tenha em mente que os pacientes podem ter realizado estudos anteriores, que você pode solicitar explicitamente durante a consulta."
+    ClinicalChatbotChatPlaceholder: "<h3>🩺 O consultório está pronto</h3>Selecione um paciente e diga olá para iniciar a consulta."
     ClinicalChatbotSubmitButton: Enviar
     ClinicalChatbotFeedbackLabel: Você tem algum comentário sobre esta mensagem?
     ClinicalChatbotFeedbackPlaceholder: Escreva seu comentário aqui...
