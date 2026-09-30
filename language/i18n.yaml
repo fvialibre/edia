@@ -197,6 +197,18 @@ en:
     ClinicalChatbotComplementaryStudiesOpenButton: Open
     ClinicalChatbotComplementaryStudiesCloseButton: Close
     ClinicalChatbotComplementaryStudiesPlaceholder: No complementary studies have been loaded for this patient yet.
+    ClinicalChatbotEndConversationButton: "End conversation"
+    ClinicalChatbotEndConversationModalTitle: End of consultation
+    ClinicalChatbotEndConversationModalDescription: Before finishing, please fill out this short form about the consultation.
+    ClinicalChatbotAcuteProblemsLabel: Acute Problems
+    ClinicalChatbotAcuteProblemsPlaceholder: Describe the patient's acute problems...
+    ClinicalChatbotChronicProblemsLabel: Chronic Problems
+    ClinicalChatbotChronicProblemsPlaceholder: Describe the patient's chronic problems...
+    ClinicalChatbotDiagnosisLabel: Diagnosis
+    ClinicalChatbotDiagnosisPlaceholder: Enter your diagnosis...
+    ClinicalChatbotGeneralFeedbackLabel: General feedback
+    ClinicalChatbotGeneralFeedbackPlaceholder: Write any additional comments about the consultation...
+    ClinicalChatbotEndConversationSubmitButton: Submit and end conversation
 
     # Logs Data Tab
     LogsDataTitle: My Contributions
@@ -408,6 +420,18 @@ es:
     ClinicalChatbotComplementaryStudiesOpenButton: Abrir
     ClinicalChatbotComplementaryStudiesCloseButton: Cerrar
     ClinicalChatbotComplementaryStudiesPlaceholder: Todavía no se cargaron estudios complementarios para este paciente.
+    ClinicalChatbotEndConversationButton: "Finalizar conversación"
+    ClinicalChatbotEndConversationModalTitle: Fin de la consulta
+    ClinicalChatbotEndConversationModalDescription: Antes de finalizar, completá este breve formulario sobre la consulta.
+    ClinicalChatbotAcuteProblemsLabel: Problemas Agudos
+    ClinicalChatbotAcuteProblemsPlaceholder: Describí los problemas agudos del paciente...
+    ClinicalChatbotChronicProblemsLabel: Problemas Crónicos
+    ClinicalChatbotChronicProblemsPlaceholder: Describí los problemas crónicos del paciente...
+    ClinicalChatbotDiagnosisLabel: Diagnóstico
+    ClinicalChatbotDiagnosisPlaceholder: Ingresá tu diagnóstico...
+    ClinicalChatbotGeneralFeedbackLabel: Comentarios generales
+    ClinicalChatbotGeneralFeedbackPlaceholder: Escribí cualquier comentario adicional sobre la consulta...
+    ClinicalChatbotEndConversationSubmitButton: Enviar y finalizar conversación
 
     # Logs Data Tab
     LogsDataTitle: Mis contribuciones
@@ -624,6 +648,18 @@ pt:
     ClinicalChatbotComplementaryStudiesOpenButton: Abrir
     ClinicalChatbotComplementaryStudiesCloseButton: Fechar
     ClinicalChatbotComplementaryStudiesPlaceholder: Ainda não há estudos complementares carregados para este paciente.
+    ClinicalChatbotEndConversationButton: "Encerrar conversa"
+    ClinicalChatbotEndConversationModalTitle: Fim da consulta
+    ClinicalChatbotEndConversationModalDescription: Antes de finalizar, preencha este breve formulário sobre a consulta.
+    ClinicalChatbotAcuteProblemsLabel: Problemas Agudos
+    ClinicalChatbotAcuteProblemsPlaceholder: Descreva os problemas agudos do paciente...
+    ClinicalChatbotChronicProblemsLabel: Problemas Crônicos
+    ClinicalChatbotChronicProblemsPlaceholder: Descreva os problemas crônicos do paciente...
+    ClinicalChatbotDiagnosisLabel: Diagnóstico
+    ClinicalChatbotDiagnosisPlaceholder: Insira seu diagnóstico...
+    ClinicalChatbotGeneralFeedbackLabel: Comentários gerais
+    ClinicalChatbotGeneralFeedbackPlaceholder: Escreva qualquer comentário adicional sobre a consulta...
+    ClinicalChatbotEndConversationSubmitButton: Enviar e encerrar conversa
 
     # Logs Data Tab
     LogsDataTitle: Minhas contribuições

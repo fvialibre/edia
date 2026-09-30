@@ -19,6 +19,20 @@ font-size: 8em;
 #examples {color: black !important}
 #app-title { padding-left: 0.8em; }
 #app-personal-data-missing-heading { padding-left: 0.8em; }
+#end-conversation-button, #end-conversation-button button {
+    --button-cancel-background-fill: #dc2626 !important;
+    --button-cancel-background-fill-hover: #b91c1c !important;
+    --button-cancel-border-color: #dc2626 !important;
+    --button-cancel-border-color-hover: #b91c1c !important;
+    --button-cancel-text-color: #ffffff !important;
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: white !important;
+}
+#end-conversation-button:hover, #end-conversation-button button:hover {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+}
 """
 
 HTML_FEEDBACK_TITLE = """

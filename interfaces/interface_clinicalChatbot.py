@@ -144,6 +144,40 @@ def interface(
         is_open, text_box, button = reset_complementary_studies()
         return is_open, text_box, button, []
 
+    def send_end_conversation_form(
+        acute_problems,
+        chronic_problems,
+        diagnosis,
+        general_feedback,
+        token_id,
+        age,
+        gender,
+        nationality,
+        region,
+        school,
+        patient_id,
+        participant_area,
+    ):
+        with open("./logs/logs_clinical_chatbot_end_conversation.jsonl", "a+", encoding='utf-8') as f:
+            f.write(json.dumps({
+                "timestamp": datetime.now().isoformat(),
+                "acute_problems": acute_problems,
+                "chronic_problems": chronic_problems,
+                "diagnosis": diagnosis,
+                "general_feedback": general_feedback,
+                "token_id": token_id,
+                "age": age,
+                "gender": gender,
+                "nationality": nationality,
+                "region": region,
+                "school": school,
+                "patient_id": patient_id,
+                "participant_area": participant_area,
+            }, ensure_ascii=False) + "\n")
+        gr.Info("Feedback enviado con éxito")
+        is_open, text_box, button = reset_complementary_studies()
+        return (Modal(visible=False), "", "", "", "", [], is_open, text_box, button)
+
     chat_placeholder = (
         f'<img src="{CLINICAL_CHATBOT_BACKGROUND_URI}" '
         'style="max-width:min(100%,480px); border-radius:12px; margin-bottom:1em;" /><div>'
@@ -205,7 +239,14 @@ def interface(
                     interactive=False,
                     visible=False,
                 )
-            
+
+        with gr.Row():
+            end_conversation_button = gr.Button(
+                i18n("ClinicalChatbotEndConversationButton"),
+                variant="stop",
+                elem_id="end-conversation-button",
+            )
+
         ### MODAL
         with Modal(visible=False) as turn_feedback_modal:
             _ = gr.HTML(HTML_FEEDBACK_TITLE)
@@ -218,7 +259,40 @@ def interface(
                 )
 
             modal_submit_button = gr.Button(i18n("ClinicalChatbotSubmitButton"))
-            
+
+        with Modal(visible=False) as end_conversation_modal:
+            gr.HTML(
+                "<h1 style='text-align: center; margin-bottom: 0em;'>"
+                + i18n("ClinicalChatbotEndConversationModalTitle")
+                + "</h1><h3 style='text-align: center; margin-bottom: 1em;'>"
+                + i18n("ClinicalChatbotEndConversationModalDescription")
+                + "</h3>"
+            )
+            acute_problems = gr.Textbox(
+                label=i18n("ClinicalChatbotAcuteProblemsLabel"),
+                placeholder=i18n("ClinicalChatbotAcuteProblemsPlaceholder"),
+                lines=2,
+            )
+            chronic_problems = gr.Textbox(
+                label=i18n("ClinicalChatbotChronicProblemsLabel"),
+                placeholder=i18n("ClinicalChatbotChronicProblemsPlaceholder"),
+                lines=2,
+            )
+            diagnosis = gr.Textbox(
+                label=i18n("ClinicalChatbotDiagnosisLabel"),
+                placeholder=i18n("ClinicalChatbotDiagnosisPlaceholder"),
+                lines=2,
+            )
+            general_feedback = gr.Textbox(
+                label=i18n("ClinicalChatbotGeneralFeedbackLabel"),
+                placeholder=i18n("ClinicalChatbotGeneralFeedbackPlaceholder"),
+                lines=3,
+            )
+            end_conversation_submit_button = gr.Button(
+                i18n("ClinicalChatbotEndConversationSubmitButton"),
+                variant="stop",
+            )
+
         chatbot.like(
             open_turn_feedback_modal,
             [token_id, age, gender, nationality, region, school, patient_id, participant_area],
@@ -234,5 +308,24 @@ def interface(
             reset_on_patient_change,
             None,
             [complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button, chatbot],
+        )
+        end_conversation_button.click(lambda: Modal(visible=True), None, end_conversation_modal)
+        end_conversation_submit_button.click(
+            send_end_conversation_form,
+            [
+                acute_problems,
+                chronic_problems,
+                diagnosis,
+                general_feedback,
+                token_id,
+                age,
+                gender,
+                nationality,
+                region,
+                school,
+                patient_id,
+                participant_area,
+            ],
+            [end_conversation_modal, acute_problems, chronic_problems, diagnosis, general_feedback, chatbot, complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button],
         )
     return interface
