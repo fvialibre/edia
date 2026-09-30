@@ -1,6 +1,7 @@
 __pycache__/
 *.env
 data/*
+!data/clinical_patients
 !data/country_borders.csv
 !data/Diccionario de Lunfardo V4.csv
 !data/global_administrative_division.json
