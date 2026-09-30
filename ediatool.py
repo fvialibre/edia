@@ -164,7 +164,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         )
 
         with gr.Tabs(visible=False) as annotation_tabs:
-            with gr.Tab(i18n("ClinicalChatbotTab")):
+            with gr.Tab(i18n("ClinicalChatbotTab"), visible=False) as clinical_chatbot_tab:
                 interface_clinicalChatbot(
                     token_id=token_id,
                     age=age,
@@ -330,6 +330,15 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         fn=toggle_clinical_inputs,
         inputs=[is_ethicaia_participant_checkbox],
         outputs=[participant_area, patient_id]
+    )
+
+    def clinical_chatbot_tab_toggle(is_ethicaia_participant):
+        return gr.Tab(visible=bool(is_ethicaia_participant))
+
+    is_ethicaia_participant_checkbox.change(
+        fn=clinical_chatbot_tab_toggle,
+        inputs=[is_ethicaia_participant_checkbox],
+        outputs=[clinical_chatbot_tab]
     )
 
     def update_school_name(school):
