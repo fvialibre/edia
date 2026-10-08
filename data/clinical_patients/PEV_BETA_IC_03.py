@@ -43,17 +43,29 @@ Antecedentes familiares de diabetes mellitus tipo 2 e hipertensión arterial en 
 """
 
 physical_exam = """TA: 110/70 mmHg
+
 FC: 90 lpm, iregular
+
 FR: 30 rpm
+
 Temperatura: 36,6 °C
+
 SatO₂: 93 % AA
+
 Peso y antropometría: peso habitual 67 kg; peso actual 74 kg; talla 1,68 m; IMC actual 26,2 kg/m².
+
 Inspección general: paciente lúcida, orientada, disneica al hablar frases prolongadas, sin cianosis.
+
 Cuello: ingurgitación yugular marcada que persiste en posición sentada, con escaso colapso inspiratorio.
+
 Aparato cardiovascular: frecuencia 90 lpm, ritmo irregular. Latido apexiano desplazado al 6.º espacio intercostal izquierdo sobre línea axilar anterior, amplio y extenso. Soplo sistólico 2/6 en borde esternal inferior izquierdo, con ligero incremento durante la inspiración. Pulsos periféricos presentes.
+
 Aparato respiratorio: murmullo vesicular globalmente disminuido. Rales crepitantes finos bibasales, de predominio inspiratorio tardío, que no se modifican con la tos.
+
 Abdomen: blando, depresible; dolor a la palpación en epigastrio e hipocondrio derecho. Hígado palpable aproximadamente 3 traveses de dedo por debajo del reborde costal, doloroso, con altura hepática aproximada de 17 cm. Sin signos de irritación peritoneal.
+
 Miembros inferiores: edema blando, bilateral, con fóvea, hasta ambas rodillas.
+
 Sistema nervioso: sin focalidad neurológica evidente.
 """
 

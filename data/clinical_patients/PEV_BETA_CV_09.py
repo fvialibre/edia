@@ -42,15 +42,25 @@ No refiere antecedentes familiares conocidos de insuficiencia cardíaca precoz, 
 """
 
 physical_exam = """TA: 130/80 mmHg
+
 FC: 84 lpm, regular
+
 FR: 20 rpm
+
 Temperatura: 36,5 °C
+
 SatO₂: 97 % AA
+
 Peso habitual: 65 kg. Peso actual: 85 kg. Talla: 1,65 m. IMC: 31,2 kg/m². TA en brazo derecho 130/80 mmHg y en brazo izquierdo 124/78 mmHg. Paciente lúcida, orientada, colaboradora, eupneica en reposo.
+
 Piel y mucosas: normocoloreadas. Sin cianosis. Abdomen con aumento del panículo adiposo y estrías rosadas relacionadas con el incremento ponderal. Sin equimosis ni fragilidad cutánea.
+
 Aparato cardiovascular: precordio tranquilo; choque de punta no visible ni palpable. R1 y R2 normales, sin soplos ni galope. No ingurgitación yugular. Pulsos periféricos presentes y simétricos. Sin edema de miembros inferiores.
+
 Aparato respiratorio: tórax simétrico, buena entrada bilateral de aire, murmullo vesicular conservado, sin rales ni sibilancias.
+
 Abdomen: globuloso a predominio adiposo, blando, depresible, indoloro. La adiposidad dificulta la palpación profunda. Sin visceromegalias evidentes.
+
 Miembros inferiores: várices superficiales bilaterales, sin edema. Fuerza muscular proximal conservada.
 """
 

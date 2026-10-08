@@ -37,17 +37,29 @@ No refiere antecedentes familiares conocidos de cáncer de pulmón. Antecedentes
 """
 
 physical_exam = """TA: 128/78 mmHg
+
 FC: 88 lpm, regular
+
 FR: 20 rpm
+
 Temperatura: 36,5 °C
+
 SatO₂: 94 % AA
+
 Paciente lúcido, orientado y colaborador. Se observa adelgazado respecto de su estado habitual, sin dificultad respiratoria en reposo.
+
 Piel y mucosas: normohidratadas. Sin cianosis central.
+
 Cuello: adenopatía supraclavicular izquierda palpable, de aproximadamente 2 cm, de consistencia aumentada, poco móvil e indolora. Sin ingurgitación yugular.
+
 Aparato respiratorio: tórax con discreto aumento del diámetro anteroposterior. Murmullo vesicular globalmente disminuido, con espiración prolongada y sibilancias aisladas bilaterales. En campo superior derecho se aprecia menor entrada de aire. Sin estertores crepitantes.
+
 Aparato cardiovascular: R1 y R2 rítmicos, sin soplos significativos. Pulsos periféricos presentes y simétricos.
+
 Abdomen: blando, depresible, indoloro. Sin hepatomegalia ni esplenomegalia palpables.
+
 Miembros inferiores: sin edemas.
+
 Examen neurológico: sin focalidad evidente.
 """
 

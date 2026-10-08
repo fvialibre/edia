@@ -41,17 +41,29 @@ Madre fallecida por complicaciones de enfermedad renal crónica. Padre fallecido
 """
 
 physical_exam = """TA: 180/115 mmHg
+
 FC: 82 lpm, regular
+
 FR: 18 rpm
+
 Temperatura: 36,6 °C
+
 SatO₂: 97 % AA
+
 Peso habitual: 70 kg. Peso actual: 77 kg. Talla: 1,60 m. IMC actual: 30,1 kg/m².
+
 Inspección general: paciente lúcida, orientada, afebril, con facies de cansancio. Sin disnea en reposo.
+
 Cabeza y cuello: mucosas discretamente pálidas. Sin ingurgitación yugular. No se auscultan soplos carotídeos.
+
 Aparato cardiovascular: ruidos cardíacos rítmicos, normofonéticos, sin soplos evidentes. Pulsos periféricos presentes y simétricos.
+
 Aparato respiratorio: buena entrada bilateral de aire, sin estertores ni sibilancias.
+
 Abdomen: blando, depresible, indoloro. Sin masas ni visceromegalias. Puño-percusión lumbar bilateral negativa.
+
 Miembros inferiores: edema blando bilateral con fóvea, de predominio maleolar y pretibial, hasta tercio medio de ambas piernas. Sin signos de trombosis venosa profunda.
+
 Neurológico: lúcida y orientada, sin déficit motor o sensitivo focal.
 """
 

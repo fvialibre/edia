@@ -39,14 +39,23 @@ No se consignan antecedentes familiares relevantes. No refiere antecedentes fami
 """
 
 physical_exam = """TA: 112/72 mmHg
+
 FC: 76 lpm, regular
+
 FR: 15 rpm
+
 Temperatura: 36,5 °C
+
 SatO₂: 98 % AA
+
 Peso: 62 kg. Talla: 1,65 m. IMC: 22,8 kg/m². Paciente lúcida, orientada y colaboradora, en buen estado general; se observa algo fatigada durante la entrevista.
+
 Piel y mucosas: normocoloreadas, sin exantemas, púrpura, lesiones psoriasiformes, úlceras orales ni cambios tróficos.
+
 Aparato locomotor: no se observa tumefacción, eritema ni aumento de temperatura en articulaciones periféricas. Movilidad activa y pasiva conservada, sin sinovitis. Dolor a la palpación en múltiples regiones musculares, especialmente región cervical posterior, trapecios, región supraescapular, lumbar, glútea, muslos y pantorrillas, con hipersensibilidad a la presión moderada. No presenta dolor limitado exclusivamente a puntos anatómicos aislados. Fuerza muscular 5/5 en los cuatro miembros, sin debilidad proximal.
+
 Neurológico: sensibilidad superficial y profunda conservadas, reflejos osteotendinosos presentes y simétricos, marcha normal, sin signos de focalidad.
+
 Cardiovascular, respiratorio y abdomen: sin hallazgos patológicos relevantes.
 """
 

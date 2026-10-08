@@ -41,16 +41,27 @@ Madre con diabetes mellitus tipo 2 e hipertensión arterial. Padre con obesidad,
 """
 
 physical_exam = """TA: 145/80 mmHg
+
 FC: 75 lpm, regular
+
 FR: 16 rpm
+
 Temperatura: 36,4 °C
+
 SatO₂: 98 % AA
+
 Peso: 87 kg. Talla: 1,65 m. IMC: 32,0 kg/m². Circunferencia de cintura: 104 cm. Predominio de adiposidad abdominal. Paciente lúcida, orientada y colaboradora, en buen estado general.
+
 Piel y faneras: acantosis nigricans en región cervical posterior y axilas. Sin xantomas. Várices superficiales bilaterales de predominio distal.
+
 Cabeza y cuello: mucosas húmedas y normocoloreadas. Tiroides no aumentada de tamaño, sin nódulos palpables. Sin adenopatías.
+
 Cardiovascular: ruidos cardíacos rítmicos, sin soplos. Pulsos periféricos presentes y simétricos. Sin ingurgitación yugular ni edemas.
+
 Respiratorio: buena entrada bilateral de aire, murmullo vesicular conservado, sin ruidos agregados.
+
 Abdomen: globuloso a predominio adiposo, blando, depresible e indoloro. Sin visceromegalias palpables. Ruidos hidroaéreos conservados.
+
 Neurológico: lúcida y orientada, fuerza y sensibilidad conservadas, sin focalidad.
 """
 

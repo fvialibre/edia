@@ -40,14 +40,23 @@ No refiere otros antecedentes familiares conocidos de cáncer colorrectal, polip
 """
 
 physical_exam = """TA: 110/70 mmHg
+
 FC: 90 lpm, regular
+
 FR: 18 rpm
+
 Temperatura: 36,6 °C
+
 SatO₂: 98 % AA
+
 Peso habitual: 68 kg. Peso actual: 58 kg. Talla: 1,73 m. IMC: 19,4 kg/m². Paciente lúcido, orientado, colaborador, con palidez marcada de piel y mucosas.
+
 Aparato cardiovascular: ruidos cardíacos rítmicos. Soplo sistólico funcional 2/6 audible en ápex y mesocardio. Pulsos periféricos presentes y simétricos. Sin ingurgitación yugular ni edemas.
+
 Aparato respiratorio: murmullo vesicular conservado bilateralmente, sin ruidos agregados.
+
 Abdomen: blando y depresible. Dolor a la palpación profunda en flanco y fosa ilíaca derecha. Se palpa tumoración redondeada de aproximadamente 8-10 cm en flanco derecho/FID, de consistencia aumentada, poco móvil y discretamente dolorosa. No se palpan hepatomegalia ni esplenomegalia. Ruidos hidroaéreos presentes.
+
 Examen neurológico: sin focalidad.
 """
 

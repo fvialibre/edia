@@ -16,7 +16,7 @@ from modules.module_patientAssignment import assign_patient
 CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
 
 # Shown once a patient is assigned but the conversation hasn't started yet.
-CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/WOe9nX0.jpeg"
+CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/JDSFVDs.jpeg"
 
 # Roles allowed to manually override the sampled patient.
 CLINICAL_ADMIN_ROLES = ("ClinicalChatbotOther")
@@ -31,10 +31,12 @@ def build_chat_placeholder(has_patient):
     image_uri = CLINICAL_CHATBOT_PATIENT_WAITING_URI if has_patient else CLINICAL_CHATBOT_BACKGROUND_URI
     text_key = "ClinicalChatbotChatPlaceholderPatientReady" if has_patient else "ClinicalChatbotChatPlaceholder"
     return (
+        '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; margin: 0 auto; padding: 1.5em 1em;">'
         f'<img src="{image_uri}" '
-        'style="max-width:min(100%,480px); border-radius:12px; margin-bottom:1em;" /><div>'
+        'style="max-width: min(100%, 480px); height: auto; border-radius: 12px; margin: 0 auto 1.25em auto; display: block; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);" />'
+        '<div style="text-align: center; max-width: 480px; margin: 0 auto;">'
         + i18n(text_key)
-        + "</div>"
+        + "</div></div>"
     )
 
 # --- Interface ---
@@ -365,6 +367,9 @@ def interface(
     with gr.Blocks(css=".contain { display: flex !important; flex-direction: column !important; }"
     "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }"
     "#chatbot { flex-grow: 1 !important; overflow: auto !important;}"
+    "#chatbot .placeholder-content { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; }"
+    "#chatbot .placeholder { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; margin: auto !important; }"
+    "#chatbot .placeholder * { text-align: center !important; margin-left: auto !important; margin-right: auto !important; }"
     f"#chatbot .bubble-wrap, #chatbot .wrap {{ background-image: url('{CLINICAL_CHATBOT_BACKGROUND_URI}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }}"
     "#col { height: 100vh !important; }") as interface:
         turn_info_for_feedback = gr.State({

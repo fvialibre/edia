@@ -47,15 +47,25 @@ Niega, al interrogatorio dirigido, antecedentes familiares conocidos de cáncer 
 """
 
 physical_exam = """TA: 150/100 mmHg
+
 FC: 84 lpm
+
 FR: 18 rpm
+
 Temperatura: 36,7 °C
+
 SatO₂: 97 % AA
+
 Peso: 110 kg. Talla: 1,78 m. IMC: 34,7 kg/m² 
+
 Inspección general: paciente lúcido, orientado, en buen estado general, sin dificultad respiratoria en reposo.
+
 Aparato cardiovascular: ritmo regular, con extrasístoles aisladas; R1 y R2 conservados, sin soplos. Pulsos periféricos presentes y simétricos. Sin edemas.
+
 Aparato respiratorio: tórax simétrico, murmullo vesicular conservado bilateralmente, sin sibilancias ni ruidos agregados en el momento del examen.
+
 Abdomen: globuloso, blando y depresible. Dolor leve a la palpación profunda en epigastrio, sin defensa ni signos de irritación peritoneal. Sin visceromegalias palpables. Ruidos hidroaéreos presentes.
+
 Resto del examen físico sin particularidades.
 """
 

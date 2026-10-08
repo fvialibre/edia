@@ -41,16 +41,27 @@ Un hermano con diabetes mellitus tipo 2.
 """
 
 physical_exam = """TA: 140/90 mmHg
+
 FC: 84 lpm
+
 FR: 18 rpm
+
 Temperatura: 36,9 °C
+
 SatO₂: 97 % AA
+
 Peso habitual: 84 kg. Peso actual: 88 kg. Talla: 1,68 m. IMC: 31,2 kg/m².
+
 Inspección general: paciente lúcido, orientado y colaborador. Palidez cutaneomucosa. Afebril. Estado de hidratación conservado.
+
 Aparato cardiovascular: ritmo regular, R1 y R2 conservados. Soplo sistólico 2/6 en mesocardio. Edema maleolar bilateral leve.
+
 Abdomen: blando, depresible, indoloro, sin visceromegalias palpables.
+
 Miembros inferiores / examen vascular: piel distal seca, con disminución del vello. Pulsos pedios no palpables bilateralmente; pulsos poplíteos disminuidos y pulso femoral izquierdo disminuido. Relleno capilar distal enlentecido. Pies discretamente fríos.
+
 Pie izquierdo: lesión ulcerada de aproximadamente 1 cm de diámetro en dedo mayor, con bordes necróticos mal definidos, sin secreción purulenta, ni mal olor. Eritema de 2,5 cm de diámetro. Escasamente dolorosa a la palpación.
+
 Sistema nervioso periférico: disminución bilateral y simétrica de la sensibilidad táctil y dolorosa en pies y dos tercios inferiores de piernas, con distribución distal. Sensibilidad protectora disminuida al monofilamento de 10 g. Reflejos aquileanos ausentes bilateralmente. Fuerza muscular conservada.
 """
 

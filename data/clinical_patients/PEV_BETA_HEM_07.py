@@ -38,15 +38,25 @@ Niega antecedentes familiares conocidos de anemia hereditaria, hemoglobinopatía
 """
 
 physical_exam = """TA: 100/60 mmHg
+
 FC: 80 lpm, regular
+
 FR: 18 rpm
+
 Temperatura: 36,6 °C
+
 SatO₂: 99 % AA
+
 Peso habitual: 54 kg. Peso actual: 51 kg. Talla: 1,62 m. IMC: 19,4 kg/m². Paciente lúcida, orientada y colaboradora. Se observa palidez marcada de piel y mucosas.
+
 Tejido celular subcutáneo: sin adenomegalias palpables. Edema maleolar leve bilateral (+).
+
 Aparato respiratorio: tórax simétrico, buena entrada bilateral de aire, murmullo vesicular conservado, sin ruidos agregados.
+
 Aparato cardiovascular: ruidos cardíacos rítmicos. Soplo sistólico 2/6, de características eyectivas, audible en ápex y mesocardio. Pulsos periféricos presentes y simétricos. Sin ingurgitación yugular.
+
 Abdomen: blando, depresible, indoloro. Sin hepatomegalia ni esplenomegalia.
+
 Neurológico: sin déficit motor o sensitivo evidente.
 """
 
