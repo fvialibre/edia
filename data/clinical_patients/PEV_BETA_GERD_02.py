@@ -44,9 +44,9 @@ Actividad física: sedentario en los últimos 3 años; anteriormente realizaba d
 7. Antecedentes familiares
 No se consignan antecedentes heredo-familiares relevantes en la historia original.
 Niega, al interrogatorio dirigido, antecedentes familiares conocidos de cáncer de esófago o estómago.
+"""
 
-8. Examen físico
-TA: 150/100 mmHg
+physical_exam = """TA: 150/100 mmHg
 FC: 84 lpm
 FR: 18 rpm
 Temperatura: 36,7 °C

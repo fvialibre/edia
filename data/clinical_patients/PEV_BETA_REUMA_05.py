@@ -36,9 +36,9 @@ No fuma. Consumo ocasional de alcohol: aproximadamente 1-2 unidades por semana. 
 
 7. Antecedentes familiares
 No se consignan antecedentes familiares relevantes. No refiere antecedentes familiares conocidos de enfermedades reumatológicas autoinmunes, miopatías hereditarias o enfermedades neurológicas.
+"""
 
-8. Examen físico
-TA: 112/72 mmHg
+physical_exam = """TA: 112/72 mmHg
 FC: 76 lpm, regular
 FR: 15 rpm
 Temperatura: 36,5 °C

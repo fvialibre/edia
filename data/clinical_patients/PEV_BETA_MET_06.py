@@ -38,9 +38,9 @@ No fuma. Consume alcohol ocasionalmente, principalmente fines de semana: aproxim
 
 7. Antecedentes familiares
 Madre con diabetes mellitus tipo 2 e hipertensión arterial. Padre con obesidad, fallecido a los 72 años por infarto agudo de miocardio. Tres hermanos; uno presenta obesidad severa y fue sometido a cirugía bariátrica. Niega antecedentes familiares conocidos de enfermedad tiroidea autoinmune.
+"""
 
-8. Examen físico
-TA: 145/80 mmHg
+physical_exam = """TA: 145/80 mmHg
 FC: 75 lpm, regular
 FR: 16 rpm
 Temperatura: 36,4 °C

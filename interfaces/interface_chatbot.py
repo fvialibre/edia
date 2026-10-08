@@ -29,9 +29,13 @@ def interface(
         messages = []
         if prompt:
             messages.append({"role": "system", "content": prompt})
-        for human, ai in history:
-            messages.append({"role": "user", "content": human})
-            messages.append({"role": "assistant", "content": ai})
+        for item in history:
+            if isinstance(item, dict):
+                messages.append({"role": item.get("role", "user"), "content": item.get("content", "")})
+            else:
+                human, ai = item
+                messages.append({"role": "user", "content": human})
+                messages.append({"role": "assistant", "content": ai})
         messages.append({"role": "user", "content": message})
 
         url = 'https://chat.ccad.unc.edu.ar/api/chat/completions'
@@ -162,10 +166,12 @@ def interface(
                 )
 
         chatbot = gr.Chatbot(
+            type="messages",
             # show_copy_button=True,
         )
         _ = gr.ChatInterface(
                 predict,
+                type="messages",
                 additional_inputs=[
                     token_id,
                     age,

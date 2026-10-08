@@ -38,9 +38,9 @@ Sedentarismo. Alimentación con elevado contenido de sodio, carbohidratos refina
 
 7. Antecedentes familiares
 Madre fallecida por complicaciones de enfermedad renal crónica. Padre fallecido por accidente cerebrovascular. Otros familiares de primer grado con HTA y diabetes tipo 2.
+"""
 
-8. Examen físico
-TA: 180/115 mmHg
+physical_exam = """TA: 180/115 mmHg
 FC: 82 lpm, regular
 FR: 18 rpm
 Temperatura: 36,6 °C

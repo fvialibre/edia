@@ -19,7 +19,8 @@ font-size: 8em;
 #examples {color: black !important}
 #app-title { padding-left: 0.8em; }
 #app-personal-data-missing-heading { padding-left: 0.8em; }
-#end-conversation-button, #end-conversation-button button {
+#end-conversation-button, #end-conversation-button button,
+#sample-patient-button, #sample-patient-button button {
     --button-cancel-background-fill: #dc2626 !important;
     --button-cancel-background-fill-hover: #b91c1c !important;
     --button-cancel-border-color: #dc2626 !important;
@@ -29,9 +30,16 @@ font-size: 8em;
     border-color: #dc2626 !important;
     color: white !important;
 }
-#end-conversation-button:hover, #end-conversation-button button:hover {
+#end-conversation-button:hover, #end-conversation-button button:hover,
+#sample-patient-button:hover, #sample-patient-button button:hover {
     background: #b91c1c !important;
     border-color: #b91c1c !important;
+}
+#complementary-studies-col {
+    border: 1px solid var(--border-color-primary);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-y: auto;
 }
 """
 

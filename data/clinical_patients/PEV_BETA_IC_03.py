@@ -40,9 +40,9 @@ Refiere ingesta de sal mayor a la recomendada y no realiza control diario de pes
 
 7. Antecedentes familiares
 Antecedentes familiares de diabetes mellitus tipo 2 e hipertensión arterial en varios miembros de la familia. No se consignan otros antecedentes familiares de relevancia cardiovascular.
+"""
 
-8. Examen físico
-TA: 110/70 mmHg
+physical_exam = """TA: 110/70 mmHg
 FC: 90 lpm, iregular
 FR: 30 rpm
 Temperatura: 36,6 °C

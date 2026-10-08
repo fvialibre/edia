@@ -2,7 +2,11 @@
 import configparser
 import json
 import os
+import warnings
 from datetime import datetime
+
+# Filter premature Gradio 6.0 deprecation warnings for theme/css in Blocks constructor
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*parameter in the Blocks constructor will be removed in Gradio 6.0.*")
 
 import gradio as gr
 import yaml
@@ -95,12 +99,14 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                         label=i18n("NationalityLabel"),
                         info=i18n("NationalityInfo"),
                         choices=nationalities,
+                        value=None,
                         multiselect=False,
                         allow_custom_value=False,
                     )
                     region = gr.Dropdown(
                         label=i18n("PersonalRegionLabel"),
                         choices=[],
+                        value=None,
                         allow_custom_value=True,
                         multiselect=False,
                         interactive=False,
@@ -138,6 +144,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                                 i18n("ClinicalChatbotPsychologyInTraining"),
                                 i18n("ClinicalChatbotOther"),
                             ],
+                            value=None,
                             label=i18n("ClinicalChatbotParticipantAreaLabel"),
                             interactive=True,
                             visible=False,
@@ -280,12 +287,12 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     def update_personal_regions(selected_personal_nationalities):
         if not selected_personal_nationalities:
             # Disable and clear if no nationalities are selected
-            return gr.update(choices=[], value=[], interactive=False)
+            return gr.update(choices=[], value=None, interactive=False)
         else:
             # Get divisions using the helper function
             region_choices = get_administrative_divisions(selected_personal_nationalities)
             # Enable and update choices, keep existing selection if possible (Gradio handles this)
-            return gr.update(choices=region_choices, value=[], interactive=True)
+            return gr.update(choices=region_choices, value=None, interactive=True)
 
     # Connect the personal nationality dropdown to update the personal region dropdown
     nationality.change(

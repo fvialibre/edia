@@ -38,9 +38,9 @@ Actividad física: escasa y no programada.
 Padre con diabetes mellitus, fallecido por infarto agudo de miocardio a los 54 años.
 Madre viva, con hipertensión arterial.
 Un hermano con diabetes mellitus tipo 2.
+"""
 
-8. Examen físico
-TA: 140/90 mmHg
+physical_exam = """TA: 140/90 mmHg
 FC: 84 lpm
 FR: 18 rpm
 Temperatura: 36,9 °C

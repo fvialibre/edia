@@ -37,9 +37,9 @@ Consume aproximadamente medio vaso de vino tinto con el almuerzo y medio vaso co
 7. Antecedentes familiares
 Un hermano con antecedente de cáncer de recto, tratado quirúrgicamente, portador de colostomía permanente.
 No refiere otros antecedentes familiares conocidos de cáncer colorrectal, poliposis hereditaria o enfermedades hematológicas.
+"""
 
-8. Examen físico
-TA: 110/70 mmHg
+physical_exam = """TA: 110/70 mmHg
 FC: 90 lpm, regular
 FR: 18 rpm
 Temperatura: 36,6 °C

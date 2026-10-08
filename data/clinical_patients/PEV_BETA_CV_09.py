@@ -39,9 +39,9 @@ Actualmente no realiza actividad física programada. Antes del fallecimiento de 
 
 7. Antecedentes familiares
 No refiere antecedentes familiares conocidos de insuficiencia cardíaca precoz, cardiopatía isquémica prematura, muerte súbita ni enfermedad pulmonar crónica. Antecedentes metabólicos familiares no precisados.
+"""
 
-8. Examen físico
-TA: 130/80 mmHg
+physical_exam = """TA: 130/80 mmHg
 FC: 84 lpm, regular
 FR: 20 rpm
 Temperatura: 36,5 °C

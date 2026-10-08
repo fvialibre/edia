@@ -34,9 +34,9 @@ Consumo de alcohol moderado, predominantemente durante fines de semana. Niega co
 
 7. Antecedentes familiares
 No refiere antecedentes familiares conocidos de cáncer de pulmón. Antecedentes familiares cardiovasculares y respiratorios no precisados.
+"""
 
-8. Examen físico
-TA: 128/78 mmHg
+physical_exam = """TA: 128/78 mmHg
 FC: 88 lpm, regular
 FR: 20 rpm
 Temperatura: 36,5 °C

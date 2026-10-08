@@ -35,9 +35,9 @@ Actividad física previamente regular; suspendió las clases de aerobic por disn
 7. Antecedentes familiares
 Madre viva, con hipotiroidismo en tratamiento. Padre vivo, hipertenso en tratamiento. Dos hermanos sanos.
 Niega antecedentes familiares conocidos de anemia hereditaria, hemoglobinopatías o enfermedades hematológicas.
+"""
 
-8. Examen físico
-TA: 100/60 mmHg
+physical_exam = """TA: 100/60 mmHg
 FC: 80 lpm, regular
 FR: 18 rpm
 Temperatura: 36,6 °C

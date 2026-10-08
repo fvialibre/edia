@@ -180,19 +180,28 @@ en:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Select your participation area
+    ClinicalChatbotRealPatientContactLabel: Have you been in contact with real patients in the last 6 months?
+    ClinicalChatbotContactWithRealPatientsLabel: Have you been in contact with real patients in the last 6 months?
     ClinicalChatbotMedicalStudent: Medical student
-    ClinicalChatbotMedicalTeacher: Medical teacher
+    ClinicalChatbotMedicalInTraining: Doctor in training
     ClinicalChatbotPsychologyStudent: Psychology student
-    ClinicalChatbotPsychologyTeacher: Psychology teacher
+    ClinicalChatbotPsychologyInTraining: Psychology graduate in training
     ClinicalChatbotOther: Other
-    ClinicalChatbotPatientLabel: Select your patient
+    ClinicalChatbotPatientLabel: Your patient
+    ClinicalChatbotSamplePatientButton: 🔔 Call next patient
+    ClinicalChatbotNewPatientToast: "🔔 {patient} has been called in from the waiting room and is ready for their consult."
     ClinicalChatbotTitle: Clinical Chatbot via EDIA
     ClinicalChatbotDescription: "In this tab, called <b>Clinical Chatbot</b>, you can interact with simulated patients powered by artificial intelligence. Your role is to be the patients' doctor, practicing both conversational and clinical skills. Keep in mind that patients may have had previous studies, which you can explicitly request during the consultation."
-    ClinicalChatbotChatPlaceholder: "<h3>🩺 The consulting room is ready</h3>Select a patient and say hello to begin the consultation."
+    ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 The consulting room is empty</h3>Call a patient in from the waiting room to begin."
+    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Your patient is waiting</h3>Say hello to begin the consultation."
     ClinicalChatbotSubmitButton: Send
     ClinicalChatbotFeedbackLabel: Do you have a comment about this message?
     ClinicalChatbotFeedbackPlaceholder: Write your comment here...
     ClinicalChatbotPersonalDataMissingHeading: "### Enter your personal data and confirm your consent to continue the consultation!"
+    ClinicalChatbotPhysicalExamTitle: Physical Examination
+    ClinicalChatbotPhysicalExamOpenButton: Open
+    ClinicalChatbotPhysicalExamCloseButton: Close
+    ClinicalChatbotPhysicalExamPlaceholder: No physical examination has been loaded for this patient yet.
     ClinicalChatbotComplementaryStudiesTitle: Complementary Studies
     ClinicalChatbotComplementaryStudiesOpenButton: Open
     ClinicalChatbotComplementaryStudiesCloseButton: Close
@@ -403,19 +412,28 @@ es:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Seleccioná tu área de participación
+    ClinicalChatbotRealPatientContactLabel: "¿Estuviste en contacto con pacientes reales en los últimos 6 meses?"
+    ClinicalChatbotContactWithRealPatientsLabel: "¿Estuviste en contacto con pacientes reales en los últimos 6 meses?"
     ClinicalChatbotMedicalStudent: Estudiante de medicina
-    ClinicalChatbotMedicalTeacher: Docente de medicina
+    ClinicalChatbotMedicalInTraining: Médico en formación
     ClinicalChatbotPsychologyStudent: Estudiante de psicología
-    ClinicalChatbotPsychologyTeacher: Docente de psicología
+    ClinicalChatbotPsychologyInTraining: Lic. en psicología en formación
     ClinicalChatbotOther: Otro
-    ClinicalChatbotPatientLabel: Seleccioná tu paciente
+    ClinicalChatbotPatientLabel: Tu paciente
+    ClinicalChatbotSamplePatientButton: 🔔 Llamar al próximo paciente
+    ClinicalChatbotNewPatientToast: "🔔 {patient} llegó desde la sala de espera para la consulta."
     ClinicalChatbotTitle: Chatbot Clínico vía EDIA
     ClinicalChatbotDescription: "En esta pestaña, llamada <b>Chatbot Clínico</b>, podrás interactuar con diversos pacientes simulados por inteligencia artificial. Tu rol es ser el médico de estos pacientes, practicando tanto tus habilidades conversacionales como clínicas. Tené en cuenta que los pacientes pueden haber tenido estudios previos, los cuales podés solicitar explícitamente durante la consulta."
-    ClinicalChatbotChatPlaceholder: "<h3>🩺 El consultorio está listo</h3>Seleccioná un paciente y saludá para comenzar la consulta."
+    ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 El consultorio está vacío</h3>Llamá a un paciente desde la sala de espera para comenzar."
+    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Tu paciente está esperando</h3>Saludá para comenzar la consulta."
     ClinicalChatbotSubmitButton: Enviar
     ClinicalChatbotFeedbackLabel: "¿Tenés algún comentario sobre este mensaje?"
     ClinicalChatbotFeedbackPlaceholder: Escribí tu comentario aquí...
     ClinicalChatbotPersonalDataMissingHeading: "### ¡Ingresá tus datos personales y confirmá tu consentimiento para poder realizar la consulta!"
+    ClinicalChatbotPhysicalExamTitle: Examen Físico
+    ClinicalChatbotPhysicalExamOpenButton: Abrir
+    ClinicalChatbotPhysicalExamCloseButton: Cerrar
+    ClinicalChatbotPhysicalExamPlaceholder: Todavía no se cargó el examen físico para este paciente.
     ClinicalChatbotComplementaryStudiesTitle: Estudios Complementarios
     ClinicalChatbotComplementaryStudiesOpenButton: Abrir
     ClinicalChatbotComplementaryStudiesCloseButton: Cerrar
@@ -631,19 +649,28 @@ pt:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Selecione sua área de participação
+    ClinicalChatbotRealPatientContactLabel: Você esteve em contato com pacientes reais nos últimos 6 meses?
+    ClinicalChatbotContactWithRealPatientsLabel: Você esteve em contato com pacientes reais nos últimos 6 meses?
     ClinicalChatbotMedicalStudent: Estudante de medicina
-    ClinicalChatbotMedicalTeacher: Professor de medicina
+    ClinicalChatbotMedicalInTraining: Médico em formação
     ClinicalChatbotPsychologyStudent: Estudante de psicologia
-    ClinicalChatbotPsychologyTeacher: Professor de psicologia
+    ClinicalChatbotPsychologyInTraining: Lic. em psicologia em formação
     ClinicalChatbotOther: Outro
-    ClinicalChatbotPatientLabel: Selecione seu paciente
+    ClinicalChatbotPatientLabel: Seu paciente
+    ClinicalChatbotSamplePatientButton: 🔔 Chamar o próximo paciente
+    ClinicalChatbotNewPatientToast: "🔔 {patient} foi chamado da sala de espera e está pronto para a consulta."
     ClinicalChatbotTitle: Chatbot Clínico via EDIA
     ClinicalChatbotDescription: "Nesta aba, chamada <b>Chatbot Clínico</b>, você poderá interagir com diversos pacientes simulados por inteligência artificial. Seu papel é ser o médico desses pacientes, praticando suas habilidades conversacionais e clínicas. Tenha em mente que os pacientes podem ter realizado estudos anteriores, que você pode solicitar explicitamente durante a consulta."
-    ClinicalChatbotChatPlaceholder: "<h3>🩺 O consultório está pronto</h3>Selecione um paciente e diga olá para iniciar a consulta."
+    ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 O consultório está vazio</h3>Chame um paciente da sala de espera para começar."
+    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Seu paciente está esperando</h3>Diga olá para iniciar a consulta."
     ClinicalChatbotSubmitButton: Enviar
     ClinicalChatbotFeedbackLabel: Você tem algum comentário sobre esta mensagem?
     ClinicalChatbotFeedbackPlaceholder: Escreva seu comentário aqui...
     ClinicalChatbotPersonalDataMissingHeading: "### Insira seus dados pessoais e confirme seu consentimento para realizar a consulta!"
+    ClinicalChatbotPhysicalExamTitle: Exame Físico
+    ClinicalChatbotPhysicalExamOpenButton: Abrir
+    ClinicalChatbotPhysicalExamCloseButton: Fechar
+    ClinicalChatbotPhysicalExamPlaceholder: Ainda não há exame físico carregado para este paciente.
     ClinicalChatbotComplementaryStudiesTitle: Estudos Complementares
     ClinicalChatbotComplementaryStudiesOpenButton: Abrir
     ClinicalChatbotComplementaryStudiesCloseButton: Fechar
