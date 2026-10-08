@@ -1,4 +1,5 @@
 import uuid
+import re
 import gradio as gr
 from gradio_modal import Modal
 from gradio_i18n import gettext as i18n
@@ -10,10 +11,34 @@ import os
 from dotenv import dotenv_values
 from data.clinical_patients.clinical_prompts import clinical_prompts, clinical_extra_studies
 from html_constants import HTML_FEEDBACK_TITLE
+from modules.module_patientAssignment import assign_patient
 
-# Empty consulting room, shown behind the chat so the scene feels set before a patient is picked.
-CLINICAL_CHATBOT_BACKGROUND_URI = "https://static.wixstatic.com/media/7869d1_db0f138ff51d4f5a9e8190165eea41a3~mv2.jpg/v1/fill/w_1000,h_583,al_c,q_85,usm_0.66_1.00_0.01/7869d1_db0f138ff51d4f5a9e8190165eea41a3~mv2.jpg"
+# Empty consulting room, shown behind the chat before a patient is picked or after a conversation ends.
+CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
 
+# Shown once a patient is assigned but the conversation hasn't started yet.
+CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/WOe9nX0.jpeg"
+
+# Roles allowed to manually override the sampled patient.
+CLINICAL_ADMIN_ROLES = ("ClinicalChatbotOther")
+
+PATIENT_NAME_PATTERN = re.compile(r"Nombre y Apellido:\s*(.+)")
+
+def get_patient_name(patient_id):
+    """Pulls the patient's display name out of their prompt, falling back to the ID."""
+    match = PATIENT_NAME_PATTERN.search(clinical_prompts.get(patient_id, ""))
+    return match.group(1).strip().rstrip(".") if match else patient_id
+
+def build_chat_placeholder(has_patient):
+    """Builds the Chatbot placeholder HTML, swapping the image/text once a patient is assigned."""
+    image_uri = CLINICAL_CHATBOT_PATIENT_WAITING_URI if has_patient else CLINICAL_CHATBOT_BACKGROUND_URI
+    text_key = "ClinicalChatbotChatPlaceholderPatientReady" if has_patient else "ClinicalChatbotChatPlaceholder"
+    return (
+        f'<img src="{image_uri}" '
+        'style="max-width:min(100%,480px); border-radius:12px; margin-bottom:1em;" /><div>'
+        + i18n(text_key)
+        + "</div>"
+    )
 
 # --- Interface ---
 def interface(
@@ -24,9 +49,22 @@ def interface(
     region,
     school,
     consent_checkbox,
-    patient_id,
     participant_area,
+    contact_with_real_patients=None,
+    **kwargs,
 ) -> gr.Blocks:
+    if contact_with_real_patients is None:
+        for alias in (
+            "real_patient_contact",
+            "contact_with_real_patients_checkbox",
+            "real_patient_contact_checkbox",
+            "has_contact_with_real_patients",
+        ):
+            if alias in kwargs:
+                contact_with_real_patients = kwargs[alias]
+                break
+        else:
+            contact_with_real_patients = gr.State(False)
 
     secrets = dotenv_values("./.env")
     os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
@@ -46,6 +84,7 @@ def interface(
         school,
         patient_id,
         participant_area,
+        contact_with_real_patients,
     ):
         temperature = 1.0
         if patient_id not in clinical_prompts:
@@ -72,6 +111,7 @@ def interface(
                 "school": school,
                 "patient_id": patient_id,
                 "participant_area": participant_area,
+                "contact_with_real_patients": contact_with_real_patients,
                 "message": message,
                 "response": response_content,
                 "history": history,
@@ -90,6 +130,7 @@ def interface(
         school,
         patient_id,
         participant_area,
+        contact_with_real_patients,
     ):
         return {
             "selected_message": x.value,
@@ -102,6 +143,7 @@ def interface(
             "region": region,
             "school": school,
             "participant_area": participant_area,
+            "contact_with_real_patients": contact_with_real_patients,
             "patient_id": patient_id,
         }, Modal(visible=True)
 
@@ -120,6 +162,7 @@ def interface(
                 "region": turn_info_for_feedback["region"],
                 "school": turn_info_for_feedback["school"],
                 "participant_area": turn_info_for_feedback["participant_area"],
+                "contact_with_real_patients": turn_info_for_feedback.get("contact_with_real_patients"),
                 "patient_id": turn_info_for_feedback["patient_id"],
                 "prompt": clinical_prompts[turn_info_for_feedback["patient_id"]],
             }, ensure_ascii=False) + "\n")
@@ -140,9 +183,21 @@ def interface(
     def reset_complementary_studies():
         return False, gr.Textbox(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"))
 
-    def reset_on_patient_change():
+    def reset_on_patient_change(patient_id):
         is_open, text_box, button = reset_complementary_studies()
-        return is_open, text_box, button, []
+        has_patient = bool(patient_id)
+        sample_patient_visibility = gr.update(visible=not has_patient)
+        end_conversation_visibility = gr.update(visible=has_patient)
+        chatbot_update = gr.Chatbot(value=[], placeholder=build_chat_placeholder(has_patient))
+        return is_open, text_box, button, chatbot_update, sample_patient_visibility, end_conversation_visibility
+
+    def sample_new_patient(token_id, participant_area, patient_id):
+        next_patient_id = assign_patient(token_id, participant_area, exclude_patient_id=patient_id)
+        gr.Info(i18n("ClinicalChatbotNewPatientToast").format(patient=get_patient_name(next_patient_id)))
+        return next_patient_id
+
+    def toggle_patient_override(participant_area):
+        return gr.update(interactive=participant_area in CLINICAL_ADMIN_ROLES)
 
     def send_end_conversation_form(
         acute_problems,
@@ -157,6 +212,7 @@ def interface(
         school,
         patient_id,
         participant_area,
+        contact_with_real_patients,
     ):
         with open("./logs/logs_clinical_chatbot_end_conversation.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
@@ -173,17 +229,14 @@ def interface(
                 "school": school,
                 "patient_id": patient_id,
                 "participant_area": participant_area,
+                "contact_with_real_patients": contact_with_real_patients,
             }, ensure_ascii=False) + "\n")
         gr.Info("Feedback enviado con éxito")
         is_open, text_box, button = reset_complementary_studies()
-        return (Modal(visible=False), "", "", "", "", [], is_open, text_box, button)
+        # Leave the room empty; the student has to call in a new patient explicitly.
+        return (Modal(visible=False), "", "", "", "", [], is_open, text_box, button, None)
 
-    chat_placeholder = (
-        f'<img src="{CLINICAL_CHATBOT_BACKGROUND_URI}" '
-        'style="max-width:min(100%,480px); border-radius:12px; margin-bottom:1em;" /><div>'
-        + i18n("ClinicalChatbotChatPlaceholder")
-        + "</div>"
-    )
+    chat_placeholder = build_chat_placeholder(has_patient=False)
 
     with gr.Blocks(css=".contain { display: flex !important; flex-direction: column !important; }"
     "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }"
@@ -201,12 +254,29 @@ def interface(
             "region": None,
             "school": None,
             "patient_id": None,
-            "participant_area": None
+            "participant_area": None,
+            "contact_with_real_patients": None,
         })
+        gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
+        gr.Markdown(i18n("ClinicalChatbotDescription"))
+        with gr.Row():
+            patient_id = gr.Dropdown(
+                choices=list(clinical_prompts),
+                label=i18n("ClinicalChatbotPatientLabel"),
+                interactive=False,
+                scale=3,
+            )
+            sample_patient_button = gr.Button(
+                i18n("ClinicalChatbotSamplePatientButton"),
+                variant="stop",
+                elem_id="sample-patient-button",
+                scale=1,
+            )
+        
+        gr.HTML("<hr>")
+
         with gr.Row(visible=True, elem_id='col') as chat_col:
             with gr.Column(scale=3):
-                gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
-                gr.Markdown(i18n("ClinicalChatbotDescription"))
                 chatbot = gr.Chatbot(
                     elem_id="chatbot",
                     show_copy_button=True,
@@ -223,14 +293,15 @@ def interface(
                             region,
                             school,
                             patient_id,
-                            participant_area
+                            participant_area,
+                            contact_with_real_patients,
                         ],
                         chatbot=chatbot,
                         submit_btn=i18n("ClinicalChatbotSubmitButton"),
                         stop_btn=None,
                     )
-            with gr.Column(scale=1):
-                gr.Markdown("### " + i18n("ClinicalChatbotComplementaryStudiesTitle"))
+            with gr.Column(scale=1, elem_id="complementary-studies-col"):
+                gr.Markdown("## " + i18n("ClinicalChatbotComplementaryStudiesTitle"))
                 complementary_studies_is_open = gr.State(False)
                 complementary_studies_open_button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"))
                 complementary_studies_text = gr.Textbox(
@@ -245,6 +316,7 @@ def interface(
                 i18n("ClinicalChatbotEndConversationButton"),
                 variant="stop",
                 elem_id="end-conversation-button",
+                visible=False,
             )
 
         ### MODAL
@@ -295,7 +367,7 @@ def interface(
 
         chatbot.like(
             open_turn_feedback_modal,
-            [token_id, age, gender, nationality, region, school, patient_id, participant_area],
+            [token_id, age, gender, nationality, region, school, patient_id, participant_area, contact_with_real_patients],
             [turn_info_for_feedback, turn_feedback_modal],
         )
         modal_submit_button.click(send_turn_feedback_modal, [turn_info_for_feedback, text_feedback], [turn_feedback_modal, text_feedback])
@@ -306,8 +378,18 @@ def interface(
         )
         patient_id.change(
             reset_on_patient_change,
-            None,
-            [complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button, chatbot],
+            [patient_id],
+            [complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button, chatbot, sample_patient_button, end_conversation_button],
+        )
+        sample_patient_button.click(
+            sample_new_patient,
+            [token_id, participant_area, patient_id],
+            [patient_id],
+        )
+        participant_area.change(
+            toggle_patient_override,
+            [participant_area],
+            [patient_id],
         )
         end_conversation_button.click(lambda: Modal(visible=True), None, end_conversation_modal)
         end_conversation_submit_button.click(
@@ -325,7 +407,8 @@ def interface(
                 school,
                 patient_id,
                 participant_area,
+                contact_with_real_patients,
             ],
-            [end_conversation_modal, acute_problems, chronic_problems, diagnosis, general_feedback, chatbot, complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button],
+            [end_conversation_modal, acute_problems, chronic_problems, diagnosis, general_feedback, chatbot, complementary_studies_is_open, complementary_studies_text, complementary_studies_open_button, patient_id],
         )
     return interface

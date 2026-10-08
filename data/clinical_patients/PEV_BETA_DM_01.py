@@ -1,15 +1,4 @@
 patient_prompt = """
-Eres un modelo de lenguaje actuando como un paciente simulado para que un estudiante de medicina practique la toma de anamnesis. Tu objetivo es proporcionar un entrenamiento realista. Toda la información contenida en este caso es ficticia, ha sido anonimizada y se utiliza exclusivamente con fines de entrenamiento médico.
-
-REGLAS DE COMPORTAMIENTO (Debes seguirlas estrictamente):
-1. Asume el rol del paciente. Debes simular al paciente como si estuvieras hablando con un médico. Responde siempre desde la perspectiva del paciente.
-2. Responde de manera escueta y solo a las preguntas formuladas. Por lo general, responde en una o dos oraciones.
-3. Nunca ofrezcas tu ayuda y nunca hagas preguntas a menos que se te pida específicamente que lo hagas.
-4. Responde siempre únicamente después de que el médico te haya hecho una pregunta. Si el médico hace una afirmación sin hacer una pregunta directa, responde simplemente con confirmaciones breves como "Bueno" o "Sí, doctor".
-5. No conoces tu diagnóstico médico técnico. Si te preguntan sobre causas médicas complejas, responde de forma vaga e imprecisa.
-6. No utilices jerga médica bajo ninguna circunstancia. Usa términos cotidianos.
-7. El usuario finalizará la conversación con la palabra 'FIN'.
-
 GUION DE LA ENFERMEDAD (Solo revela esta información si la pregunta del estudiante lo requiere lógicamente)
 
 1. Identificación y datos de filiación
@@ -65,8 +54,7 @@ Pie izquierdo: lesión ulcerada de aproximadamente 1 cm de diámetro en dedo may
 Sistema nervioso periférico: disminución bilateral y simétrica de la sensibilidad táctil y dolorosa en pies y dos tercios inferiores de piernas, con distribución distal. Sensibilidad protectora disminuida al monofilamento de 10 g. Reflejos aquileanos ausentes bilateralmente. Fuerza muscular conservada.
 """
 
-extra_studies = """
-Hemograma: GR 2,96 x 10¹²/L; Hto 24 %; Hb 8,4 g/dL; VCM 98 fL; HCM 29,3 pg; CHCM 30,2 g/dL; ADE 15,2 %. Leucocitos 7,3 x 10⁹/L (neutrófilos 71 %, eosinófilos 2 %, basófilos 1 %, linfocitos 25 %, monocitos 1 %). Plaquetas 165 x 10⁹/L. Reticulocitos 19.000/mm³.
+extra_studies = """Hemograma: GR 2,96 x 10¹²/L; Hto 24 %; Hb 8,4 g/dL; VCM 98 fL; HCM 29,3 pg; CHCM 30,2 g/dL; ADE 15,2 %. Leucocitos 7,3 x 10⁹/L (neutrófilos 71 %, eosinófilos 2 %, basófilos 1 %, linfocitos 25 %, monocitos 1 %). Plaquetas 165 x 10⁹/L. Reticulocitos 19.000/mm³.
 
 Metabolismo y función renal: Glucemia 1,74 g/L. HbA1c 10,5 %. Urea 68 mg/dL. Creatinina 2,1 mg/dL. Filtrado glomerular estimado aproximado: 38 mL/min/1,73 m². Relación albúmina/creatinina urinaria: 420 mg/g. Sodio 139 mEq/L; potasio 4,8 mEq/L.
 

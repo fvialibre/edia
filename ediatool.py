@@ -13,7 +13,6 @@ import pandas as pd
 from auth import SCHOOL_LIST
 from html_constants import FOOTER_HTML, NAVBAR_HTML, css
 from data.nationalities import nationalities, CVQA_SUPPORTED_NATIONALITIES
-from data.clinical_patients.clinical_prompts import clinical_prompts
 
 # --- Imports interfaces ---
 from interfaces.interface_chatbot import interface as interface_chatbot
@@ -131,26 +130,24 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                         interactive=True,
                     )
                     with gr.Row():
-                        with gr.Column(scale=1):
-                            participant_area = gr.Dropdown(
-                                choices=[
-                                    i18n("ClinicalChatbotMedicalStudent"),
-                                    i18n("ClinicalChatbotMedicalTeacher"),
-                                    i18n("ClinicalChatbotPsychologyStudent"),
-                                    i18n("ClinicalChatbotPsychologyTeacher"),
-                                    i18n("ClinicalChatbotOther"),
-                                ],
-                                label=i18n("ClinicalChatbotParticipantAreaLabel"),
-                                interactive=True,
-                                visible=False,
-                            )
-                        with gr.Column(scale=1):
-                            patient_id = gr.Dropdown(
-                                choices=list(clinical_prompts),
-                                label=i18n("ClinicalChatbotPatientLabel"),
-                                interactive=True,
-                                visible=False,
-                            )
+                        participant_area = gr.Dropdown(
+                            choices=[
+                                i18n("ClinicalChatbotMedicalStudent"),
+                                i18n("ClinicalChatbotMedicalInTraining"),
+                                i18n("ClinicalChatbotPsychologyStudent"),
+                                i18n("ClinicalChatbotPsychologyInTraining"),
+                                i18n("ClinicalChatbotOther"),
+                            ],
+                            label=i18n("ClinicalChatbotParticipantAreaLabel"),
+                            interactive=True,
+                            visible=False,
+                        )
+                        contact_with_real_patients_checkbox = gr.Checkbox(
+                            label=i18n("ClinicalChatbotRealPatientContactLabel"),
+                            value=False,
+                            interactive=True,
+                            visible=False,
+                        )
             with gr.Column(scale=1, min_width=200):
                 consent_checkbox = gr.Checkbox(
                     label=i18n("ConsentLabel"),
@@ -173,8 +170,8 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     region=region,
                     school=school,
                     consent_checkbox=consent_checkbox,
-                    patient_id=patient_id,
                     participant_area=participant_area,
+                    contact_with_real_patients=contact_with_real_patients_checkbox,
                 )
             with gr.Tab(i18n("TypicalPhrasesTab")):
                 interface_typicalPhrases(
@@ -324,12 +321,12 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     def toggle_clinical_inputs(is_ethicaia_participant):
         if is_ethicaia_participant:
             return gr.update(visible=True), gr.update(visible=True)
-        return gr.update(visible=False, value=None), gr.update(visible=False, value=None)
+        return gr.update(visible=False, value=None), gr.update(visible=False, value=False)
 
     is_ethicaia_participant_checkbox.change(
         fn=toggle_clinical_inputs,
         inputs=[is_ethicaia_participant_checkbox],
-        outputs=[participant_area, patient_id]
+        outputs=[participant_area, contact_with_real_patients_checkbox]
     )
 
     def clinical_chatbot_tab_toggle(is_ethicaia_participant):
@@ -368,7 +365,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     )
 
     def toggle_annotation(
-        token_id, age, gender, nationality, region, is_course_participant_checkbox, school, is_ethicaia_participant_checkbox, participant_area, patient_id, consent_checkbox
+        token_id, age, gender, nationality, region, is_course_participant_checkbox, school, is_ethicaia_participant_checkbox, participant_area, contact_with_real_patients_checkbox, consent_checkbox
     ):
         if any([
             token_id is None,
@@ -378,7 +375,6 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
             region is None or len(region) == 0,
             is_course_participant_checkbox and school not in SCHOOL_LIST,
             is_ethicaia_participant_checkbox and participant_area is None,
-            is_ethicaia_participant_checkbox and patient_id is None,
             consent_checkbox is None,
             age < 0,
             age > 100,
@@ -405,7 +401,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         school,
         is_ethicaia_participant_checkbox,
         participant_area,
-        patient_id,
+        contact_with_real_patients_checkbox,
         consent_checkbox
     ]
     toggle_annotation_outputs = [
