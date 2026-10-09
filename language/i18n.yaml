@@ -188,6 +188,8 @@ en:
     ClinicalChatbotPsychologyInTraining: Psychology graduate in training
     ClinicalChatbotOther: Other
     ClinicalChatbotPatientLabel: Your patient
+    ClinicalChatbotNoPatientAssigned: No patient in the consultation room
+    ClinicalChatbotPatientInConsultation: Patient in consultation
     ClinicalChatbotSamplePatientButton: 🔔 Call next patient
     ClinicalChatbotNewPatientToast: "🔔 {patient} has been called in from the waiting room and is ready for their consult."
     ClinicalChatbotTitle: Clinical Chatbot via EDIA
@@ -420,6 +422,8 @@ es:
     ClinicalChatbotPsychologyInTraining: Lic. en psicología en formación
     ClinicalChatbotOther: Otro
     ClinicalChatbotPatientLabel: Tu paciente
+    ClinicalChatbotNoPatientAssigned: Ningún paciente en la sala de consulta
+    ClinicalChatbotPatientInConsultation: Paciente en consulta
     ClinicalChatbotSamplePatientButton: 🔔 Llamar al próximo paciente
     ClinicalChatbotNewPatientToast: "🔔 {patient} llegó desde la sala de espera para la consulta."
     ClinicalChatbotTitle: Chatbot Clínico vía EDIA
@@ -657,6 +661,8 @@ pt:
     ClinicalChatbotPsychologyInTraining: Lic. em psicologia em formação
     ClinicalChatbotOther: Outro
     ClinicalChatbotPatientLabel: Seu paciente
+    ClinicalChatbotNoPatientAssigned: Nenhum paciente na sala de consulta
+    ClinicalChatbotPatientInConsultation: Paciente em consulta
     ClinicalChatbotSamplePatientButton: 🔔 Chamar o próximo paciente
     ClinicalChatbotNewPatientToast: "🔔 {patient} foi chamado da sala de espera e está pronto para a consulta."
     ClinicalChatbotTitle: Chatbot Clínico via EDIA

@@ -18,13 +18,45 @@ CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
 # Shown once a patient is assigned but the conversation hasn't started yet.
 CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/JDSFVDs.jpeg"
 
-# Roles allowed to manually override the sampled patient.
-CLINICAL_ADMIN_ROLES = ("ClinicalChatbotOther")
-
 def get_patient_name(patient_id):
     """Pulls the patient's display name, falling back to the ID."""
     patient = clinical_patients.get(patient_id)
     return patient.name if patient else patient_id
+
+def build_patient_card(patient_id):
+    """Builds a styled Markdown card displaying the active patient's name or waiting room status."""
+    if not patient_id:
+        return (
+            '<div style="display: flex; align-items: center; gap: 14px; padding: 12px 18px; '
+            'border-radius: 10px; border: 1.5px dashed rgba(156, 163, 175, 0.5); '
+            'background: rgba(156, 163, 175, 0.07); min-height: 52px; box-sizing: border-box;">'
+            '<span style="font-size: 1.7em; line-height: 1;">🚪</span>'
+            '<div>'
+            '<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">'
+            + i18n("ClinicalChatbotPatientLabel")
+            + '</div>'
+            '<div style="font-size: 1.05em; font-weight: 500; opacity: 0.65; font-style: italic;">'
+            + i18n("ClinicalChatbotNoPatientAssigned")
+            + '</div>'
+            '</div>'
+            '</div>'
+        )
+    patient_name = get_patient_name(patient_id)
+    return (
+        '<div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 18px; '
+        'border-radius: 10px; border: 1.5px solid rgba(59, 130, 246, 0.55); '
+        'background: rgba(59, 130, 246, 0.08); min-height: 52px; box-sizing: border-box;">'
+        '<div style="display: flex; align-items: center; gap: 14px;">'
+        '<span style="font-size: 1.7em; line-height: 1;">🧑‍⚕️</span>'
+        '<div>'
+        '<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #3b82f6;">'
+        + i18n("ClinicalChatbotPatientInConsultation")
+        + '</div>'
+        f'<div style="font-size: 1.3em; font-weight: 700; letter-spacing: -0.01em;">{patient_name}</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+    )
 
 def build_chat_placeholder(has_patient):
     """Builds the Chatbot placeholder HTML, swapping the image/text once a patient is assigned."""
@@ -92,21 +124,27 @@ def interface(
         temperature = 1.0
         patient = clinical_patients.get(patient_id)
         if not patient:
-            return "Please select a patient before starting the consultation."
+            return i18n("ClinicalChatbotNoPatientAssigned")
 
         prompt = patient.prompt
-        history_text = []
+        messages = [{"role": "system", "content": prompt}]
         for item in history:
             if isinstance(item, dict):
-                role = "User" if item.get("role") == "user" else "Assistant"
-                history_text.append(f"{role}: {item.get('content', '')}")
+                role = item.get("role", "user")
+                if role == "human":
+                    role = "user"
+                elif role in ("ai", "model"):
+                    role = "assistant"
+                messages.append({"role": role, "content": item.get("content", "")})
             else:
                 human, ai = item
-                history_text.append(f"User: {human}")
-                history_text.append(f"Assistant: {ai}")
-        history_text.append(f"User: {message}")
-        user_prompt = "\n".join(history_text)
-        model_response = llm.invoke(prompt, user_prompt)
+                if human:
+                    messages.append({"role": "user", "content": human})
+                if ai:
+                    messages.append({"role": "assistant", "content": ai})
+        messages.append({"role": "user", "content": message})
+
+        model_response = llm.invoke(messages, temperature=temperature)
         response_content = model_response["content"]
 
         conv_id = str(conversation_id) if conversation_id else str(uuid.uuid4())
@@ -247,6 +285,7 @@ def interface(
         textbox_update = gr.update(interactive=has_patient, value="")
         cleared_chat_state = []
         new_conv_id = str(uuid.uuid4()) if has_patient else None
+        patient_display_update = build_patient_card(patient_id)
         return (
             exam_is_open,
             exam_text,
@@ -260,15 +299,13 @@ def interface(
             textbox_update,
             cleared_chat_state,
             new_conv_id,
+            patient_display_update,
         )
 
     def sample_new_patient(token_id, participant_area, patient_id):
         next_patient_id = assign_patient(token_id, participant_area, exclude_patient_id=patient_id)
         gr.Info(i18n("ClinicalChatbotNewPatientToast").format(patient=get_patient_name(next_patient_id)))
         return next_patient_id
-
-    def toggle_patient_override(participant_area):
-        return gr.update(interactive=participant_area in CLINICAL_ADMIN_ROLES)
 
     def send_end_conversation_form(
         acute_problems,
@@ -360,6 +397,7 @@ def interface(
             gr.update(interactive=False, value=""),
             [],
             None,
+            build_patient_card(None),
         )
 
     chat_placeholder = build_chat_placeholder(has_patient=False)
@@ -391,20 +429,20 @@ def interface(
         conversation_id = gr.State(None)
         gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
         gr.Markdown(i18n("ClinicalChatbotDescription"))
-        with gr.Row():
-            patient_id = gr.Dropdown(
-                choices=list(clinical_patients),
-                value=None,
-                label=i18n("ClinicalChatbotPatientLabel"),
-                interactive=False,
-                scale=3,
-            )
-            sample_patient_button = gr.Button(
-                i18n("ClinicalChatbotSamplePatientButton"),
-                variant="stop",
-                elem_id="sample-patient-button",
-                scale=1,
-            )
+        patient_id = gr.State(None)
+        with gr.Row(equal_height=True):
+            with gr.Column(scale=3):
+                patient_display = gr.Markdown(
+                    value=build_patient_card(None),
+                    sanitize_html=False,
+                    elem_id="patient-card-display",
+                )
+            with gr.Column(scale=1):
+                sample_patient_button = gr.Button(
+                    i18n("ClinicalChatbotSamplePatientButton"),
+                    variant="stop",
+                    elem_id="sample-patient-button",
+                )
         
         gr.HTML("<hr>")
 
@@ -558,16 +596,12 @@ def interface(
                 chat_interface.textbox,
                 chat_interface.chatbot_state,
                 conversation_id,
+                patient_display,
             ],
         )
         sample_patient_button.click(
             sample_new_patient,
             [token_id, participant_area, patient_id],
-            [patient_id],
-        )
-        participant_area.change(
-            toggle_patient_override,
-            [participant_area],
             [patient_id],
         )
         end_conversation_button.click(lambda: Modal(visible=True), None, end_conversation_modal)
@@ -609,6 +643,7 @@ def interface(
                 chat_interface.textbox,
                 chat_interface.chatbot_state,
                 conversation_id,
+                patient_display,
             ],
         )
     return interface
