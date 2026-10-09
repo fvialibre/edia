@@ -274,7 +274,7 @@ def interface(
         acute_problems,
         chronic_problems,
         diagnosis,
-        general_feedback,
+        requested_studies,
         token_id,
         age,
         gender,
@@ -299,7 +299,7 @@ def interface(
                 "acute_problems": acute_problems,
                 "chronic_problems": chronic_problems,
                 "diagnosis": diagnosis,
-                "general_feedback": general_feedback,
+                "requested_studies": requested_studies,
                 "token_id": token_id,
                 "age": age,
                 "gender": gender,
@@ -332,7 +332,7 @@ def interface(
                     "acute_problems": acute_problems,
                     "chronic_problems": chronic_problems,
                     "diagnosis": diagnosis,
-                    "general_feedback": general_feedback,
+                    "requested_studies": requested_studies,
                 }
             }, ensure_ascii=False) + "\n")
 
@@ -516,10 +516,10 @@ def interface(
                 placeholder=i18n("ClinicalChatbotDiagnosisPlaceholder"),
                 lines=2,
             )
-            general_feedback = gr.Textbox(
-                label=i18n("ClinicalChatbotGeneralFeedbackLabel"),
-                placeholder=i18n("ClinicalChatbotGeneralFeedbackPlaceholder"),
-                lines=3,
+            requested_studies = gr.Textbox(
+                label=i18n("ClinicalChatbotRequestedStudiesLabel"),
+                placeholder=i18n("ClinicalChatbotRequestedStudiesPlaceholder"),
+                lines=2,
             )
             end_conversation_submit_button = gr.Button(
                 i18n("ClinicalChatbotEndConversationSubmitButton"),
@@ -577,7 +577,7 @@ def interface(
                 acute_problems,
                 chronic_problems,
                 diagnosis,
-                general_feedback,
+                requested_studies,
                 token_id,
                 age,
                 gender,
@@ -595,7 +595,7 @@ def interface(
                 acute_problems,
                 chronic_problems,
                 diagnosis,
-                general_feedback,
+                requested_studies,
                 chatbot,
                 physical_exam_is_open,
                 physical_exam_text,
