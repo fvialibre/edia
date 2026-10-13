@@ -108,12 +108,9 @@ def interface(
     school,
     consent_checkbox,
     participant_area,
-    contact_with_real_patients=None,
+    contact_with_real_patients,
     **kwargs,
 ) -> gr.Blocks:
-    if contact_with_real_patients is None:
-        contact_with_real_patients = gr.State(False)
-
     secrets = dotenv_values("./.env")
     os.environ["OLLAMA_API_KEY"] = secrets["OLLAMA_API_KEY"]
     llm = ModelWrapper(
