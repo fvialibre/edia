@@ -11,7 +11,7 @@ en:
     NationalityInfo: Select the nationalities that represent your cultural, personal, or national identity
     PersonalRegionLabel: Which region?
     isCourseParticipantLabel: Are you taking the 'AI Fundamentals course to broaden cultural horizons'?
-    isEthicaiaParticipantLabel: Are you participating in an ETHICAIA workshop?
+    isEthicaiaParticipantLabel: Are you participating in a medical patient simulation workshop (ETHICAIA)?
     ConsentLabel: I have read and accept the informed consent ⬇️
     PersonalDataMissingHeading: "# Enter your personal data and confirm your consent to continue."
     SchoolLabel: Select your school (See ⬇️)
@@ -180,8 +180,7 @@ en:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Select your participation area
-    ClinicalChatbotRealPatientContactLabel: Have you been in contact with real patients in the last 6 months?
-    ClinicalChatbotContactWithRealPatientsLabel: Have you been in contact with real patients in the last 6 months?
+    ClinicalChatbotRealPatientContactLabel: Contact with real patients (last 6 months)?
     ClinicalChatbotMedicalStudent: Medical student
     ClinicalChatbotMedicalInTraining: Doctor in training
     ClinicalChatbotPsychologyStudent: Psychology student
@@ -250,7 +249,7 @@ es:
     NationalityInfo: Seleccioná las nacionalidades que representen tu identidad cultural, personal o nacional
     PersonalRegionLabel: ¿De qué región?
     isCourseParticipantLabel: ¿Estás tomando el curso 'Fundamentos de la IA para ampliar horizontes culturales'?
-    isEthicaiaParticipantLabel: ¿Estás participando en un taller de ETHICAIA?
+    isEthicaiaParticipantLabel: ¿Estás participando en un taller de simulación de pacientes médicos (ETHICAIA)?
     ConsentLabel: He leído y acepto el consentimiento informado ⬇️
     PersonalDataMissingHeading: "# Ingresá tus datos personales y confirmá tu consentimiento para continuar."
     SchoolLabel: Seleccioná tu escuela (Ver ⬇️)
@@ -414,8 +413,7 @@ es:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Seleccioná tu área de participación
-    ClinicalChatbotRealPatientContactLabel: "¿Estuviste en contacto con pacientes reales en los últimos 6 meses?"
-    ClinicalChatbotContactWithRealPatientsLabel: "¿Estuviste en contacto con pacientes reales en los últimos 6 meses?"
+    ClinicalChatbotRealPatientContactLabel: "¿Tuviste contacto con pacientes reales (últimos 6 meses)?"
     ClinicalChatbotMedicalStudent: Estudiante de medicina
     ClinicalChatbotMedicalInTraining: Médico en formación
     ClinicalChatbotPsychologyStudent: Estudiante de psicología
@@ -484,7 +482,7 @@ pt:
     NationalityInfo: Selecione as nacionalidades que representam sua identidade cultural, pessoal ou nacional
     PersonalRegionLabel: Qual região?
     isCourseParticipantLabel: Você está fazendo o curso 'Fundamentos de IA para ampliar horizontes culturais'?
-    isEthicaiaParticipantLabel: Você está participando de um workshop da ETHICAIA?
+    isEthicaiaParticipantLabel: Você está participando de um workshop da simulação de pacientes médicos (ETHICAIA)?
     ConsentLabel: Li e aceito o consentimento informado ⬇️
     PersonalDataMissingHeading: "# Insira seus dados pessoais e confirme seu consentimento para continuar."
     SchoolLabel: Selecione sua escola (Veja ⬇️)
@@ -653,8 +651,7 @@ pt:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Selecione sua área de participação
-    ClinicalChatbotRealPatientContactLabel: Você esteve em contato com pacientes reais nos últimos 6 meses?
-    ClinicalChatbotContactWithRealPatientsLabel: Você esteve em contato com pacientes reais nos últimos 6 meses?
+    ClinicalChatbotRealPatientContactLabel: Contato com pacientes reais (últimos 6 meses)?
     ClinicalChatbotMedicalStudent: Estudante de medicina
     ClinicalChatbotMedicalInTraining: Médico em formação
     ClinicalChatbotPsychologyStudent: Estudante de psicologia
