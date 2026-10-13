@@ -326,6 +326,15 @@ def interface(
             patient_display_update,
         )
 
+    def validate_end_conversation_fields(acute, chronic, diag, studies):
+        is_ready = bool(
+            acute and str(acute).strip()
+            and chronic and str(chronic).strip()
+            and diag and str(diag).strip()
+            and studies and str(studies).strip()
+        )
+        return gr.update(interactive=is_ready)
+
     def sample_new_patient(token_id, participant_area, patient_id):
         next_patient_id = assign_patient(token_id, participant_area, exclude_patient_id=patient_id)
         gr.Info(i18n("ClinicalChatbotNewPatientToast").format(patient=get_patient_name(next_patient_id)))
@@ -422,6 +431,7 @@ def interface(
             [],
             None,
             build_patient_card(None),
+            gr.update(interactive=False),
         )
 
     chat_placeholder = build_chat_placeholder(has_patient=False)
@@ -586,6 +596,7 @@ def interface(
             end_conversation_submit_button = gr.Button(
                 i18n("ClinicalChatbotEndConversationSubmitButton"),
                 variant="stop",
+                interactive=False,
             )
 
         chatbot.like(
@@ -628,7 +639,14 @@ def interface(
             [token_id, participant_area, patient_id],
             [patient_id],
         )
-        end_conversation_button.click(lambda: Modal(visible=True), None, end_conversation_modal)
+        end_conversation_button.click(
+            lambda acute, chronic, diag, studies: (
+                Modal(visible=True),
+                validate_end_conversation_fields(acute, chronic, diag, studies),
+            ),
+            [acute_problems, chronic_problems, diagnosis, requested_studies],
+            [end_conversation_modal, end_conversation_submit_button],
+        )
         end_conversation_submit_button.click(
             send_end_conversation_form,
             [
@@ -668,6 +686,13 @@ def interface(
                 chat_interface.chatbot_state,
                 conversation_id,
                 patient_display,
+                end_conversation_submit_button,
             ],
         )
+        for field in [acute_problems, chronic_problems, diagnosis, requested_studies]:
+            field.change(
+                validate_end_conversation_fields,
+                [acute_problems, chronic_problems, diagnosis, requested_studies],
+                [end_conversation_submit_button],
+            )
     return interface
