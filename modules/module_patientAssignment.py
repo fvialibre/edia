@@ -8,6 +8,7 @@ import json
 import os
 import random
 from collections import defaultdict
+import yaml
 
 from data.clinical_patients.clinical_prompts import clinical_prompts
 
@@ -41,17 +42,50 @@ MEDICAL_PATIENT_POOL = (
     "PEV-BETA-RESP-10",
 )
 
+PSYCHOLOGY_AREAS = {
+    "ClinicalChatbotPsychologyStudent",
+    "ClinicalChatbotPsychologyInTraining",
+}
+
+MEDICAL_AREAS = {
+    "ClinicalChatbotMedicalStudent",
+    "ClinicalChatbotMedicalInTraining",
+    "ClinicalChatbotOther",
+}
+
+def _load_i18n_area_labels():
+    try:
+        with open("language/i18n.yaml", "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        for lang_dict in data.values():
+            if isinstance(lang_dict, dict):
+                for key in list(PSYCHOLOGY_AREAS):
+                    if key in lang_dict:
+                        PSYCHOLOGY_AREAS.add(lang_dict[key])
+                for key in list(MEDICAL_AREAS):
+                    if key in lang_dict:
+                        MEDICAL_AREAS.add(lang_dict[key])
+    except Exception:
+        pass
+
+_load_i18n_area_labels()
+
+def is_psychology_participant(participant_area):
+    if not participant_area:
+        return False
+    return str(participant_area).strip() in PSYCHOLOGY_AREAS
+
 ROLE_PATIENT_POOLS = {
-    "ClinicalChatbotPsychologyStudent": PSYCHOLOGY_PATIENT_POOL,
-    "ClinicalChatbotPsychologyInTraining": PSYCHOLOGY_PATIENT_POOL,
-    "ClinicalChatbotMedicalStudent": MEDICAL_PATIENT_POOL,
-    "ClinicalChatbotMedicalInTraining": MEDICAL_PATIENT_POOL,
-    "ClinicalChatbotOther": MEDICAL_PATIENT_POOL,
+    **{area: PSYCHOLOGY_PATIENT_POOL for area in PSYCHOLOGY_AREAS},
+    **{area: MEDICAL_PATIENT_POOL for area in MEDICAL_AREAS},
 }
 
 def _patient_pool_for_role(participant_area):
-    pool = ROLE_PATIENT_POOLS.get(participant_area)
-    if not pool:
+    if is_psychology_participant(participant_area):
+        pool = PSYCHOLOGY_PATIENT_POOL
+    elif participant_area and str(participant_area).strip() in MEDICAL_AREAS:
+        pool = MEDICAL_PATIENT_POOL
+    else:
         return list(clinical_prompts)
     return [patient_id for patient_id in pool if patient_id in clinical_prompts]
 

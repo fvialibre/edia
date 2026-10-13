@@ -12,7 +12,7 @@ import os
 from dotenv import dotenv_values
 from data.clinical_patients.clinical_prompts import clinical_patients
 from html_constants import HTML_FEEDBACK_TITLE
-from modules.module_patientAssignment import assign_patient
+from modules.module_patientAssignment import assign_patient, is_psychology_participant
 
 # Empty consulting room, shown behind the chat before a patient is picked or after a conversation ends.
 CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
@@ -256,7 +256,7 @@ def interface(
                 "patient_id": turn_info_for_feedback["patient_id"],
                 "prompt": patient.prompt if patient else "",
             }, ensure_ascii=False) + "\n")
-        gr.Info("Feedback enviado con éxito")
+        gr.Info(get_i18n_text("ChatbotFeedbackSentInfo"))
         return (Modal(visible=False), "")
 
     def toggle_physical_exam(is_open, patient_id, conversation_id=None, token_id=None):
@@ -326,13 +326,31 @@ def interface(
             patient_display_update,
         )
 
-    def validate_end_conversation_fields(acute, chronic, diag, studies):
-        is_ready = bool(
-            acute and str(acute).strip()
-            and chronic and str(chronic).strip()
-            and diag and str(diag).strip()
-            and studies and str(studies).strip()
-        )
+    def validate_end_conversation_fields(
+        area,
+        acute,
+        chronic,
+        diag,
+        studies,
+        psych_reason,
+        psych_psychosocial,
+        psych_diagnosis,
+        psych_intervention,
+    ):
+        if is_psychology_participant(area):
+            is_ready = bool(
+                psych_reason and str(psych_reason).strip()
+                and psych_psychosocial and str(psych_psychosocial).strip()
+                and psych_diagnosis and str(psych_diagnosis).strip()
+                and psych_intervention and str(psych_intervention).strip()
+            )
+        else:
+            is_ready = bool(
+                acute and str(acute).strip()
+                and chronic and str(chronic).strip()
+                and diag and str(diag).strip()
+                and studies and str(studies).strip()
+            )
         return gr.update(interactive=is_ready)
 
     def sample_new_patient(token_id, participant_area, patient_id):
@@ -345,6 +363,10 @@ def interface(
         chronic_problems,
         diagnosis,
         requested_studies,
+        psych_reason,
+        psych_psychosocial,
+        psych_diagnosis,
+        psych_intervention,
         token_id,
         age,
         gender,
@@ -362,14 +384,26 @@ def interface(
         patient = clinical_patients.get(patient_id)
         prompt = patient.prompt if patient else ""
 
-        with open("./logs/logs_clinical_chatbot_end_conversation.jsonl", "a+", encoding='utf-8') as f:
-            f.write(json.dumps({
-                "timestamp": timestamp,
-                "conversation_id": conv_id,
+        is_psych = is_psychology_participant(participant_area)
+        if is_psych:
+            eval_data = {
+                "consultation_reason": psych_reason,
+                "psychosocial_factors": psych_psychosocial,
+                "diagnostic_hypothesis": psych_diagnosis,
+                "therapeutic_plan": psych_intervention,
+            }
+        else:
+            eval_data = {
                 "acute_problems": acute_problems,
                 "chronic_problems": chronic_problems,
                 "diagnosis": diagnosis,
                 "requested_studies": requested_studies,
+            }
+
+        with open("./logs/logs_clinical_chatbot_end_conversation.jsonl", "a+", encoding='utf-8') as f:
+            log_entry = {
+                "timestamp": timestamp,
+                "conversation_id": conv_id,
                 "token_id": token_id,
                 "age": age,
                 "gender": gender,
@@ -379,7 +413,16 @@ def interface(
                 "patient_id": patient_id,
                 "participant_area": participant_area,
                 "contact_with_real_patients": contact_with_real_patients,
-            }, ensure_ascii=False) + "\n")
+                "acute_problems": acute_problems if not is_psych else None,
+                "chronic_problems": chronic_problems if not is_psych else None,
+                "diagnosis": diagnosis if not is_psych else None,
+                "requested_studies": requested_studies if not is_psych else None,
+                "consultation_reason": psych_reason if is_psych else None,
+                "psychosocial_factors": psych_psychosocial if is_psych else None,
+                "diagnostic_hypothesis": psych_diagnosis if is_psych else None,
+                "therapeutic_plan": psych_intervention if is_psych else None,
+            }
+            f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
         with open("./logs/clinical_encounters.jsonl", "a+", encoding='utf-8') as f:
             f.write(json.dumps({
@@ -398,21 +441,20 @@ def interface(
                     "contact_with_real_patients": contact_with_real_patients,
                 },
                 "messages": chat_history or [],
-                "evaluation": {
-                    "acute_problems": acute_problems,
-                    "chronic_problems": chronic_problems,
-                    "diagnosis": diagnosis,
-                    "requested_studies": requested_studies,
-                }
+                "evaluation": eval_data,
             }, ensure_ascii=False) + "\n")
 
-        gr.Info("Feedback enviado con éxito")
+        gr.Info(get_i18n_text("ChatbotFeedbackSentInfo"))
         exam_is_open, exam_text, exam_btn = reset_physical_exam(has_patient=False)
         studies_is_open, studies_text, studies_btn = reset_complementary_studies(has_patient=False)
         chatbot_update = gr.Chatbot(value=[], type="messages", placeholder=build_chat_placeholder(has_patient=False))
         # Leave the room empty; the student has to call in a new patient explicitly.
         return (
             Modal(visible=False),
+            "",
+            "",
+            "",
+            "",
             "",
             "",
             "",
@@ -573,26 +615,48 @@ def interface(
                 + i18n("ClinicalChatbotEndConversationModalDescription")
                 + "</h3>"
             )
-            acute_problems = gr.Textbox(
-                label=i18n("ClinicalChatbotAcuteProblemsLabel"),
-                placeholder=i18n("ClinicalChatbotAcuteProblemsPlaceholder"),
-                lines=2,
-            )
-            chronic_problems = gr.Textbox(
-                label=i18n("ClinicalChatbotChronicProblemsLabel"),
-                placeholder=i18n("ClinicalChatbotChronicProblemsPlaceholder"),
-                lines=2,
-            )
-            diagnosis = gr.Textbox(
-                label=i18n("ClinicalChatbotDiagnosisLabel"),
-                placeholder=i18n("ClinicalChatbotDiagnosisPlaceholder"),
-                lines=2,
-            )
-            requested_studies = gr.Textbox(
-                label=i18n("ClinicalChatbotRequestedStudiesLabel"),
-                placeholder=i18n("ClinicalChatbotRequestedStudiesPlaceholder"),
-                lines=2,
-            )
+            with gr.Group(visible=True) as medical_form_group:
+                acute_problems = gr.Textbox(
+                    label=i18n("ClinicalChatbotAcuteProblemsLabel"),
+                    placeholder=i18n("ClinicalChatbotAcuteProblemsPlaceholder"),
+                    lines=2,
+                )
+                chronic_problems = gr.Textbox(
+                    label=i18n("ClinicalChatbotChronicProblemsLabel"),
+                    placeholder=i18n("ClinicalChatbotChronicProblemsPlaceholder"),
+                    lines=2,
+                )
+                diagnosis = gr.Textbox(
+                    label=i18n("ClinicalChatbotDiagnosisLabel"),
+                    placeholder=i18n("ClinicalChatbotDiagnosisPlaceholder"),
+                    lines=2,
+                )
+                requested_studies = gr.Textbox(
+                    label=i18n("ClinicalChatbotRequestedStudiesLabel"),
+                    placeholder=i18n("ClinicalChatbotRequestedStudiesPlaceholder"),
+                    lines=2,
+                )
+            with gr.Group(visible=False) as psychology_form_group:
+                psych_reason = gr.Textbox(
+                    label=i18n("ClinicalChatbotPsychologyConsultationReasonLabel"),
+                    placeholder=i18n("ClinicalChatbotPsychologyConsultationReasonPlaceholder"),
+                    lines=2,
+                )
+                psych_psychosocial = gr.Textbox(
+                    label=i18n("ClinicalChatbotPsychologyPsychosocialFactorsLabel"),
+                    placeholder=i18n("ClinicalChatbotPsychologyPsychosocialFactorsPlaceholder"),
+                    lines=2,
+                )
+                psych_diagnosis = gr.Textbox(
+                    label=i18n("ClinicalChatbotPsychologyDiagnosticHypothesisLabel"),
+                    placeholder=i18n("ClinicalChatbotPsychologyDiagnosticHypothesisPlaceholder"),
+                    lines=2,
+                )
+                psych_intervention = gr.Textbox(
+                    label=i18n("ClinicalChatbotPsychologyTherapeuticPlanLabel"),
+                    placeholder=i18n("ClinicalChatbotPsychologyTherapeuticPlanPlaceholder"),
+                    lines=2,
+                )
             end_conversation_submit_button = gr.Button(
                 i18n("ClinicalChatbotEndConversationSubmitButton"),
                 variant="stop",
@@ -639,14 +703,54 @@ def interface(
             [token_id, participant_area, patient_id],
             [patient_id],
         )
-        end_conversation_button.click(
-            lambda acute, chronic, diag, studies: (
+
+        end_conversation_fields = [
+            participant_area,
+            acute_problems,
+            chronic_problems,
+            diagnosis,
+            requested_studies,
+            psych_reason,
+            psych_psychosocial,
+            psych_diagnosis,
+            psych_intervention,
+        ]
+
+        def open_end_conversation_modal(area, acute, chronic, diag, studies, pr, pps, pd, pint):
+            is_psych = is_psychology_participant(area)
+            return (
                 Modal(visible=True),
-                validate_end_conversation_fields(acute, chronic, diag, studies),
-            ),
-            [acute_problems, chronic_problems, diagnosis, requested_studies],
-            [end_conversation_modal, end_conversation_submit_button],
+                gr.update(visible=not is_psych),
+                gr.update(visible=is_psych),
+                validate_end_conversation_fields(area, acute, chronic, diag, studies, pr, pps, pd, pint),
+            )
+
+        end_conversation_button.click(
+            open_end_conversation_modal,
+            inputs=end_conversation_fields,
+            outputs=[
+                end_conversation_modal,
+                medical_form_group,
+                psychology_form_group,
+                end_conversation_submit_button,
+            ],
         )
+
+        def update_form_visibility_and_validation(area, acute, chronic, diag, studies, pr, pps, pd, pint):
+            is_psych = is_psychology_participant(area)
+            return (
+                gr.update(visible=not is_psych),
+                gr.update(visible=is_psych),
+                validate_end_conversation_fields(area, acute, chronic, diag, studies, pr, pps, pd, pint),
+            )
+
+        if hasattr(participant_area, "change"):
+            participant_area.change(
+                update_form_visibility_and_validation,
+                inputs=end_conversation_fields,
+                outputs=[medical_form_group, psychology_form_group, end_conversation_submit_button],
+            )
+
         end_conversation_submit_button.click(
             send_end_conversation_form,
             [
@@ -654,6 +758,10 @@ def interface(
                 chronic_problems,
                 diagnosis,
                 requested_studies,
+                psych_reason,
+                psych_psychosocial,
+                psych_diagnosis,
+                psych_intervention,
                 token_id,
                 age,
                 gender,
@@ -672,6 +780,10 @@ def interface(
                 chronic_problems,
                 diagnosis,
                 requested_studies,
+                psych_reason,
+                psych_psychosocial,
+                psych_diagnosis,
+                psych_intervention,
                 chatbot,
                 physical_exam_is_open,
                 physical_exam_text,
@@ -689,10 +801,19 @@ def interface(
                 end_conversation_submit_button,
             ],
         )
-        for field in [acute_problems, chronic_problems, diagnosis, requested_studies]:
+        for field in [
+            acute_problems,
+            chronic_problems,
+            diagnosis,
+            requested_studies,
+            psych_reason,
+            psych_psychosocial,
+            psych_diagnosis,
+            psych_intervention,
+        ]:
             field.change(
                 validate_end_conversation_fields,
-                [acute_problems, chronic_problems, diagnosis, requested_studies],
-                [end_conversation_submit_button],
+                inputs=end_conversation_fields,
+                outputs=[end_conversation_submit_button],
             )
     return interface
