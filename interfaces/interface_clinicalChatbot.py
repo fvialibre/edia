@@ -71,6 +71,7 @@ def build_patient_card(patient_id):
         )
     patient_name = get_patient_name(patient_id)
     in_consultation_text = get_i18n_text("ClinicalChatbotPatientInConsultation")
+    in_consultation_status = get_i18n_text("ClinicalChatbotPatientInConsultationStatus")
     return (
         '<div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 18px; '
         'border-radius: 10px; border: 1.5px solid rgba(59, 130, 246, 0.55); '
@@ -82,14 +83,24 @@ def build_patient_card(patient_id):
         f'<div style="font-size: 1.3em; font-weight: 700; letter-spacing: -0.01em;">{patient_name}</div>'
         '</div>'
         '</div>'
+        '<div style="display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.35); color: #15803d; padding: 6px 12px; border-radius: 20px; font-size: 0.82em; font-weight: 600;">'
+        '<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #22c55e; box-shadow: 0 0 6px #22c55e;"></span>'
+        f'<span>{in_consultation_status}</span>'
+        '</div>'
         '</div>'
     )
 
-def build_chat_placeholder(has_patient):
+def build_chat_placeholder(has_patient, patient_id=None):
     """Builds the Chatbot placeholder HTML, swapping the image/text once a patient is assigned."""
     image_uri = CLINICAL_CHATBOT_PATIENT_WAITING_URI if has_patient else CLINICAL_CHATBOT_BACKGROUND_URI
     text_key = "ClinicalChatbotChatPlaceholderPatientReady" if has_patient else "ClinicalChatbotChatPlaceholder"
     text_val = get_i18n_text(text_key)
+    if has_patient and patient_id:
+        patient_name = get_patient_name(patient_id)
+        try:
+            text_val = text_val.format(patient=patient_name)
+        except Exception:
+            pass
     return (
         '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; margin: 0 auto; padding: 1.5em 1em;">'
         f'<img src="{image_uri}" '
@@ -305,8 +316,18 @@ def interface(
         studies_is_open, studies_text, studies_btn = reset_complementary_studies(has_patient)
         sample_patient_visibility = gr.update(visible=not has_patient)
         end_conversation_visibility = gr.update(visible=has_patient)
-        chatbot_update = gr.Chatbot(value=[], type="messages", placeholder=build_chat_placeholder(has_patient))
-        textbox_update = gr.update(interactive=has_patient, value="")
+        chatbot_update = gr.Chatbot(value=[], type="messages", placeholder=build_chat_placeholder(has_patient, patient_id=patient_id))
+        if has_patient:
+            patient_name = get_patient_name(patient_id)
+            input_placeholder = get_i18n_text("ClinicalChatbotInputPlaceholderActive").format(patient=patient_name)
+        else:
+            input_placeholder = get_i18n_text("ClinicalChatbotInputPlaceholderNoPatient")
+        textbox_update = gr.update(
+            interactive=has_patient,
+            value="",
+            placeholder=input_placeholder,
+            autofocus=has_patient,
+        )
         cleared_chat_state = []
         new_conv_id = str(uuid.uuid4()) if has_patient else None
         patient_display_update = build_patient_card(patient_id)
@@ -355,7 +376,8 @@ def interface(
 
     def sample_new_patient(token_id, participant_area, patient_id):
         next_patient_id = assign_patient(token_id, participant_area, exclude_patient_id=patient_id)
-        gr.Info(i18n("ClinicalChatbotNewPatientToast").format(patient=get_patient_name(next_patient_id)))
+        patient_name = get_patient_name(next_patient_id)
+        gr.Info(get_i18n_text("ClinicalChatbotNewPatientToast").format(patient=patient_name))
         return next_patient_id
 
     def send_end_conversation_form(
@@ -448,6 +470,7 @@ def interface(
         exam_is_open, exam_text, exam_btn = reset_physical_exam(has_patient=False)
         studies_is_open, studies_text, studies_btn = reset_complementary_studies(has_patient=False)
         chatbot_update = gr.Chatbot(value=[], type="messages", placeholder=build_chat_placeholder(has_patient=False))
+        no_patient_placeholder = get_i18n_text("ClinicalChatbotInputPlaceholderNoPatient")
         # Leave the room empty; the student has to call in a new patient explicitly.
         return (
             Modal(visible=False),
@@ -469,7 +492,7 @@ def interface(
             None,
             gr.update(visible=True),
             gr.update(visible=False),
-            gr.update(interactive=False, value=""),
+            gr.update(interactive=False, value="", placeholder=no_patient_placeholder),
             [],
             None,
             build_patient_card(None),
@@ -478,14 +501,47 @@ def interface(
 
     chat_placeholder = build_chat_placeholder(has_patient=False)
 
-    with gr.Blocks(css=".contain { display: flex !important; flex-direction: column !important; }"
-    "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }"
-    "#chatbot { flex-grow: 1 !important; overflow: auto !important;}"
-    "#chatbot .placeholder-content { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; }"
-    "#chatbot .placeholder { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; margin: auto !important; }"
-    "#chatbot .placeholder * { text-align: center !important; margin-left: auto !important; margin-right: auto !important; }"
-    f"#chatbot .bubble-wrap, #chatbot .wrap {{ background-image: url('{CLINICAL_CHATBOT_BACKGROUND_URI}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }}"
-    "#col { height: 100vh !important; }") as interface:
+    custom_css = (
+        ".contain { display: flex !important; flex-direction: column !important; }\n"
+        "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }\n"
+        "#chatbot { flex-grow: 1 !important; overflow: auto !important;}\n"
+        "#chatbot .placeholder-content { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; }\n"
+        "#chatbot .placeholder { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; margin: auto !important; }\n"
+        "#chatbot .placeholder * { text-align: center !important; margin-left: auto !important; margin-right: auto !important; }\n"
+        f"#chatbot .bubble-wrap, #chatbot .wrap {{ background-image: url('{CLINICAL_CHATBOT_BACKGROUND_URI}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }}\n"
+        "#col { height: 100vh !important; }\n"
+        "@keyframes clinical-bounce-arrow {\n"
+        "  0%, 100% { transform: translateY(0); }\n"
+        "  50% { transform: translateY(4px); }\n"
+        "}\n"
+        ".clinical-bounce-arrow {\n"
+        "  animation: clinical-bounce-arrow 1.3s infinite ease-in-out;\n"
+        "}\n"
+        "@keyframes pulse-chat-input {\n"
+        "  0% {\n"
+        "    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.55);\n"
+        "    border-color: rgba(59, 130, 246, 0.7);\n"
+        "  }\n"
+        "  50% {\n"
+        "    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.18);\n"
+        "    border-color: #3b82f6;\n"
+        "  }\n"
+        "  100% {\n"
+        "    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);\n"
+        "    border-color: rgba(59, 130, 246, 0.7);\n"
+        "  }\n"
+        "}\n"
+        "#clinical-chat-textbox textarea:not(:disabled), #clinical-chat-textbox input:not(:disabled) {\n"
+        "  animation: pulse-chat-input 2.4s infinite ease-in-out;\n"
+        "  border: 1.5px solid #3b82f6 !important;\n"
+        "}\n"
+        "#clinical-chat-textbox textarea:not(:disabled):focus, #clinical-chat-textbox input:not(:disabled):focus {\n"
+        "  animation: none !important;\n"
+        "  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35) !important;\n"
+        "}\n"
+    )
+
+    with gr.Blocks(css=custom_css) as interface:
         turn_info_for_feedback = gr.State({
             "conversation_id": None,
             "turn_id": None,
@@ -533,11 +589,12 @@ def interface(
                 )
                 chat_textbox = gr.Textbox(
                     show_label=False,
-                    placeholder="",
+                    placeholder=get_i18n_text("ClinicalChatbotInputPlaceholderNoPatient"),
                     scale=7,
                     autofocus=False,
                     interactive=False,
                     submit_btn=True,
+                    elem_id="clinical-chat-textbox",
                 )
                 chat_interface = gr.ChatInterface(
                         predict,
@@ -697,6 +754,15 @@ def interface(
                 conversation_id,
                 patient_display,
             ],
+            js="""() => {
+                setTimeout(() => {
+                    const el = document.querySelector('#clinical-chat-textbox textarea, #clinical-chat-textbox input');
+                    if (el && !el.disabled) {
+                        el.focus();
+                        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 200);
+            }""",
         )
         sample_patient_button.click(
             sample_new_patient,

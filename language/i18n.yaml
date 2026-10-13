@@ -189,12 +189,15 @@ en:
     ClinicalChatbotPatientLabel: Your patient
     ClinicalChatbotNoPatientAssigned: No patient in the consultation room
     ClinicalChatbotPatientInConsultation: Patient in consultation
+    ClinicalChatbotPatientInConsultationStatus: In consultation · Waiting for greeting
+    ClinicalChatbotInputPlaceholderNoPatient: "🚪 Call a patient in from the waiting room to begin..."
+    ClinicalChatbotInputPlaceholderActive: "💬 Greet {patient} or type a message to start the consultation (e.g., 'Hello, what brings you in today?')..."
     ClinicalChatbotSamplePatientButton: 🔔 Call next patient
-    ClinicalChatbotNewPatientToast: "🔔 {patient} has been called in from the waiting room and is ready for their consult."
+    ClinicalChatbotNewPatientToast: "🔔 {patient} has entered the room. Greet them in the chat to begin!"
     ClinicalChatbotTitle: Clinical Chatbot via EDIA
     ClinicalChatbotDescription: "In this tab, called <b>Clinical Chatbot</b>, you can interact with simulated patients powered by artificial intelligence. Your role is to be the patients' doctor, practicing both conversational and clinical skills. Keep in mind that patients may have had previous studies, which you can explicitly request during the consultation."
     ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 The consulting room is empty</h3>Call a patient in from the waiting room to begin."
-    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Your patient is waiting</h3>Say hello to begin the consultation."
+    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Your patient is waiting</h3>Say hello to begin the consultation.<div style='margin-top: 8px;'><span class='clinical-bounce-arrow' style='display: inline-block;'>👇</span></div>"
     ClinicalChatbotSubmitButton: Send
     ClinicalChatbotFeedbackLabel: Do you have a comment about this message?
     ClinicalChatbotFeedbackPlaceholder: Write your comment here...
@@ -430,12 +433,15 @@ es:
     ClinicalChatbotPatientLabel: Tu paciente
     ClinicalChatbotNoPatientAssigned: Ningún paciente en la sala de consulta
     ClinicalChatbotPatientInConsultation: Paciente en consulta
+    ClinicalChatbotPatientInConsultationStatus: En consulta · Esperando saludo
+    ClinicalChatbotInputPlaceholderNoPatient: "🚪 Llamá a un paciente desde la sala de espera para comenzar..."
+    ClinicalChatbotInputPlaceholderActive: "💬 Saludá a {patient} o escribí un mensaje para iniciar la consulta (ej: 'Hola, ¿cómo estás? ¿qué te trae por acá?')..."
     ClinicalChatbotSamplePatientButton: 🔔 Llamar al próximo paciente
-    ClinicalChatbotNewPatientToast: "🔔 {patient} llegó desde la sala de espera para la consulta."
+    ClinicalChatbotNewPatientToast: "🔔 {patient} llegó al consultorio. ¡Saludalo en el chat para comenzar la consulta!"
     ClinicalChatbotTitle: Chatbot Clínico vía EDIA
     ClinicalChatbotDescription: "En esta pestaña, llamada <b>Chatbot Clínico</b>, podrás interactuar con diversos pacientes simulados por inteligencia artificial. Tu rol es ser el médico de estos pacientes, practicando tanto tus habilidades conversacionales como clínicas. Tené en cuenta que los pacientes pueden haber tenido estudios previos, los cuales podés solicitar explícitamente durante la consulta."
     ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 El consultorio está vacío</h3>Llamá a un paciente desde la sala de espera para comenzar."
-    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Tu paciente está esperando</h3>Saludá para comenzar la consulta."
+    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Tu paciente está esperando</h3>Saludá para comenzar la consulta.<div style='margin-top: 8px;'><span class='clinical-bounce-arrow' style='display: inline-block;'>👇</span></div>"
     ClinicalChatbotSubmitButton: Enviar
     ClinicalChatbotFeedbackLabel: "¿Tenés algún comentario sobre este mensaje?"
     ClinicalChatbotFeedbackPlaceholder: Escribí tu comentario aquí...
@@ -676,12 +682,15 @@ pt:
     ClinicalChatbotPatientLabel: Seu paciente
     ClinicalChatbotNoPatientAssigned: Nenhum paciente na sala de consulta
     ClinicalChatbotPatientInConsultation: Paciente em consulta
+    ClinicalChatbotPatientInConsultationStatus: Em consulta · Aguardando saudação
+    ClinicalChatbotInputPlaceholderNoPatient: "🚪 Chame um paciente da sala de espera para começar..."
+    ClinicalChatbotInputPlaceholderActive: "💬 Diga olá a {patient} ou digite uma mensagem para iniciar a consulta (ex: 'Olá, como vai? O que te traz aqui?')..."
     ClinicalChatbotSamplePatientButton: 🔔 Chamar o próximo paciente
-    ClinicalChatbotNewPatientToast: "🔔 {patient} foi chamado da sala de espera e está pronto para a consulta."
+    ClinicalChatbotNewPatientToast: "🔔 {patient} entrou no consultório. Cumprimente-o no chat para começar a consulta!"
     ClinicalChatbotTitle: Chatbot Clínico via EDIA
     ClinicalChatbotDescription: "Nesta aba, chamada <b>Chatbot Clínico</b>, você poderá interagir com diversos pacientes simulados por inteligência artificial. Seu papel é ser o médico desses pacientes, praticando suas habilidades conversacionais e clínicas. Tenha em mente que os pacientes podem ter realizado estudos anteriores, que você pode solicitar explicitamente durante a consulta."
     ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 O consultório está vazio</h3>Chame um paciente da sala de espera para começar."
-    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Seu paciente está esperando</h3>Diga olá para iniciar a consulta."
+    ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Seu paciente está esperando</h3>Diga olá para iniciar a consulta.<div style='margin-top: 8px;'><span class='clinical-bounce-arrow' style='display: inline-block;'>👇</span></div>"
     ClinicalChatbotSubmitButton: Enviar
     ClinicalChatbotFeedbackLabel: Você tem algum comentário sobre esta mensagem?
     ClinicalChatbotFeedbackPlaceholder: Escreva seu comentário aqui...
