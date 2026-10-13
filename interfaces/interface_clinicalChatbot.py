@@ -2,6 +2,8 @@ import uuid
 import gradio as gr
 from gradio_modal import Modal
 from gradio_i18n import gettext as i18n
+from gradio_i18n.i18n import TranslateContext, LocalContext
+import yaml
 import pandas as pd
 from modules.module_ollama import ModelWrapper
 import json
@@ -18,6 +20,34 @@ CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
 # Shown once a patient is assigned but the conversation hasn't started yet.
 CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/JDSFVDs.jpeg"
 
+_I18N_FALLBACK = None
+
+def get_i18n_text(key, default_lang="es"):
+    """Fetches text string from gradio_i18n dictionary so it serializes properly in dynamic callbacks."""
+    global _I18N_FALLBACK
+    lang = default_lang
+    try:
+        req = LocalContext.request.get(None)
+        if req:
+            lang = TranslateContext.get_current_language(req)
+        tr = TranslateContext.dictionary.get(lang, {}).get(key)
+        if tr:
+            return tr
+        tr = TranslateContext.dictionary.get(default_lang, {}).get(key)
+        if tr:
+            return tr
+    except Exception:
+        pass
+
+    if _I18N_FALLBACK is None:
+        try:
+            with open("language/i18n.yaml", "r", encoding="utf-8") as f:
+                _I18N_FALLBACK = yaml.safe_load(f)
+        except Exception:
+            _I18N_FALLBACK = {}
+
+    return _I18N_FALLBACK.get(lang, {}).get(key, _I18N_FALLBACK.get(default_lang, {}).get(key, key))
+
 def get_patient_name(patient_id):
     """Pulls the patient's display name, falling back to the ID."""
     patient = clinical_patients.get(patient_id)
@@ -25,23 +55,22 @@ def get_patient_name(patient_id):
 
 def build_patient_card(patient_id):
     """Builds a styled Markdown card displaying the active patient's name or waiting room status."""
+    patient_label = get_i18n_text("ClinicalChatbotPatientLabel")
     if not patient_id:
+        no_patient_text = get_i18n_text("ClinicalChatbotNoPatientAssigned")
         return (
             '<div style="display: flex; align-items: center; gap: 14px; padding: 12px 18px; '
             'border-radius: 10px; border: 1.5px dashed rgba(156, 163, 175, 0.5); '
             'background: rgba(156, 163, 175, 0.07); min-height: 52px; box-sizing: border-box;">'
             '<span style="font-size: 1.7em; line-height: 1;">🚪</span>'
             '<div>'
-            '<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">'
-            + i18n("ClinicalChatbotPatientLabel")
-            + '</div>'
-            '<div style="font-size: 1.05em; font-weight: 500; opacity: 0.65; font-style: italic;">'
-            + i18n("ClinicalChatbotNoPatientAssigned")
-            + '</div>'
+            f'<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">{patient_label}</div>'
+            f'<div style="font-size: 1.05em; font-weight: 500; opacity: 0.65; font-style: italic;">{no_patient_text}</div>'
             '</div>'
             '</div>'
         )
     patient_name = get_patient_name(patient_id)
+    in_consultation_text = get_i18n_text("ClinicalChatbotPatientInConsultation")
     return (
         '<div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 18px; '
         'border-radius: 10px; border: 1.5px solid rgba(59, 130, 246, 0.55); '
@@ -49,9 +78,7 @@ def build_patient_card(patient_id):
         '<div style="display: flex; align-items: center; gap: 14px;">'
         '<span style="font-size: 1.7em; line-height: 1;">🧑‍⚕️</span>'
         '<div>'
-        '<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #3b82f6;">'
-        + i18n("ClinicalChatbotPatientInConsultation")
-        + '</div>'
+        f'<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #3b82f6;">{in_consultation_text}</div>'
         f'<div style="font-size: 1.3em; font-weight: 700; letter-spacing: -0.01em;">{patient_name}</div>'
         '</div>'
         '</div>'
@@ -62,13 +89,13 @@ def build_chat_placeholder(has_patient):
     """Builds the Chatbot placeholder HTML, swapping the image/text once a patient is assigned."""
     image_uri = CLINICAL_CHATBOT_PATIENT_WAITING_URI if has_patient else CLINICAL_CHATBOT_BACKGROUND_URI
     text_key = "ClinicalChatbotChatPlaceholderPatientReady" if has_patient else "ClinicalChatbotChatPlaceholder"
+    text_val = get_i18n_text(text_key)
     return (
         '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; margin: 0 auto; padding: 1.5em 1em;">'
         f'<img src="{image_uri}" '
         'style="max-width: min(100%, 480px); height: auto; border-radius: 12px; margin: 0 auto 1.25em auto; display: block; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);" />'
-        '<div style="text-align: center; max-width: 480px; margin: 0 auto;">'
-        + i18n(text_key)
-        + "</div></div>"
+        f'<div style="text-align: center; max-width: 480px; margin: 0 auto;">{text_val}</div>'
+        '</div>'
     )
 
 # --- Interface ---

@@ -63,8 +63,20 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         value="es",
         label="Interface Language / Idioma de Interfaz / Idioma da Interface",
     )
+    lang.change(
+        None,
+        None,
+        None,
+        js="""() => {
+            const trigger = () => window.dispatchEvent(new Event('resize'));
+            [50, 150, 300, 600, 1000].forEach(d => setTimeout(trigger, d));
+        }""",
+    )
     with open("language/i18n.yaml", "r", encoding="utf-8") as _f:
         _i18n_dict = yaml.safe_load(_f)
+    from gradio_i18n.i18n import TranslateContext
+    TranslateContext.set_available_languages(["en", "pt", "es"])
+    TranslateContext.add_translation(_i18n_dict)
     with Translate(
         _i18n_dict,
         lang,
@@ -167,8 +179,8 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
             value="<hr>",
         )
 
-        with gr.Tabs(visible=False) as annotation_tabs:
-            with gr.Tab(i18n("ClinicalChatbotTab"), visible=False) as clinical_chatbot_tab:
+        with gr.Tabs(visible=False, selected="typical_phrases_tab") as annotation_tabs:
+            with gr.Tab(i18n("ClinicalChatbotTab"), id="clinical_chatbot_tab", visible=False, render_children=True) as clinical_chatbot_tab:
                 interface_clinicalChatbot(
                     token_id=token_id,
                     age=age,
@@ -180,7 +192,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     participant_area=participant_area,
                     contact_with_real_patients=contact_with_real_patients_checkbox,
                 )
-            with gr.Tab(i18n("TypicalPhrasesTab")):
+            with gr.Tab(i18n("TypicalPhrasesTab"), id="typical_phrases_tab", render_children=True) as typical_phrases_tab:
                 interface_typicalPhrases(
                     token_id=token_id,
                     age=age,
@@ -190,7 +202,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
-            with gr.Tab(i18n("ChatbotTab")):
+            with gr.Tab(i18n("ChatbotTab"), id="chatbot_tab", render_children=True) as chatbot_tab:
                 interface_chatbot(
                     token_id=token_id,
                     age=age,
@@ -200,7 +212,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
-            with gr.Tab(i18n("AmbiguousReferencesTab")):
+            with gr.Tab(i18n("AmbiguousReferencesTab"), id="ambiguous_references_tab", render_children=True) as ambiguous_references_tab:
                 interface_ambiguousReferences(
                     token_id=token_id,
                     age=age,
@@ -210,7 +222,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
-            with gr.Tab(i18n("CVQATab"), visible=False) as cvqa_tab:
+            with gr.Tab(i18n("CVQATab"), id="cvqa_tab", visible=False, render_children=True) as cvqa_tab:
                 interface_cvqa(
                     token_id=token_id,
                     age=age,
@@ -220,7 +232,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
-            with gr.Tab(i18n("ValidatorTab")):
+            with gr.Tab(i18n("ValidatorTab"), id="validator_tab", render_children=True) as validator_tab:
                 interface_validator(
                     lang=lang,
                     token_id=token_id,
@@ -231,7 +243,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
-            with gr.Tab(i18n("TypicalPhrasesValidatorTab")):
+            with gr.Tab(i18n("TypicalPhrasesValidatorTab"), id="typical_phrases_validator_tab", render_children=True) as typical_phrases_validator_tab:
                 interface_typicalPhrasesValidator(
                     token_id=token_id,
                     age=age,
@@ -241,7 +253,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                     school=school,
                     consent_checkbox=consent_checkbox,
                 )
-            with gr.Tab(i18n("LogsDataTab")):
+            with gr.Tab(i18n("LogsDataTab"), id="logs_data_tab", render_children=True) as logs_data_tab:
                 interface_logsData(
                     token_id=token_id,
                     age=age,
@@ -337,12 +349,15 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     )
 
     def clinical_chatbot_tab_toggle(is_ethicaia_participant):
-        return gr.Tab(visible=bool(is_ethicaia_participant))
+        if is_ethicaia_participant:
+            return gr.Tab(visible=True), gr.Tabs(selected="clinical_chatbot_tab")
+        else:
+            return gr.Tab(visible=False), gr.Tabs(selected="typical_phrases_tab")
 
     is_ethicaia_participant_checkbox.change(
         fn=clinical_chatbot_tab_toggle,
         inputs=[is_ethicaia_participant_checkbox],
-        outputs=[clinical_chatbot_tab]
+        outputs=[clinical_chatbot_tab, annotation_tabs]
     )
 
     def update_school_name(school):
@@ -393,8 +408,9 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                 gr.Row(visible=True)
             )
         else:
+            selected_tab = "clinical_chatbot_tab" if is_ethicaia_participant_checkbox else "typical_phrases_tab"
             return (
-                gr.Tabs(visible=True),
+                gr.Tabs(visible=True, selected=selected_tab),
                 gr.Row(visible=False)
             )
 
