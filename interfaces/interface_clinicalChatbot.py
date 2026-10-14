@@ -11,14 +11,19 @@ from datetime import datetime
 import os
 from dotenv import dotenv_values
 from data.clinical_patients.clinical_prompts import clinical_patients
-from html_constants import HTML_FEEDBACK_TITLE
+from html_constants import (
+    HTML_FEEDBACK_TITLE,
+    HTML_HR,
+    CLINICAL_CHATBOT_BACKGROUND_URI,
+    CLINICAL_CHATBOT_PATIENT_WAITING_URI,
+    CLINICAL_CHATBOT_CSS,
+    build_header_title_html,
+    build_end_conversation_modal_header_html,
+    build_patient_card_empty_html,
+    build_patient_card_active_html,
+    build_chat_placeholder_html,
+)
 from modules.module_patientAssignment import assign_patient, is_psychology_participant
-
-# Empty consulting room, shown behind the chat before a patient is picked or after a conversation ends.
-CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
-
-# Shown once a patient is assigned but the conversation hasn't started yet.
-CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/JDSFVDs.jpeg"
 
 _I18N_FALLBACK = None
 
@@ -58,37 +63,11 @@ def build_patient_card(patient_id):
     patient_label = get_i18n_text("ClinicalChatbotPatientLabel")
     if not patient_id:
         no_patient_text = get_i18n_text("ClinicalChatbotNoPatientAssigned")
-        return (
-            '<div style="display: flex; align-items: center; gap: 14px; padding: 12px 18px; '
-            'border-radius: 10px; border: 1.5px dashed rgba(156, 163, 175, 0.5); '
-            'background: rgba(156, 163, 175, 0.07); min-height: 52px; box-sizing: border-box;">'
-            '<span style="font-size: 1.7em; line-height: 1;">🚪</span>'
-            '<div>'
-            f'<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7;">{patient_label}</div>'
-            f'<div style="font-size: 1.05em; font-weight: 500; opacity: 0.65; font-style: italic;">{no_patient_text}</div>'
-            '</div>'
-            '</div>'
-        )
+        return build_patient_card_empty_html(patient_label, no_patient_text)
     patient_name = get_patient_name(patient_id)
     in_consultation_text = get_i18n_text("ClinicalChatbotPatientInConsultation")
     in_consultation_status = get_i18n_text("ClinicalChatbotPatientInConsultationStatus")
-    return (
-        '<div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 18px; '
-        'border-radius: 10px; border: 1.5px solid rgba(59, 130, 246, 0.55); '
-        'background: rgba(59, 130, 246, 0.08); min-height: 52px; box-sizing: border-box;">'
-        '<div style="display: flex; align-items: center; gap: 14px;">'
-        '<span style="font-size: 1.7em; line-height: 1;">🧑‍⚕️</span>'
-        '<div>'
-        f'<div style="font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #3b82f6;">{in_consultation_text}</div>'
-        f'<div style="font-size: 1.3em; font-weight: 700; letter-spacing: -0.01em;">{patient_name}</div>'
-        '</div>'
-        '</div>'
-        '<div style="display: flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.35); color: #15803d; padding: 6px 12px; border-radius: 20px; font-size: 0.82em; font-weight: 600;">'
-        '<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #22c55e; box-shadow: 0 0 6px #22c55e;"></span>'
-        f'<span>{in_consultation_status}</span>'
-        '</div>'
-        '</div>'
-    )
+    return build_patient_card_active_html(in_consultation_text, patient_name, in_consultation_status)
 
 def build_chat_placeholder(has_patient, patient_id=None):
     """Builds the Chatbot placeholder HTML, swapping the image/text once a patient is assigned."""
@@ -101,13 +80,50 @@ def build_chat_placeholder(has_patient, patient_id=None):
             text_val = text_val.format(patient=patient_name)
         except Exception:
             pass
-    return (
-        '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; margin: 0 auto; padding: 1.5em 1em;">'
-        f'<img src="{image_uri}" '
-        'style="max-width: min(100%, 480px); height: auto; border-radius: 12px; margin: 0 auto 1.25em auto; display: block; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);" />'
-        f'<div style="text-align: center; max-width: 480px; margin: 0 auto;">{text_val}</div>'
-        '</div>'
-    )
+    return build_chat_placeholder_html(image_uri, text_val)
+
+def format_physical_exam(raw_text):
+    """Builds a markdown table for the first 5 vital signs and formats remaining findings in markdown."""
+    if not raw_text or raw_text.strip().lower() in ("no disponible", "no disponible."):
+        return raw_text or ""
+    lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+    table_rows = []
+    other_lines = []
+    for line in lines:
+        if len(table_rows) < 5 and ":" in line:
+            k, v = line.split(":", 1)
+            if len(k.strip()) <= 15:
+                table_rows.append(f"| {k.strip()} | {v.strip()} |")
+                continue
+        if ":" in line and not line.startswith(("-", "*", "#")):
+            k, v = line.split(":", 1)
+            other_lines.append(f"**{k.strip()}:** {v.strip()}")
+        else:
+            other_lines.append(line)
+
+    parts = []
+    if table_rows:
+        parts.append("| Parámetro | Valor |\n| --- | --- |\n" + "\n".join(table_rows))
+    if other_lines:
+        parts.append("\n\n".join(other_lines))
+    return "\n\n".join(parts)
+
+def format_complementary_studies(raw_text):
+    """Formats complementary studies as clean markdown with bold study names."""
+    if not raw_text or raw_text.strip().lower() in ("no disponible", "no disponible."):
+        return raw_text or ""
+    paragraphs = [p.strip() for p in raw_text.split("\n\n") if p.strip()]
+    formatted = []
+    for p in paragraphs:
+        lines = [l.strip() for l in p.splitlines() if l.strip()]
+        full = " ".join(lines)
+        if ":" in full and not full.startswith(("-", "*", "#")):
+            k, v = full.split(":", 1)
+            if len(k.strip()) <= 45 and "." not in k:
+                formatted.append(f"**{k.strip()}:** {v.strip()}")
+                continue
+        formatted.append(full)
+    return "\n\n".join(formatted)
 
 # --- Interface ---
 def interface(
@@ -272,43 +288,43 @@ def interface(
 
     def toggle_physical_exam(is_open, patient_id, conversation_id=None, token_id=None):
         if not patient_id:
-            return False, gr.Textbox(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=False)
+            return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=False)
         is_open = not is_open
         if is_open:
             patient = clinical_patients.get(patient_id)
             physical_exam = patient.physical_exam if patient else ""
             text = physical_exam or i18n("ClinicalChatbotPhysicalExamPlaceholder")
-            text_box = gr.Textbox(value=text, visible=True)
+            text_box = gr.Markdown(value=format_physical_exam(text), visible=True)
             button = gr.Button(i18n("ClinicalChatbotPhysicalExamCloseButton"), interactive=True)
             log_clinical_action("open_physical_exam", conversation_id, token_id, patient_id)
         else:
-            text_box = gr.Textbox(visible=False)
+            text_box = gr.Markdown(visible=False)
             button = gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=True)
             log_clinical_action("close_physical_exam", conversation_id, token_id, patient_id)
         return is_open, text_box, button
 
     def reset_physical_exam(has_patient=False):
-        return False, gr.Textbox(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=has_patient)
+        return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=has_patient)
 
     def toggle_complementary_studies(is_open, patient_id, conversation_id=None, token_id=None):
         if not patient_id:
-            return False, gr.Textbox(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=False)
+            return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=False)
         is_open = not is_open
         if is_open:
             patient = clinical_patients.get(patient_id)
             extra_studies = patient.extra_studies if patient else ""
             text = extra_studies or i18n("ClinicalChatbotComplementaryStudiesPlaceholder")
-            text_box = gr.Textbox(value=text, visible=True)
+            text_box = gr.Markdown(value=format_complementary_studies(text), visible=True)
             button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesCloseButton"), interactive=True)
             log_clinical_action("open_complementary_studies", conversation_id, token_id, patient_id)
         else:
-            text_box = gr.Textbox(visible=False)
+            text_box = gr.Markdown(visible=False)
             button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=True)
             log_clinical_action("close_complementary_studies", conversation_id, token_id, patient_id)
         return is_open, text_box, button
 
     def reset_complementary_studies(has_patient=False):
-        return False, gr.Textbox(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=has_patient)
+        return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=has_patient)
 
     def reset_on_patient_change(patient_id):
         has_patient = bool(patient_id)
@@ -502,47 +518,7 @@ def interface(
 
     chat_placeholder = build_chat_placeholder(has_patient=False)
 
-    custom_css = (
-        ".contain { display: flex !important; flex-direction: column !important; }\n"
-        "#component-0, #component-3, #component-10, #component-8  { height: 100% !important; }\n"
-        "#chatbot { flex-grow: 1 !important; overflow: auto !important;}\n"
-        "#chatbot .placeholder-content { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; }\n"
-        "#chatbot .placeholder { display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; margin: auto !important; }\n"
-        "#chatbot .placeholder * { text-align: center !important; margin-left: auto !important; margin-right: auto !important; }\n"
-        f"#chatbot .bubble-wrap, #chatbot .wrap {{ background-image: url('{CLINICAL_CHATBOT_BACKGROUND_URI}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }}\n"
-        "#col { height: 100vh !important; }\n"
-        "@keyframes clinical-bounce-arrow {\n"
-        "  0%, 100% { transform: translateY(0); }\n"
-        "  50% { transform: translateY(4px); }\n"
-        "}\n"
-        ".clinical-bounce-arrow {\n"
-        "  animation: clinical-bounce-arrow 1.3s infinite ease-in-out;\n"
-        "}\n"
-        "@keyframes pulse-chat-input {\n"
-        "  0% {\n"
-        "    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.55);\n"
-        "    border-color: rgba(59, 130, 246, 0.7);\n"
-        "  }\n"
-        "  50% {\n"
-        "    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.18);\n"
-        "    border-color: #3b82f6;\n"
-        "  }\n"
-        "  100% {\n"
-        "    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);\n"
-        "    border-color: rgba(59, 130, 246, 0.7);\n"
-        "  }\n"
-        "}\n"
-        "#clinical-chat-textbox textarea:not(:disabled), #clinical-chat-textbox input:not(:disabled) {\n"
-        "  animation: pulse-chat-input 2.4s infinite ease-in-out;\n"
-        "  border: 1.5px solid #3b82f6 !important;\n"
-        "}\n"
-        "#clinical-chat-textbox textarea:not(:disabled):focus, #clinical-chat-textbox input:not(:disabled):focus {\n"
-        "  animation: none !important;\n"
-        "  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35) !important;\n"
-        "}\n"
-    )
-
-    with gr.Blocks(css=custom_css) as interface:
+    with gr.Blocks(css=CLINICAL_CHATBOT_CSS) as interface:
         turn_info_for_feedback = gr.State({
             "conversation_id": None,
             "turn_id": None,
@@ -560,7 +536,7 @@ def interface(
             "contact_with_real_patients": None,
         })
         conversation_id = gr.State(None)
-        gr.HTML("<h1 style='text-align: center;'>" + i18n("ClinicalChatbotTitle") + "</h1>")
+        gr.HTML(build_header_title_html(i18n("ClinicalChatbotTitle")))
         gr.Markdown(i18n("ClinicalChatbotDescription"))
         patient_id = gr.State(None)
         with gr.Row(equal_height=True):
@@ -577,7 +553,7 @@ def interface(
                     elem_id="sample-patient-button",
                 )
         
-        gr.HTML("<hr>")
+        gr.HTML(HTML_HR)
 
         with gr.Row(visible=True, elem_id='col') as chat_col:
             with gr.Column(scale=3):
@@ -624,10 +600,7 @@ def interface(
                     i18n("ClinicalChatbotPhysicalExamOpenButton"),
                     interactive=False,
                 )
-                physical_exam_text = gr.Textbox(
-                    show_label=False,
-                    lines=10,
-                    interactive=False,
+                physical_exam_text = gr.Markdown(
                     visible=False,
                 )
 
@@ -637,10 +610,7 @@ def interface(
                     i18n("ClinicalChatbotComplementaryStudiesOpenButton"),
                     interactive=False,
                 )
-                complementary_studies_text = gr.Textbox(
-                    show_label=False,
-                    lines=10,
-                    interactive=False,
+                complementary_studies_text = gr.Markdown(
                     visible=False,
                 )
 
@@ -667,11 +637,10 @@ def interface(
 
         with Modal(visible=False) as end_conversation_modal:
             gr.HTML(
-                "<h1 style='text-align: center; margin-bottom: 0em;'>"
-                + i18n("ClinicalChatbotEndConversationModalTitle")
-                + "</h1><h3 style='text-align: center; margin-bottom: 1em;'>"
-                + i18n("ClinicalChatbotEndConversationModalDescription")
-                + "</h3>"
+                build_end_conversation_modal_header_html(
+                    i18n("ClinicalChatbotEndConversationModalTitle"),
+                    i18n("ClinicalChatbotEndConversationModalDescription"),
+                )
             )
             with gr.Group(visible=True) as medical_form_group:
                 acute_problems = gr.Textbox(
