@@ -13,3 +13,7 @@ logs/
 ngrok_server/
 extensions/
 nohup.out
+.kilo/
+*.ipynb
+logs_*
+joined_logs/

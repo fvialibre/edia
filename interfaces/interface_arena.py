@@ -22,9 +22,17 @@ def interface() -> gr.Blocks:
 
     def predict(message, history, token_id, school, age, gender, prompt):
         history_langchain_format = [SystemMessage(content=prompt)]
-        for human, ai in history:
-            history_langchain_format.append(HumanMessage(content=human))
-            history_langchain_format.append(AIMessage(content=ai))
+        for item in history:
+            if isinstance(item, dict):
+                content = item.get("content", "")
+                if item.get("role") == "user":
+                    history_langchain_format.append(HumanMessage(content=content))
+                else:
+                    history_langchain_format.append(AIMessage(content=content))
+            else:
+                human, ai = item
+                history_langchain_format.append(HumanMessage(content=human))
+                history_langchain_format.append(AIMessage(content=ai))
         history_langchain_format.append(HumanMessage(content=message))
         gpt_response = llm(history_langchain_format)
 
@@ -172,11 +180,13 @@ def interface() -> gr.Blocks:
                     gr.HTML("<p>Vas a interactuar con el prompt A. Debes dar feedback de por lo menos un mensaje en la conversación.</p>")
                             
                     chatbot1 = gr.Chatbot(
+                        type="messages",
                         show_copy_button=True,
                         likeable=True,
                     )
                     chat_interface1 = gr.ChatInterface(
                             predict,
+                            type="messages",
                             additional_inputs=[
                                 token_id,
                                 school,
@@ -196,11 +206,13 @@ def interface() -> gr.Blocks:
                     gr.HTML("<p>Vas a interactuar con el prompt B. Debes dar feedback de por lo menos un mensaje en la conversación.</p>")
                             
                     chatbot2 = gr.Chatbot(
+                        type="messages",
                         show_copy_button=True,
                         likeable=True,
                     )
                     chat_interface2 = gr.ChatInterface(
                             predict,
+                            type="messages",
                             additional_inputs=[
                                 token_id,
                                 school,

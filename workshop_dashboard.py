@@ -57,13 +57,13 @@ def render_dashboard():
                     ts = entry.get("timestamp", "")
                     if pid:
                         completed_counts[pid] += 1
-                    if tok and pid:
-                        completed_by_token[tok].add(pid)
-                    recent_encounters.append({
-                        "timestamp": ts,
-                        "token_id": tok,
-                        "patient_id": pid,
-                    })
+                        if tok:
+                            completed_by_token[tok].add(pid)
+                        recent_encounters.append({
+                            "timestamp": ts,
+                            "token_id": tok,
+                            "patient_id": pid,
+                        })
         except Exception:
             pass
 

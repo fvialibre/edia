@@ -28,14 +28,14 @@ models = {
     "vllm/ministral3-8b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/ministral3-8b"
     ),
-    "vllm/qwen3.5-4b": ModelWrapper(
-        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
-    ),
     "vllm/gemma4-26b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/gemma4-26b"
     ),
     "vllm/gemma3-4b": ModelWrapper(
         token=secrets["OLLAMA_API_KEY"], model="vllm/gemma3-4b"
+    ),
+    "vllm/qwen3.5-4b": ModelWrapper(
+        token=secrets["OLLAMA_API_KEY"], model="vllm/qwen3.5-4b"
     ),
 }
 

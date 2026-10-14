@@ -10,7 +10,7 @@ from modules.module_word2Context import Word2Context
 from modules.module_rankSents import RankSents
 from modules.module_crowsPairs import CrowsPairs
 from modules.module_ErrorManager import ErrorManager
-from auth import school_list
+from auth import SCHOOL_LIST as school_list
 
 
 class Connector(ABC):

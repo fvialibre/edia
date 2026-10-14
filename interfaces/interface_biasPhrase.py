@@ -1,10 +1,14 @@
 import gradio as gr
 import pandas as pd
 from modules.module_connection import PhraseBiasExplorerConnector
-from auth import school_list
 
 
 def interface(
+    token_id,
+    school,
+    age,
+    gender,
+    consent_checkbox,
     spanish_language_model: str,
     english_language_model: str,
     available_logs: bool, 
@@ -37,59 +41,6 @@ def interface(
     )
 
     with iface:
-        with gr.Row(visible=False):
-            with gr.Column(scale=30):
-                token_id = gr.Textbox(
-                    label=labels["token_id"],
-                    lines=1,
-                    value="EMPTY",
-                    visible=False,
-                )
-            with gr.Column(scale=70):
-                with gr.Row():
-                    with gr.Column():
-                        school = gr.Number(
-                            # value=0,
-                            label=labels["school"],
-                            value=10000,
-                            visible=False,
-                        )
-                        school_name = gr.HTML(
-                            value=labels["notschool"],
-                            visible=False,
-                        )
-                    with gr.Column():
-                        _ = gr.HTML(
-                            value=labels["ref"],
-                            visible=False,
-                        )
-        with gr.Row(visible=False):
-            with gr.Column():
-                age = gr.Number(
-                    # value=0,
-                    label=labels["age"],
-                    value=50,
-                    visible=False,
-                )
-            with gr.Column():
-                gender = gr.Radio(
-                    ["M", "F", "X"],
-                    label=labels["gender"],
-                    value="F",
-                    visible=False,
-                )
-            with gr.Column():
-                with gr.Row():
-                    consent_checkbox = gr.Checkbox(
-                        label=labels["terms"],
-                        value=True,
-                        visible=False,
-                    )
-                    _ = gr.HTML(
-                        value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
-                        visible=False,
-                    )
-                
         with gr.Row():
             with gr.Column():
                 model_name = gr.Radio(
@@ -182,43 +133,6 @@ def interface(
                 elem_id="examples"
             )
 
-        with gr.Group():
-            with gr.Row():
-                btn_get_logs = gr.Button(
-                    value=labels["see_queries_made"]
-                )
-            with gr.Row():
-                df_get_logs = gr.DataFrame(
-                    value=pd.DataFrame([], columns=['']),
-                    label=None
-                )
-
-        def update_school_name(school):
-            if school is None or school == 0:
-                return (
-                    gr.HTML(
-                        value=f"<p>No seleccionaste ningún colegio</p>",
-                    )
-                )
-            elif school not in school_list:
-                return (
-                    gr.HTML(
-                        value=f"<p>El colegio seleccionado no existe</p>",
-                    )
-                )
-            else:
-                return (
-                    gr.HTML(
-                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
-                    )
-                )
-        school.change(
-            fn=update_school_name,
-            inputs=[
-                school
-            ],
-            outputs=[school_name])
-
         btn.click(
             fn=connector.rank_sentence_options,
             inputs=[
@@ -239,17 +153,6 @@ def interface(
             ], 
             outputs=[out_msj, out],
             api_name="bias_phrase"
-        )
-        
-        btn_get_logs.click(
-            fn=connector.get_logs,
-            inputs=[
-                token_id,
-                gr.Textbox(
-                    value=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None, visible=False
-                )
-            ],
-            outputs=[out_msj, df_get_logs]
         )
 
     return iface
