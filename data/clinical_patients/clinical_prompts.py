@@ -4,16 +4,19 @@ from typing import Optional
 
 from .general_rules import general_rules
 from . import (
-    PEV_BETA_DM_01,
-    PEV_BETA_GERD_02,
-    PEV_BETA_IC_03,
-    PEV_BETA_RENAL_04,
-    PEV_BETA_REUMA_05,
-    PEV_BETA_MET_06,
-    PEV_BETA_HEM_07,
-    PEV_BETA_HEM_08,
-    PEV_BETA_CV_09,
-    PEV_BETA_RESP_10,
+    PEV_01,
+    PEV_02,
+    PEV_03,
+    PEV_04,
+    PEV_05,
+    PEV_06,
+    PEV_07,
+    PEV_08,
+    PEV_09,
+    PEV_10,
+    PEV_11,
+    PEV_12,
+    PEV_13,
 )
 
 PATIENT_NAME_PATTERN = re.compile(r"Nombre y Apellido:\s*(.+)")
@@ -35,16 +38,19 @@ class ClinicalPatient:
 
 
 PATIENT_MODULES = (
-    PEV_BETA_DM_01,
-    PEV_BETA_GERD_02,
-    PEV_BETA_IC_03,
-    PEV_BETA_RENAL_04,
-    PEV_BETA_REUMA_05,
-    PEV_BETA_MET_06,
-    PEV_BETA_HEM_07,
-    PEV_BETA_HEM_08,
-    PEV_BETA_CV_09,
-    PEV_BETA_RESP_10,
+    PEV_01,
+    PEV_02,
+    PEV_03,
+    PEV_04,
+    PEV_05,
+    PEV_06,
+    PEV_07,
+    PEV_08,
+    PEV_09,
+    PEV_10,
+    PEV_11,
+    PEV_12,
+    PEV_13,
 )
 
 

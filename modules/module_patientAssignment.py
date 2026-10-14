@@ -1,45 +1,32 @@
-"""Balances how often each clinical patient is assigned across workshop participants.
-
-Derives history straight from the clinical chatbot conversation log (which already
-records token_id + patient_id per message) instead of keeping a separate assignment
-log, so counts always reflect real conversations and survive restarts for free.
-"""
 import json
 import os
 import random
+import threading
 from collections import defaultdict
 import yaml
 
 from data.clinical_patients.clinical_prompts import clinical_prompts
 
-CLINICAL_CHATBOT_LOG_PATH = "./logs/logs_clinical_chatbot.jsonl"
+CLINICAL_ENCOUNTERS_LOG_PATH = "./logs/clinical_encounters.jsonl"
+ACTIVE_ASSIGNMENTS_LOG_PATH = "./logs/active_assignments.json"
 
-# Psychology participants only practice with the cardiovascular/respiratory cases.
-PSYCHOLOGY_PATIENT_POOL = (
-    "PEV-BETA-DM-01",
-    "PEV-BETA-GERD-02",
-    "PEV-BETA-IC-03",
-    "PEV-BETA-RENAL-04",
-    "PEV-BETA-REUMA-05",
-    "PEV-BETA-MET-06",
-    "PEV-BETA-HEM-07",
-    "PEV-BETA-HEM-08",
-    "PEV-BETA-CV-09",
-    "PEV-BETA-RESP-10",
+MEDICAL_PATIENT_POOL = (
+    "PEV-01",
+    "PEV-02",
+    "PEV-03",
+    "PEV-04",
+    "PEV-05",
+    "PEV-06",
+    "PEV-07",
+    "PEV-08",
+    "PEV-09",
+    "PEV-10",
 )
 
-# Medical participants practice with patients 01 through 07.
-MEDICAL_PATIENT_POOL = (
-    "PEV-BETA-DM-01",
-    "PEV-BETA-GERD-02",
-    "PEV-BETA-IC-03",
-    "PEV-BETA-RENAL-04",
-    "PEV-BETA-REUMA-05",
-    "PEV-BETA-MET-06",
-    "PEV-BETA-HEM-07",
-    "PEV-BETA-HEM-08",
-    "PEV-BETA-CV-09",
-    "PEV-BETA-RESP-10",
+PSYCHOLOGY_PATIENT_POOL = (
+    "PEV-11",
+    "PEV-12",
+    "PEV-13",
 )
 
 PSYCHOLOGY_AREAS = {
@@ -47,95 +34,95 @@ PSYCHOLOGY_AREAS = {
     "ClinicalChatbotPsychologyInTraining",
 }
 
-MEDICAL_AREAS = {
-    "ClinicalChatbotMedicalStudent",
-    "ClinicalChatbotMedicalInTraining",
-    "ClinicalChatbotOther",
-}
-
-def _load_i18n_area_labels():
-    try:
-        with open("language/i18n.yaml", "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-        for lang_dict in data.values():
+try:
+    with open("language/i18n.yaml", "r", encoding="utf-8") as f:
+        for lang_dict in (yaml.safe_load(f) or {}).values():
             if isinstance(lang_dict, dict):
-                for key in list(PSYCHOLOGY_AREAS):
-                    if key in lang_dict:
-                        PSYCHOLOGY_AREAS.add(lang_dict[key])
-                for key in list(MEDICAL_AREAS):
-                    if key in lang_dict:
-                        MEDICAL_AREAS.add(lang_dict[key])
+                PSYCHOLOGY_AREAS.update(lang_dict[k] for k in list(PSYCHOLOGY_AREAS) if k in lang_dict)
+except Exception:
+    pass
+
+
+def is_psychology_participant(area):
+    if not area:
+        return False
+    clean = str(area).strip().lower()
+    if clean in {a.lower() for a in PSYCHOLOGY_AREAS}:
+        return True
+    return "psic" in clean or "psych" in clean
+
+
+_lock = threading.Lock()
+_active_by_token = {}
+
+
+def _save_active():
+    try:
+        with open(ACTIVE_ASSIGNMENTS_LOG_PATH, "w", encoding="utf-8") as f:
+            json.dump(_active_by_token, f)
     except Exception:
         pass
 
-_load_i18n_area_labels()
 
-def is_psychology_participant(participant_area):
-    if not participant_area:
-        return False
-    return str(participant_area).strip() in PSYCHOLOGY_AREAS
-
-ROLE_PATIENT_POOLS = {
-    **{area: PSYCHOLOGY_PATIENT_POOL for area in PSYCHOLOGY_AREAS},
-    **{area: MEDICAL_PATIENT_POOL for area in MEDICAL_AREAS},
-}
-
-def _patient_pool_for_role(participant_area):
-    if is_psychology_participant(participant_area):
-        pool = PSYCHOLOGY_PATIENT_POOL
-    elif participant_area and str(participant_area).strip() in MEDICAL_AREAS:
-        pool = MEDICAL_PATIENT_POOL
-    else:
-        return list(clinical_prompts)
-    return [patient_id for patient_id in pool if patient_id in clinical_prompts]
-
-
-def _read_patient_history():
-    """Returns (patients_seen_by_token, conversation_counts) built from past conversations."""
-    patients_seen_by_token = defaultdict(set)
-    conversation_counts = {patient_id: 0 for patient_id in clinical_prompts}
-
-    if not os.path.exists(CLINICAL_CHATBOT_LOG_PATH):
-        return patients_seen_by_token, conversation_counts
-
-    with open(CLINICAL_CHATBOT_LOG_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            token_id = entry.get("token_id")
-            patient_id = entry.get("patient_id")
-            if patient_id not in clinical_prompts:
-                continue
-            if patient_id not in patients_seen_by_token[token_id]:
-                conversation_counts[patient_id] += 1
-            patients_seen_by_token[token_id].add(patient_id)
-
-    return patients_seen_by_token, conversation_counts
+def _read_completed_history():
+    counts = {pid: 0 for pid in clinical_prompts}
+    by_token = defaultdict(set)
+    if os.path.exists(CLINICAL_ENCOUNTERS_LOG_PATH):
+        with open(CLINICAL_ENCOUNTERS_LOG_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    tok = str(entry.get("token_id", "")).strip().lower()
+                    pid = entry.get("patient_id")
+                    if pid in counts:
+                        counts[pid] += 1
+                        if tok:
+                            by_token[tok].add(pid)
+                except json.JSONDecodeError:
+                    continue
+    return counts, by_token
 
 
 def assign_patient(token_id, participant_area=None, exclude_patient_id=None) -> str:
-    """Picks a patient this token hasn't talked to yet (within their role's pool).
+    token = str(token_id).strip().lower() if token_id else ""
+    raw_pool = PSYCHOLOGY_PATIENT_POOL if is_psychology_participant(participant_area) else MEDICAL_PATIENT_POOL
+    pool = [pid for pid in raw_pool if pid in clinical_prompts]
 
-    Candidates are weighted inversely to how often they've been seen so far, so
-    balancing is favored without ever fully starving out a patient that's a bit behind.
-    """
-    patients_seen_by_token, conversation_counts = _read_patient_history()
-    already_seen = patients_seen_by_token.get(token_id, set())
-    pool = _patient_pool_for_role(participant_area)
+    with _lock:
+        completed_counts, completed_by_token = _read_completed_history()
 
-    candidates = [patient_id for patient_id in pool if patient_id not in already_seen]
-    if not candidates:
-        # This token has talked to every patient in their pool already, start over from the pool.
-        candidates = pool
+        # Clean up any active tokens that have now completed that case
+        for t, pid in list(_active_by_token.items()):
+            if pid in completed_by_token.get(t, set()):
+                _active_by_token.pop(t, None)
 
-    # Never hand back the patient they already have, otherwise resampling can look like it's stuck.
-    if exclude_patient_id and len(candidates) > 1:
-        candidates = [patient_id for patient_id in candidates if patient_id != exclude_patient_id] or candidates
+        # 1. Available candidates: pool cases not yet completed by this user
+        candidates = [pid for pid in pool if pid not in completed_by_token.get(token, set())] or list(pool)
 
-    weights = [1 / (conversation_counts[patient_id] + 1) for patient_id in candidates]
-    return random.choices(candidates, weights=weights, k=1)[0]
+        # 2. Exclude current or just-assigned case
+        to_exclude = {exclude_patient_id, _active_by_token.get(token)} - {None}
+        if len(candidates) > 1:
+            candidates = [pid for pid in candidates if pid not in to_exclude] or candidates
+
+        # 3. Workload = completed on disk + currently active in another session
+        active_counts = defaultdict(int)
+        for t, pid in _active_by_token.items():
+            if t != token:
+                active_counts[pid] += 1
+
+        def load(pid):
+            return completed_counts[pid] + active_counts[pid]
+
+        # 4. Pick candidate with minimum workload (ties broken uniformly at random)
+        min_load = min(load(pid) for pid in candidates)
+        chosen = random.choice([pid for pid in candidates if load(pid) == min_load])
+
+        # 5. Record assignment
+        if token:
+            _active_by_token[token] = chosen
+            _save_active()
+
+        return chosen

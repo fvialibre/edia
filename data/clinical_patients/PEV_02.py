@@ -9,6 +9,8 @@ Lugar de residencia: Villa Allende
 Ocupación: Electricista
 Nivel educativo: Secundario Incompleto
 Estado civil: No consignado
+Otros datos de filiación relevantes: Dos hijos varones viven en otra provincia.
+Perfil Comunicacional y conductual: Paciente de trato directo y colaborador, algo preocupado por el dolor retroesternal y por la posibilidad de que pueda tratarse de un problema cardíaco. Refiere con cierta frustración el aumento de peso y haber dejado la actividad física que antes realizaba, aunque reconoce que sus horarios laborales y hábitos actuales dificultan el autocuidado. Responde con claridad, amplía cuando se le pregunta y mantiene una actitud receptiva, con preocupación proporcionada y sin ansiedad marcada.
 
 2. Motivo de consulta
 Dolor retroesternal.
@@ -17,19 +19,14 @@ Dolor retroesternal.
 Paciente lucido, de 57 años que consulta por episodios recurrentes de dolor retroesternal de aproximadamente 3 meses de evolución, acompañados de pirosis y regurgitación de contenido alimentario. Los síntomas aparecen con mayor frecuencia después de comidas abundantes, especialmente ricas en grasas, y tras ingesta de alcohol.
 Refiere que algunos episodios se presentan durante la noche, dos a tres horas después de cenar, mientras se encuentra en decúbito supino. En esas oportunidades se despierta bruscamente con sensación de falta de aire, ardor retroesternal y regurgitación. Refiere que incorporarse y beber un sorbo de agua suele aliviar los síntomas en pocos minutos.
 Hace 10 días presentó un episodio de mayor intensidad, iniciado aproximadamente dos horas después de una comida abundante: dolor urente en epigastrio que se extendió hacia la región retroesternal, acompañado de regurgitación ácida. Cedió espontáneamente en unos 15 minutos al permanecer sentado. No realizó automedicación.
-Niega dolor desencadenado por el ejercicio, irradiación a brazo o mandíbula, sudoración fría, síncope o palpitaciones sostenidas. Niega disfagia, odinofagia, hematemesis, melena, vómitos persistentes o pérdida de peso involuntaria.
+Niega que el dolor sea desencadenado por el ejercicio, irradiación a brazo o mandíbula, sudoración fría, síncope o palpitaciones sostenidas. Niega disfagia, odinofagia, hematemesis, melena, vómitos persistentes o pérdida de peso involuntaria.
 Desde hace aproximadamente 3 años refiere aumento progresivo de peso, cercano a 10 kg, coincidente con el abandono de la práctica deportiva por aumento de las exigencias laborales.
 
 4. Antecedentes personales
-Fisiológicos:
-Alimentación irregular por horarios laborales. Cena habitualmente tarde y en ocasiones se acuesta dentro de la primera hora posterior a la ingesta. Actividad física escasa desde hace 3 años.
-Patológicos:
-Hipertensión arterial diagnosticada hace 4 años, sin controles periódicos. Diabetes mellitus tipo 2 diagnosticada hace 1 año. Dislipidemia conocida, actualmente sin tratamiento específico.
-Refiere tos crónica con expectoración escasa y episodios ocasionales de disnea y sibilancias durante infecciones respiratorias. No refiere internaciones por causa respiratoria ni diagnóstico previo de EPOC.
-Quirúrgicos:
-No refiere cirugías de relevancia.
-Alérgicos:
-No refiere alergias medicamentosas conocidas.
+Fisiológicos: Alimentación irregular por horarios laborales. Cena habitualmente tarde y en ocasiones se acuesta dentro de la primera hora posterior a la ingesta. Actividad física escasa desde hace 3 años. Antes salía en bicicleta con amigos
+Patológicos: Hipertensión arterial diagnosticada hace 4 años, sin controles periódicos. Diabetes mellitus tipo 2 diagnosticada hace 1 año. Dislipidemia sin tratamiento específico. Refiere tos crónica con expectoración escasa y episodios ocasionales de disnea y sibilancias durante infecciones respiratorias. No refiere internaciones por causa respiratoria ni diagnóstico previo de EPOC.
+Quirúrgicos: No refiere cirugías de relevancia.
+Alérgicos: No refiere alergias medicamentosas conocidas.
 
 5. Medicación habitual
 Losartán 50 mg/día, según refiere, con adherencia irregular y sin controles habituales de presión arterial.
@@ -39,11 +36,12 @@ No recibe tratamiento hipolipemiante ni medicación habitual para los síntomas 
 6. Hábitos
 Tabaquismo activo: aproximadamente 30 de cigarrillos por día desde los 25 años.
 Alcohol: ingesta principalmente durante los fines de semana; refiere mayor frecuencia de síntomas digestivos tras comidas abundantes acompañadas de alcohol.
-Actividad física: sedentario en los últimos 3 años; anteriormente realizaba deporte recreacional.
+Actividad física: sedentario en los últimos 3 años.
 
 7. Antecedentes familiares
-No se consignan antecedentes heredo-familiares relevantes en la historia original.
-Niega, al interrogatorio dirigido, antecedentes familiares conocidos de cáncer de esófago o estómago.
+Dos hijos varones cree que sanos. No viven en Córdoba.
+Padres fallecieron y desconoce la causa.
+Hermanos dos. Un varón y una mujer. Cree que tienen diabetes. 
 """
 
 physical_exam = """TA: 150/100 mmHg
@@ -66,14 +64,12 @@ Aparato respiratorio: tórax simétrico, murmullo vesicular conservado bilateral
 
 Abdomen: globuloso, blando y depresible. Dolor leve a la palpación profunda en epigastrio, sin defensa ni signos de irritación peritoneal. Sin visceromegalias palpables. Ruidos hidroaéreos presentes.
 
+Pulsos periféricos 
+
 Resto del examen físico sin particularidades.
 """
 
 extra_studies = """Electrocardiograma de reposo: Ritmo sinusal a 82 lpm, extrasístoles supraventriculares aisladas. Sin alteraciones isquémicas agudas del segmento ST-T.
 
-Laboratorio: Hemoglobina 14,7 g/dL; leucocitos 7.800/mm³; plaquetas 248.000/mm³. Glucemia en ayunas 156 mg/dL; HbA1c 8,8 %. Creatinina 0,96 mg/dL. AST 31 U/L, ALT 38 U/L.
-
-Colesterol total 247 mg/dL; LDL-c 164 mg/dL; HDL-c 36 mg/dL; triglicéridos 236 mg/dL.
-
-Radiografía de tórax: Sin infiltrados ni cardiomegalia. Discreta hiperinsuflación pulmonar.
+Laboratorio: Hemoglobina 14,7 g/dL; leucocitos 7.800/mm³; plaquetas 248.000/mm³. Glucemia en ayunas 156 mg/dL; HbA1c 8,8 %. Creatinina 0,96 mg/dL. AST 31 U/L, ALT 38 U/L. Colesterol total 247 mg/dL; LDL-c 164 mg/dL; HDL-c 36 mg/dL; triglicéridos 236 mg/dL.
 """

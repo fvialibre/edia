@@ -9,6 +9,8 @@ Lugar de residencia: Córdoba Capital
 Ocupación: Dibujante
 Nivel educativo: Secundario incompleto
 Estado civil: Soltero
+Otros datos de filiación relevantes: Vive solo. Sin hijos
+Perfil Comunicacional y conductual: Paciente reservado pero colaborador, de trato sencillo y respuestas concretas. Se muestra preocupado por el cansancio persistente, la pérdida de peso y la falta de respuesta al tratamiento previo, preocupación que aumenta por el antecedente de cáncer de recto de su hermano. Tiende a buscar soluciones prácticas por su cuenta, como modificar la alimentación, y valora conservar su independencia. Se muestra receptivo a explicaciones claras y amplía la información cuando se le pregunta específicamente.
 
 2. Motivo de consulta
 Decaimiento y cansancio progresivo.
@@ -20,7 +22,7 @@ En los últimos 6-8 meses refiere pérdida involuntaria de aproximadamente 10 kg
 A partir del diagnóstico de anemia aumentó por su cuenta el consumo de alimentos que considera ricos en hierro, sin notar mejoría.
 
 4. Antecedentes personales
-Fisiológicos: alimentación omnívora, sin restricciones específicas. Desde el diagnóstico de anemia aumentó el consumo de carnes y otros alimentos ricos en hierro. Actividad física previa: natación dos veces por semana, suspendida por cansancio y disnea de esfuerzo. Catarsis diaria, sin cambios recientes.
+Fisiológicos: alimentación omnívora, sin restricciones específicas. Desde el diagnóstico de anemia aumentó el consumo de carnes y otros alimentos ricos en hierro. 
 Patológicos: hipertensión arterial de 10 años de evolución, en tratamiento con enalapril 10 mg/día. Hipotiroidismo diagnosticado hace 2 años, en tratamiento con levotiroxina 75 µg/día. No refiere enfermedad renal, hepática ni hematológica previa.
 Quirúrgicos: no refiere cirugías abdominales previas.
 Alergias: no refiere alergias medicamentosas conocidas.
@@ -36,7 +38,6 @@ Consume aproximadamente medio vaso de vino tinto con el almuerzo y medio vaso co
 
 7. Antecedentes familiares
 Un hermano con antecedente de cáncer de recto, tratado quirúrgicamente, portador de colostomía permanente.
-No refiere otros antecedentes familiares conocidos de cáncer colorrectal, poliposis hereditaria o enfermedades hematológicas.
 """
 
 physical_exam = """TA: 110/70 mmHg
@@ -55,7 +56,7 @@ Aparato cardiovascular: ruidos cardíacos rítmicos. Soplo sistólico funcional 
 
 Aparato respiratorio: murmullo vesicular conservado bilateralmente, sin ruidos agregados.
 
-Abdomen: blando y depresible. Dolor a la palpación profunda en flanco y fosa ilíaca derecha. Se palpa tumoración redondeada de aproximadamente 8-10 cm en flanco derecho/FID, de consistencia aumentada, poco móvil y discretamente dolorosa. No se palpan hepatomegalia ni esplenomegalia. Ruidos hidroaéreos presentes.
+Abdomen: blando y depresible. Dolor a la palpación profunda en flanco y fosa ilíaca derecha. Se palpa tumoración redondeada de aproximadamente 5 cm en flanco derecho/FID, de consistencia aumentada, poco móvil y discretamente dolorosa. No se palpan hepatomegalia ni esplenomegalia. Ruidos hidroaéreos presentes.
 
 Examen neurológico: sin focalidad.
 """
@@ -65,8 +66,4 @@ extra_studies = """Hemograma: eritrocitos 3,60 × 10¹²/L; hemoglobina 5,9 g/dL
 Reticulocitos: 80.000/mm³; respuesta reticulocitaria inapropiadamente baja para el grado de anemia.
 
 Metabolismo del hierro: ferremia 23 µg/dL (disminuida); transferrina 468 mg/dL (elevada); saturación de transferrina 6 % (disminuida); ferritina 6 ng/mL (disminuida).
-
-Función renal, hepatograma y TSH: sin alteraciones relevantes.
-
-Sangre oculta en materia fecal: positiva.
 """

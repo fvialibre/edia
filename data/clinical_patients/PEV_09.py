@@ -10,20 +10,22 @@ Ocupación: Empleada de comercio jubilada
 Nivel educativo: Secundario completo
 Estado civil: Viuda
 Otros datos de filiación relevantes: Vive actualmente con una hija desde el fallecimiento de su esposo hace 6 meses.
+Perfil Comunicacional y conductual: Paciente cordial, colaboradora y de trato sencillo, con respuestas claras. Desde el fallecimiento reciente de su esposo y la mudanza con su hija se muestra más insegura y dependiente de la opinión médica, con preocupación por la falta de aire y por no haber mejorado con el tratamiento indicado. Refiere con cierta incomodidad el aumento de peso y reconoce que la soledad, el cambio de rutina y la pérdida de sus actividades habituales favorecieron el sedentarismo y el picoteo. Se muestra receptiva a explicaciones claras y tranquilizadoras, y amplía la información cuando se siente escuchada.
 
 2. Motivo de consulta
-Disnea de esfuerzo.
+Falta de aire al realizar esfuerzos físicos.
 
 3. Anamnesis / Enfermedad actual
-Paciente de 65 años que consulta para control por disnea de esfuerzo de aproximadamente dos meses de evolución. Refiere que comenzó a notar falta de aire al caminar más rápido de lo habitual y que progresivamente también aparece al subir escaleras o realizar tareas domésticas sostenidas. La describe como la sensación de que “no le entra todo el aire que necesita”. Los episodios ceden al detener la actividad y no se presentan en reposo.
-Fue evaluada previamente por otro médico, quien interpretó el síntoma como comienzo de insuficiencia cardíaca e indicó digoxina 0,25 mg un comprimido por día de lunes a viernes. La paciente no percibió cambios significativos desde que inició el tratamiento.
-Niega ortopnea, disnea paroxística nocturna, edema de miembros inferiores, dolor precordial, palpitaciones sostenidas, síncope, tos, expectoración o sibilancias. No refiere fiebre ni cuadros respiratorios recientes.
+Paciente de 65 años lúcida, que consulta para control por disnea de esfuerzo de aproximadamente dos meses de evolución. Refiere que comenzó a notar falta de aire al caminar más rápido de lo habitual y que progresivamente también aparece al subir escaleras o realizar tareas domésticas sostenidas. La describe como la sensación de que “no le entra todo el aire que necesita”. Los episodios ceden al detener la actividad y no se presentan en reposo.
+Fue evaluada previamente por otro médico, quien le realiza un laboratorio de sangre, un electrocardiograma y una radiografía de torax. El médico le informo que presentaba síntomas de insuficiencia cardíaca e indicó digoxina 0,25 mg un comprimido por día de lunes a viernes. La paciente no percibió cambios significativos desde que inició el tratamiento.
+Niega: ortopnea, disnea paroxística nocturna, edema de miembros inferiores, dolor precordial, palpitaciones, síncope, tos, expectoración o sibilancias. No refiere fiebre ni cuadros respiratorios recientes.
 En los últimos seis meses aumentó aproximadamente 20 kg de peso. Refiere aumento del apetito, ingestas frecuentes fuera de horario y sensación de “comer por ansiedad”. Este cambio comenzó luego del fallecimiento de su esposo y coincidió con el abandono de sus caminatas habituales y de otras actividades sociales. Desde entonces realiza vida predominantemente sedentaria.
 No refiere debilidad muscular proximal, equimosis espontáneas, cambios marcados en la distribución del vello ni tratamiento actual o previo con corticoides.
 
 4. Antecedentes personales
-Fisiológicos y psicosociales: peso habitual 65 kg; peso actual 85 kg. Tras el fallecimiento de su esposo, con quien convivió 45 años, se mudó a la casa de una hija. El cambio implicó pérdida de su entorno vecinal, amistades y actividades culturales. Refiere temor a utilizar transporte público, por lo que ha reducido sus salidas. Vida actualmente sedentaria. Aumento del apetito en relación con ansiedad y soledad.
-Patológicos: no refiere antecedentes conocidos de hipertensión arterial, diabetes mellitus, enfermedad coronaria, insuficiencia cardíaca, enfermedad pulmonar crónica o anemia. Control ginecológico periódico.
+Fisiológicos y psicosociales: peso habitual 65 kg; peso actual 85 kg. Tras el fallecimiento de su esposo, con quien convivió 45 años, se mudó a la casa de una hija. El cambio implicó pérdida de su entorno vecinal, amistades y actividades culturales. Refiere temor a utilizar transporte público, por lo que ha reducido sus salidas. Vida actualmente sedentaria. Aumento del apetito en relación con ansiedad y soledad. Duerme toda la noche, no usa almohadas.
+Patológicos: no refiere antecedentes conocidos de: hipertensión arterial, diabetes mellitus, enfermedad coronaria, insuficiencia cardíaca, enfermedad pulmonar crónica o anemia. 
+Controles ginecológicos periódicos normales.
 Quirúrgicos: niega cirugías previas.
 Gineco-obstétricos: tres embarazos, tres partos vaginales, sin recién nacidos macrosómicos. Menopausia a los 50 años, climaterio sin complicaciones. No utiliza terapia hormonal.
 Alergias: no refiere alergias medicamentosas conocidas.
@@ -55,9 +57,9 @@ Peso habitual: 65 kg. Peso actual: 85 kg. Talla: 1,65 m. IMC: 31,2 kg/m². TA en
 
 Piel y mucosas: normocoloreadas. Sin cianosis. Abdomen con aumento del panículo adiposo y estrías rosadas relacionadas con el incremento ponderal. Sin equimosis ni fragilidad cutánea.
 
-Aparato cardiovascular: precordio tranquilo; choque de punta no visible ni palpable. R1 y R2 normales, sin soplos ni galope. No ingurgitación yugular. Pulsos periféricos presentes y simétricos. Sin edema de miembros inferiores.
+Aparato cardiovascular: choque de punta no visible ni palpable. R1 y R2 normales, sin soplos ni galope. No ingurgitación yugular. Pulsos periféricos presentes y simétricos. Sin edema de miembros inferiores.
 
-Aparato respiratorio: tórax simétrico, buena entrada bilateral de aire, murmullo vesicular conservado, sin rales ni sibilancias.
+Aparato respiratorio: tórax simétrico, murmullo vesicular conservado, sin rales ni sibilancias.
 
 Abdomen: globuloso a predominio adiposo, blando, depresible, indoloro. La adiposidad dificulta la palpación profunda. Sin visceromegalias evidentes.
 
@@ -72,13 +74,7 @@ Perfil lipídico: colesterol total 244 mg/dL; LDL-colesterol 158 mg/dL; HDL-cole
 
 Función renal e ionograma: urea 30 mg/dL; creatinina 0,78 mg/dL; sodio 140 mEq/L; potasio 4,3 mEq/L.
 
-Hepatograma: sin alteraciones relevantes. TSH: 2,3 mUI/L.
-
 ECG: ritmo sinusal, 82 lpm, sin signos de hipertrofia, isquemia ni trastornos de conducción.
 
 Radiografía de tórax: índice cardiotorácico normal, campos pulmonares sin infiltrados ni signos de congestión.
-
-NT-proBNP: 82 pg/mL.
-
-Ecocardiograma Doppler: cavidades de tamaño normal, función sistólica global conservada, FEVI 63 %, sin valvulopatías significativas ni signos indirectos de hipertensión pulmonar.
 """
