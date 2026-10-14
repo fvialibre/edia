@@ -31,12 +31,15 @@ HTML_FEEDBACK_TITLE = """
 HTML_HR = "<hr>"
 
 def build_header_title_html(title):
-    return f"<h1 style='text-align: center;'>{title}</h1>"
+    return "<h1 style='text-align: center;'>" + title + "</h1>"
 
 def build_end_conversation_modal_header_html(title, description):
     return (
-        f"<h1 style='text-align: center; margin-bottom: 0em;'>{title}</h1>"
-        f"<h3 style='text-align: center; margin-bottom: 1em;'>{description}</h3>"
+        "<h1 style='text-align: center; margin-bottom: 0em;'>"
+        + title
+        + "</h1><h3 style='text-align: center; margin-bottom: 1em;'>"
+        + description
+        + "</h3>"
     )
 
 def build_patient_card_empty_html(patient_label, no_patient_text):
@@ -88,8 +91,8 @@ CLINICAL_CHATBOT_CSS = f"""
 #chatbot .placeholder-content {{ display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; }}
 #chatbot .placeholder {{ display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; margin: auto !important; }}
 #chatbot .placeholder * {{ text-align: center !important; margin-left: auto !important; margin-right: auto !important; }}
-#chatbot .bubble-wrap, #chatbot .wrap {{ background-image: url('{CLINICAL_CHATBOT_BACKGROUND_URI}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }}
-#col {{ height: 100vh !important; }}
+#col {{ height: calc(100vh - 260px) !important; min-height: 520px !important; }}
+#end-conversation-button {{ margin-top: 8px !important; }}
 @keyframes clinical-bounce-arrow {{
   0%, 100% {{ transform: translateY(0); }}
   50% {{ transform: translateY(4px); }}
@@ -118,6 +121,55 @@ CLINICAL_CHATBOT_CSS = f"""
 #clinical-chat-textbox textarea:not(:disabled):focus, #clinical-chat-textbox input:not(:disabled):focus {{
   animation: none !important;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35) !important;
+}}
+#physical-exam-text,
+#complementary-studies-text {{
+  max-height: min(240px, 32vh) !important;
+  overflow-y: auto !important;
+  border: 1px solid var(--border-color-primary, rgba(156, 163, 175, 0.3)) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  background: var(--background-fill-secondary, rgba(156, 163, 175, 0.05)) !important;
+  margin-top: 6px !important;
+  margin-bottom: 8px !important;
+  box-sizing: border-box !important;
+}}
+#physical-exam-text.hide,
+#complementary-studies-text.hide {{
+  display: none !important;
+}}
+#physical-exam-text .prose,
+#complementary-studies-text .prose {{
+  max-width: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}}
+#physical-exam-text table,
+#complementary-studies-text table {{
+  width: 100% !important;
+  margin-bottom: 6px !important;
+  overflow: visible !important;
+}}
+#physical-exam-text::-webkit-scrollbar,
+#complementary-studies-text::-webkit-scrollbar {{
+  width: 6px;
+}}
+#physical-exam-text::-webkit-scrollbar-thumb,
+#complementary-studies-text::-webkit-scrollbar-thumb {{
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+}}
+#complementary-studies-col {{
+  border: 1px solid var(--border-color-primary);
+  border-radius: 8px;
+  padding: 12px;
+  overflow-y: auto !important;
+  max-height: 100% !important;
+  box-sizing: border-box !important;
 }}
 """
 

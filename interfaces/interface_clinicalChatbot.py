@@ -288,43 +288,43 @@ def interface(
 
     def toggle_physical_exam(is_open, patient_id, conversation_id=None, token_id=None):
         if not patient_id:
-            return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=False)
+            return False, gr.update(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=False)
         is_open = not is_open
         if is_open:
             patient = clinical_patients.get(patient_id)
             physical_exam = patient.physical_exam if patient else ""
             text = physical_exam or i18n("ClinicalChatbotPhysicalExamPlaceholder")
-            text_box = gr.Markdown(value=format_physical_exam(text), visible=True)
+            text_box = gr.update(value=format_physical_exam(text), visible=True)
             button = gr.Button(i18n("ClinicalChatbotPhysicalExamCloseButton"), interactive=True)
             log_clinical_action("open_physical_exam", conversation_id, token_id, patient_id)
         else:
-            text_box = gr.Markdown(visible=False)
+            text_box = gr.update(visible=False)
             button = gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=True)
             log_clinical_action("close_physical_exam", conversation_id, token_id, patient_id)
         return is_open, text_box, button
 
     def reset_physical_exam(has_patient=False):
-        return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=has_patient)
+        return False, gr.update(value="", visible=False), gr.Button(i18n("ClinicalChatbotPhysicalExamOpenButton"), interactive=has_patient)
 
     def toggle_complementary_studies(is_open, patient_id, conversation_id=None, token_id=None):
         if not patient_id:
-            return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=False)
+            return False, gr.update(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=False)
         is_open = not is_open
         if is_open:
             patient = clinical_patients.get(patient_id)
             extra_studies = patient.extra_studies if patient else ""
             text = extra_studies or i18n("ClinicalChatbotComplementaryStudiesPlaceholder")
-            text_box = gr.Markdown(value=format_complementary_studies(text), visible=True)
+            text_box = gr.update(value=format_complementary_studies(text), visible=True)
             button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesCloseButton"), interactive=True)
             log_clinical_action("open_complementary_studies", conversation_id, token_id, patient_id)
         else:
-            text_box = gr.Markdown(visible=False)
+            text_box = gr.update(visible=False)
             button = gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=True)
             log_clinical_action("close_complementary_studies", conversation_id, token_id, patient_id)
         return is_open, text_box, button
 
     def reset_complementary_studies(has_patient=False):
-        return False, gr.Markdown(visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=has_patient)
+        return False, gr.update(value="", visible=False), gr.Button(i18n("ClinicalChatbotComplementaryStudiesOpenButton"), interactive=has_patient)
 
     def reset_on_patient_change(patient_id):
         has_patient = bool(patient_id)
@@ -463,7 +463,7 @@ def interface(
             f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
         if patient_id:
-            with open("./logs/clinical_encounters.jsonl", "a+", encoding='utf-8') as f:
+            with open("./logs/logs_clinical_encounters.jsonl", "a+", encoding='utf-8') as f:
                 f.write(json.dumps({
                     "conversation_id": conv_id,
                     "timestamp": timestamp,
@@ -593,6 +593,12 @@ def interface(
                         submit_btn=True,
                         stop_btn=None,
                     )
+                end_conversation_button = gr.Button(
+                    i18n("ClinicalChatbotEndConversationButton"),
+                    variant="stop",
+                    elem_id="end-conversation-button",
+                    visible=False,
+                )
             with gr.Column(scale=1, elem_id="complementary-studies-col"):
                 gr.Markdown("## " + i18n("ClinicalChatbotPhysicalExamTitle"))
                 physical_exam_is_open = gr.State(False)
@@ -602,6 +608,7 @@ def interface(
                 )
                 physical_exam_text = gr.Markdown(
                     visible=False,
+                    elem_id="physical-exam-text",
                 )
 
                 gr.Markdown("## " + i18n("ClinicalChatbotComplementaryStudiesTitle"))
@@ -612,15 +619,8 @@ def interface(
                 )
                 complementary_studies_text = gr.Markdown(
                     visible=False,
+                    elem_id="complementary-studies-text",
                 )
-
-        with gr.Row():
-            end_conversation_button = gr.Button(
-                i18n("ClinicalChatbotEndConversationButton"),
-                variant="stop",
-                elem_id="end-conversation-button",
-                visible=False,
-            )
 
         ### MODAL
         with Modal(visible=False) as turn_feedback_modal:

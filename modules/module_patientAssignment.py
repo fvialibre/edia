@@ -11,7 +11,7 @@ from data.clinical_patients.clinical_prompts import (
     PSYCHOLOGY_PATIENT_POOL,
 )
 
-CLINICAL_ENCOUNTERS_LOG_PATH = "./logs/clinical_encounters.jsonl"
+CLINICAL_ENCOUNTERS_LOG_PATH = "./logs/logs_clinical_encounters.jsonl"
 ACTIVE_ASSIGNMENTS_LOG_PATH = "./logs/active_assignments.json"
 
 PSYCHOLOGY_AREAS = {
@@ -43,10 +43,22 @@ _active_by_token = {}
 
 def _save_active():
     try:
+        os.makedirs(os.path.dirname(ACTIVE_ASSIGNMENTS_LOG_PATH), exist_ok=True)
         with open(ACTIVE_ASSIGNMENTS_LOG_PATH, "w", encoding="utf-8") as f:
             json.dump(_active_by_token, f)
     except Exception:
         pass
+
+
+def clear_active_assignments():
+    """Resets in-memory active assignments and clears active_assignments.json to an empty dict."""
+    with _lock:
+        _active_by_token.clear()
+        _save_active()
+
+
+# Clear active assignments on module load so stale in-flight assignments don't persist across restarts
+clear_active_assignments()
 
 
 def _read_completed_history():

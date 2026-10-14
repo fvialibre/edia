@@ -227,6 +227,22 @@ def test_crash_recovery_from_log_file():
         assert next_p not in {"PEV-01", "PEV-02"}
 
 
+def test_clear_active_assignments():
+    """Verifies that clear_active_assignments resets in-memory dict and writes valid empty JSON to disk."""
+    with isolated_test_env() as (_, active_path):
+        assign_patient("user_active", participant_area="ClinicalChatbotMedicalStudent")
+        with open(active_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        assert len(data) == 1
+        assert "user_active" in data
+
+        pa.clear_active_assignments()
+        with open(active_path, "r", encoding="utf-8") as f:
+            cleared_data = json.load(f)
+        assert cleared_data == {}
+        assert len(pa._active_by_token) == 0
+
+
 if __name__ == "__main__":
     print("Running test_pool_separation...")
     test_pool_separation()
@@ -240,4 +256,6 @@ if __name__ == "__main__":
     test_multi_round_simulation_balancing()
     print("Running test_crash_recovery_from_log_file...")
     test_crash_recovery_from_log_file()
-    print("\nALL 6 TESTS PASSED SUCCESSFULLY!")
+    print("Running test_clear_active_assignments...")
+    test_clear_active_assignments()
+    print("\nALL 7 TESTS PASSED SUCCESSFULLY!")

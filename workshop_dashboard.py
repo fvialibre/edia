@@ -11,7 +11,7 @@ from datetime import datetime
 from data.clinical_patients.clinical_prompts import clinical_patients
 from modules.module_patientAssignment import MEDICAL_PATIENT_POOL, PSYCHOLOGY_PATIENT_POOL
 
-CLINICAL_ENCOUNTERS_PATH = "./logs/clinical_encounters.jsonl"
+CLINICAL_ENCOUNTERS_PATH = "./logs/logs_clinical_encounters.jsonl"
 ACTIVE_ASSIGNMENTS_PATH = "./logs/active_assignments.json"
 
 # ANSI color formatting

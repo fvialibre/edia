@@ -435,7 +435,7 @@ es:
     ClinicalChatbotPatientInConsultation: Paciente en consulta
     ClinicalChatbotPatientInConsultationStatus: En consulta
     ClinicalChatbotInputPlaceholderNoPatient: "🚪 Llamá a un paciente desde la sala de espera para comenzar..."
-    ClinicalChatbotInputPlaceholderActive: "💬 Saludá a {patient} o escribí un mensaje para iniciar la consulta (ej: 'Hola, ¿cómo estás? ¿qué te trae por acá?')..."
+    ClinicalChatbotInputPlaceholderActive: "💬 Saludá a {patient} o escribí un mensaje para iniciar la consulta (ej: 'Buen día')..."
     ClinicalChatbotSamplePatientButton: 🔔 Llamar al próximo paciente
     ClinicalChatbotNewPatientToast: "🔔 {patient} llegó al consultorio. ¡Saludalo en el chat para comenzar la consulta!"
     ClinicalChatbotTitle: Chatbot Clínico vía EDIA
