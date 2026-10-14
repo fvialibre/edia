@@ -5,29 +5,14 @@ import threading
 from collections import defaultdict
 import yaml
 
-from data.clinical_patients.clinical_prompts import clinical_prompts
+from data.clinical_patients.clinical_prompts import (
+    clinical_prompts,
+    MEDICAL_PATIENT_POOL,
+    PSYCHOLOGY_PATIENT_POOL,
+)
 
 CLINICAL_ENCOUNTERS_LOG_PATH = "./logs/clinical_encounters.jsonl"
 ACTIVE_ASSIGNMENTS_LOG_PATH = "./logs/active_assignments.json"
-
-MEDICAL_PATIENT_POOL = (
-    "PEV-01",
-    "PEV-02",
-    "PEV-03",
-    "PEV-04",
-    "PEV-05",
-    "PEV-06",
-    "PEV-07",
-    "PEV-08",
-    "PEV-09",
-    "PEV-10",
-)
-
-PSYCHOLOGY_PATIENT_POOL = (
-    "PEV-11",
-    "PEV-12",
-    "PEV-13",
-)
 
 PSYCHOLOGY_AREAS = {
     "ClinicalChatbotPsychologyStudent",
@@ -88,8 +73,7 @@ def _read_completed_history():
 
 def assign_patient(token_id, participant_area=None, exclude_patient_id=None) -> str:
     token = str(token_id).strip().lower() if token_id else ""
-    raw_pool = PSYCHOLOGY_PATIENT_POOL if is_psychology_participant(participant_area) else MEDICAL_PATIENT_POOL
-    pool = [pid for pid in raw_pool if pid in clinical_prompts]
+    pool = PSYCHOLOGY_PATIENT_POOL if is_psychology_participant(participant_area) else MEDICAL_PATIENT_POOL
 
     with _lock:
         completed_counts, completed_by_token = _read_completed_history()

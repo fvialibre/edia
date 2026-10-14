@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from .general_rules import general_rules
+from .general_rules import medical_general_rules, psychology_general_rules
 from . import (
     PEV_01,
     PEV_02,
@@ -37,7 +37,7 @@ class ClinicalPatient:
             object.__setattr__(self, "name", name)
 
 
-PATIENT_MODULES = (
+MEDICAL_PATIENT_MODULES = (
     PEV_01,
     PEV_02,
     PEV_03,
@@ -48,20 +48,25 @@ PATIENT_MODULES = (
     PEV_08,
     PEV_09,
     PEV_10,
+)
+
+PSYCHOLOGY_PATIENT_MODULES = (
     PEV_11,
     PEV_12,
     PEV_13,
 )
 
+PATIENT_MODULES = MEDICAL_PATIENT_MODULES + PSYCHOLOGY_PATIENT_MODULES
 
-def _load_patient(module) -> ClinicalPatient:
+
+def _load_patient(module, rules: str) -> ClinicalPatient:
     patient_id = getattr(
         module,
         "PATIENT_ID",
         getattr(module, "patient_id", module.__name__.split(".")[-1].replace("_", "-")),
     )
     raw_prompt = getattr(module, "patient_prompt", "")
-    full_prompt = (general_rules + raw_prompt) if raw_prompt else ""
+    full_prompt = (rules + raw_prompt) if raw_prompt else ""
     return ClinicalPatient(
         id=patient_id,
         prompt=full_prompt,
@@ -70,9 +75,16 @@ def _load_patient(module) -> ClinicalPatient:
     )
 
 
+_medical_patient_list = [_load_patient(mod, medical_general_rules) for mod in MEDICAL_PATIENT_MODULES]
+_psychology_patient_list = [_load_patient(mod, psychology_general_rules) for mod in PSYCHOLOGY_PATIENT_MODULES]
+
+# Single source of truth for patient pools
+MEDICAL_PATIENT_POOL: tuple[str, ...] = tuple(p.id for p in _medical_patient_list)
+PSYCHOLOGY_PATIENT_POOL: tuple[str, ...] = tuple(p.id for p in _psychology_patient_list)
+
 # Single source of truth for clinical patients
 clinical_patients: dict[str, ClinicalPatient] = {
-    patient.id: patient for patient in (_load_patient(mod) for mod in PATIENT_MODULES)
+    patient.id: patient for patient in (_medical_patient_list + _psychology_patient_list)
 }
 
 

@@ -189,7 +189,7 @@ en:
     ClinicalChatbotPatientLabel: Your patient
     ClinicalChatbotNoPatientAssigned: No patient in the consultation room
     ClinicalChatbotPatientInConsultation: Patient in consultation
-    ClinicalChatbotPatientInConsultationStatus: In consultation · Waiting for greeting
+    ClinicalChatbotPatientInConsultationStatus: In consultation
     ClinicalChatbotInputPlaceholderNoPatient: "🚪 Call a patient in from the waiting room to begin..."
     ClinicalChatbotInputPlaceholderActive: "💬 Greet {patient} or type a message to start the consultation (e.g., 'Hello, what brings you in today?')..."
     ClinicalChatbotSamplePatientButton: 🔔 Call next patient
@@ -433,7 +433,7 @@ es:
     ClinicalChatbotPatientLabel: Tu paciente
     ClinicalChatbotNoPatientAssigned: Ningún paciente en la sala de consulta
     ClinicalChatbotPatientInConsultation: Paciente en consulta
-    ClinicalChatbotPatientInConsultationStatus: En consulta · Esperando saludo
+    ClinicalChatbotPatientInConsultationStatus: En consulta
     ClinicalChatbotInputPlaceholderNoPatient: "🚪 Llamá a un paciente desde la sala de espera para comenzar..."
     ClinicalChatbotInputPlaceholderActive: "💬 Saludá a {patient} o escribí un mensaje para iniciar la consulta (ej: 'Hola, ¿cómo estás? ¿qué te trae por acá?')..."
     ClinicalChatbotSamplePatientButton: 🔔 Llamar al próximo paciente
@@ -682,7 +682,7 @@ pt:
     ClinicalChatbotPatientLabel: Seu paciente
     ClinicalChatbotNoPatientAssigned: Nenhum paciente na sala de consulta
     ClinicalChatbotPatientInConsultation: Paciente em consulta
-    ClinicalChatbotPatientInConsultationStatus: Em consulta · Aguardando saudação
+    ClinicalChatbotPatientInConsultationStatus: Em consulta
     ClinicalChatbotInputPlaceholderNoPatient: "🚪 Chame um paciente da sala de espera para começar..."
     ClinicalChatbotInputPlaceholderActive: "💬 Diga olá a {patient} ou digite uma mensagem para iniciar a consulta (ex: 'Olá, como vai? O que te traz aqui?')..."
     ClinicalChatbotSamplePatientButton: 🔔 Chamar o próximo paciente

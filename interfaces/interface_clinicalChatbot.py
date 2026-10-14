@@ -446,25 +446,26 @@ def interface(
             }
             f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
 
-        with open("./logs/clinical_encounters.jsonl", "a+", encoding='utf-8') as f:
-            f.write(json.dumps({
-                "conversation_id": conv_id,
-                "timestamp": timestamp,
-                "token_id": token_id,
-                "patient_id": patient_id,
-                "prompt": prompt,
-                "participant": {
-                    "age": age,
-                    "gender": gender,
-                    "nationality": nationality,
-                    "region": region,
-                    "school": school,
-                    "participant_area": participant_area,
-                    "contact_with_real_patients": contact_with_real_patients,
-                },
-                "messages": chat_history or [],
-                "evaluation": eval_data,
-            }, ensure_ascii=False) + "\n")
+        if patient_id:
+            with open("./logs/clinical_encounters.jsonl", "a+", encoding='utf-8') as f:
+                f.write(json.dumps({
+                    "conversation_id": conv_id,
+                    "timestamp": timestamp,
+                    "token_id": token_id,
+                    "patient_id": patient_id,
+                    "prompt": prompt,
+                    "participant": {
+                        "age": age,
+                        "gender": gender,
+                        "nationality": nationality,
+                        "region": region,
+                        "school": school,
+                        "participant_area": participant_area,
+                        "contact_with_real_patients": contact_with_real_patients,
+                    },
+                    "messages": chat_history or [],
+                    "evaluation": eval_data,
+                }, ensure_ascii=False) + "\n")
 
         gr.Info(get_i18n_text("ChatbotFeedbackSentInfo"))
         exam_is_open, exam_text, exam_btn = reset_physical_exam(has_patient=False)
