@@ -4,13 +4,48 @@ FOOTER_LOGO_URI = "https://i.imgur.com/CiQNtey.jpeg"
 CLINICAL_CHATBOT_BACKGROUND_URI = "https://i.imgur.com/NQfqr2f.jpeg"
 CLINICAL_CHATBOT_PATIENT_WAITING_URI = "https://i.imgur.com/JDSFVDs.jpeg"
 
+# Head HTML tags to prevent unwanted browser auto-translation
+HEAD_TAGS = """
+<meta name="google" content="notranslate">
+<meta name="robots" content="notranslate">
+<script>
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('translate', 'no');
+        document.documentElement.classList.add('notranslate');
+    }
+</script>
+"""
+
 # Layout HTML components
 NAVBAR_HTML = f"""
-    <div style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; display: flex; justify-content: center; align-items: center;">
+    <div translate="no" class="notranslate" style="background-color: black; color: white; padding: 10px; margin-bottom: 30px; width: 100%; display: flex; justify-content: center; align-items: center;">
         <a href="https://edia.ngrok.app/" style="display: flex; justify-content: center; align-items: center;">
             <img src="{NAVBAR_LOGO_URI}" style="max-width: 20vw; width: 11em; height: auto; display: block;">
         </a>
     </div>
+    <script>
+        (function() {{
+            function disableTranslation() {{
+                if (typeof document !== 'undefined' && document.documentElement) {{
+                    document.documentElement.setAttribute('translate', 'no');
+                    document.documentElement.classList.add('notranslate');
+                }}
+                if (typeof document !== 'undefined') {{
+                    document.querySelectorAll('.notranslate').forEach(function(el) {{
+                        el.setAttribute('translate', 'no');
+                    }});
+                }}
+            }}
+            disableTranslation();
+            if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {{
+                var observer = new MutationObserver(disableTranslation);
+                var target = document.body || document.documentElement;
+                if (target) {{
+                    observer.observe(target, {{ childList: true, subtree: true }});
+                }}
+            }}
+        }})();
+    </script>
 """
 
 FOOTER_HTML = f"""

@@ -66,6 +66,7 @@ def interface(
                 gender = gr.Radio(
                     ["M", "F", "X"],
                     label="Seleccione su género",
+                    elem_classes=["notranslate"],
                 )
             with gr.Column():
                 with gr.Row():

@@ -15,7 +15,7 @@ import pandas as pd
 
 # --- Imports Constants ---
 from auth import SCHOOL_LIST
-from html_constants import FOOTER_HTML, NAVBAR_HTML, css
+from html_constants import FOOTER_HTML, NAVBAR_HTML, css, HEAD_TAGS
 from data.nationalities import nationalities, CVQA_SUPPORTED_NATIONALITIES
 
 # --- Imports interfaces ---
@@ -52,7 +52,7 @@ DEFAULT_CONCURRENCY_LIMIT = int(cfg['SERVER']['default_concurrency_limit']) if c
 MAX_THREADS          = int(cfg['SERVER']['max_threads'])
 
 # # --- Main App ---
-with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
+with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA", head=HEAD_TAGS) as iface:
     _ = gr.HTML(NAVBAR_HTML)
     lang = gr.Radio(
         choices=[
@@ -65,9 +65,14 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
     )
     lang.change(
         None,
-        None,
-        None,
-        js="""() => {
+        inputs=[lang],
+        outputs=None,
+        js="""(selected_lang) => {
+            if (selected_lang && typeof document !== 'undefined') {
+                document.documentElement.lang = selected_lang;
+                document.documentElement.setAttribute('translate', 'no');
+                document.documentElement.classList.add('notranslate');
+            }
             const trigger = () => window.dispatchEvent(new Event('resize'));
             [50, 150, 300, 600, 1000].forEach(d => setTimeout(trigger, d));
         }""",
@@ -106,6 +111,7 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                         label=i18n("GenderLabel"),
                         value=None,
                         visible=True,
+                        elem_classes=["notranslate"],
                     )
             with gr.Column(scale=2):
                 with gr.Group():
