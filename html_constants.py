@@ -14,7 +14,7 @@ NAVBAR_HTML = f"""
 """
 
 FOOTER_HTML = f"""
-    <div style="width: 100%; bottom: 0; left: 0; display: flex; justify-content: center; align-items: center;">
+    <div style="width: 100%; margin-top: 30px; margin-bottom: 20px; padding: 10px 0; display: flex; justify-content: center; align-items: center; clear: both;">
         <img src="{FOOTER_LOGO_URI}">
     </div>
 """
@@ -91,8 +91,38 @@ CLINICAL_CHATBOT_CSS = f"""
 #chatbot .placeholder-content {{ display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; }}
 #chatbot .placeholder {{ display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; height: 100% !important; text-align: center !important; margin: auto !important; }}
 #chatbot .placeholder * {{ text-align: center !important; margin-left: auto !important; margin-right: auto !important; }}
-#col {{ height: calc(100vh - 260px) !important; min-height: 520px !important; }}
-#end-conversation-button {{ margin-top: 8px !important; }}
+@media (min-width: 769px) {{
+  #col {{ height: calc(100vh - 240px) !important; min-height: 520px !important; }}
+  #complementary-studies-col {{
+    border: 1px solid var(--border-color-primary);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-y: auto !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+  }}
+}}
+@media (max-width: 768px) {{
+  #col {{ height: auto !important; min-height: auto !important; }}
+  #col > div {{ height: auto !important; }}
+  #chatbot {{ height: 380px !important; max-height: 50vh !important; }}
+  #complementary-studies-col {{
+    border: 1px solid var(--border-color-primary);
+    border-radius: 8px;
+    padding: 12px;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-top: 14px !important;
+    margin-bottom: 14px !important;
+    box-sizing: border-box !important;
+  }}
+}}
+#end-conversation-button {{
+  width: 100% !important;
+  margin-top: 14px !important;
+  margin-bottom: 6px !important;
+}}
 @keyframes clinical-bounce-arrow {{
   0%, 100% {{ transform: translateY(0); }}
   50% {{ transform: translateY(4px); }}
@@ -163,14 +193,6 @@ CLINICAL_CHATBOT_CSS = f"""
   background: rgba(156, 163, 175, 0.5);
   border-radius: 4px;
 }}
-#complementary-studies-col {{
-  border: 1px solid var(--border-color-primary);
-  border-radius: 8px;
-  padding: 12px;
-  overflow-y: auto !important;
-  max-height: 100% !important;
-  box-sizing: border-box !important;
-}}
 """
 
 css = f"""
@@ -195,12 +217,6 @@ font-size: 8em;
 #sample-patient-button:hover, #sample-patient-button button:hover {{
     background: #b91c1c !important;
     border-color: #b91c1c !important;
-}}
-#complementary-studies-col {{
-    border: 1px solid var(--border-color-primary);
-    border-radius: 8px;
-    padding: 12px;
-    overflow-y: auto;
 }}
 {CLINICAL_CHATBOT_CSS}
 """

@@ -4,14 +4,16 @@ en:
     
     # Global Input Labels
     Identifier: Enter your ID
+    IdentifierPlaceholder: ID
     TokenInfo: Enter the identifier provided in the workshop
     AgeLabel: Enter your age
+    AgePlaceholder: Age
     GenderLabel: Select your gender
     NationalityLabel: Where are you from?
     NationalityInfo: Select the nationalities that represent your cultural, personal, or national identity
     PersonalRegionLabel: Which region?
     isCourseParticipantLabel: Are you taking the 'AI Fundamentals course to broaden cultural horizons'?
-    isEthicaiaParticipantLabel: Are you participating in a medical patient simulation workshop (ETHICAIA)?
+    isEthicaiaParticipantLabel: Are you participating in a clinical patient simulation workshop (ETHICAIA)?
     ConsentLabel: I have read and accept the informed consent ⬇️
     PersonalDataMissingHeading: "# Enter your personal data and confirm your consent to continue."
     SchoolLabel: Select your school (See ⬇️)
@@ -195,7 +197,7 @@ en:
     ClinicalChatbotSamplePatientButton: 🔔 Call next patient
     ClinicalChatbotNewPatientToast: "🔔 {patient} has entered the room. Greet them in the chat to begin!"
     ClinicalChatbotTitle: Clinical Chatbot via EDIA
-    ClinicalChatbotDescription: "In this tab, called <b>Clinical Chatbot</b>, you can interact with simulated patients powered by artificial intelligence. Your role is to be the patients' doctor, practicing both conversational and clinical skills. Keep in mind that patients may have had previous studies, which you can explicitly request during the consultation."
+    ClinicalChatbotDescription: "In this tab, called <b>Clinical Chatbot</b>, you can interact with simulated patients powered by artificial intelligence. Your role is to attend to these patients as a healthcare professional (doctor or psychologist), practicing both conversational and clinical skills. At the end of the consultation, you will need to click 'End conversation' and complete a series of closing questions tailored to your discipline (such as presumptive diagnosis or diagnostic hypothesis, therapeutic or treatment plan, and complementary studies to request)."
     ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 The consulting room is empty</h3>Call a patient in from the waiting room to begin."
     ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Your patient is waiting</h3>Say hello to begin the consultation.<div style='margin-top: 8px;'><span class='clinical-bounce-arrow' style='display: inline-block;'>👇</span></div>"
     ClinicalChatbotSubmitButton: Send
@@ -253,14 +255,16 @@ es:
 
     # Global Input Labels
     Identifier: Ingresá tu DNI
+    IdentifierPlaceholder: DNI
     TokenInfo: Ingresá el identificador proporcionado en el taller
     AgeLabel: Ingresá tu edad
+    AgePlaceholder: Edad
     GenderLabel: Seleccioná tu género
     NationalityLabel: ¿De dónde sos?
     NationalityInfo: Seleccioná las nacionalidades que representen tu identidad cultural, personal o nacional
     PersonalRegionLabel: ¿De qué región?
     isCourseParticipantLabel: ¿Estás tomando el curso 'Fundamentos de la IA para ampliar horizontes culturales'?
-    isEthicaiaParticipantLabel: ¿Estás participando en un taller de simulación de pacientes médicos (ETHICAIA)?
+    isEthicaiaParticipantLabel: ¿Estás participando en un taller de simulación de pacientes clínicos (ETHICAIA)?
     ConsentLabel: He leído y acepto el consentimiento informado ⬇️
     PersonalDataMissingHeading: "# Ingresá tus datos personales y confirmá tu consentimiento para continuar."
     SchoolLabel: Seleccioná tu escuela (Ver ⬇️)
@@ -426,7 +430,7 @@ es:
     ClinicalChatbotParticipantAreaLabel: Seleccioná tu área de participación
     ClinicalChatbotRealPatientContactLabel: "¿Tuviste contacto con pacientes reales (últimos 6 meses)?"
     ClinicalChatbotMedicalStudent: Estudiante de medicina
-    ClinicalChatbotMedicalInTraining: Médico en formación
+    ClinicalChatbotMedicalInTraining: Médico en formación / Residente
     ClinicalChatbotPsychologyStudent: Estudiante de psicología
     ClinicalChatbotPsychologyInTraining: Lic. en psicología en formación
     ClinicalChatbotOther: Otro
@@ -439,7 +443,7 @@ es:
     ClinicalChatbotSamplePatientButton: 🔔 Llamar al próximo paciente
     ClinicalChatbotNewPatientToast: "🔔 {patient} llegó al consultorio. ¡Saludalo en el chat para comenzar la consulta!"
     ClinicalChatbotTitle: Chatbot Clínico vía EDIA
-    ClinicalChatbotDescription: "En esta pestaña, llamada <b>Chatbot Clínico</b>, podrás interactuar con diversos pacientes simulados por inteligencia artificial. Tu rol es ser el médico de estos pacientes, practicando tanto tus habilidades conversacionales como clínicas. Tené en cuenta que los pacientes pueden haber tenido estudios previos, los cuales podés solicitar explícitamente durante la consulta."
+    ClinicalChatbotDescription: "En esta pestaña, llamada <b>Chatbot Clínico</b>, podrás interactuar con diversos pacientes simulados por inteligencia artificial. Tu rol es atender a estos pacientes como profesional de la salud (médico/a o psicólogo/a), practicando tanto tus habilidades conversacionales como clínicas. Al finalizar la consulta, deberás hacer clic en «Finalizar conversación» y completar una serie de preguntas de cierre según tu disciplina (como diagnósticos presuntivos o hipótesis diagnóstica, plan terapéutico o próximos pasos, y estudios complementarios a solicitar)."
     ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 El consultorio está vacío</h3>Llamá a un paciente desde la sala de espera para comenzar."
     ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Tu paciente está esperando</h3>Saludá para comenzar la consulta.<div style='margin-top: 8px;'><span class='clinical-bounce-arrow' style='display: inline-block;'>👇</span></div>"
     ClinicalChatbotSubmitButton: Enviar
@@ -497,14 +501,16 @@ pt:
 
     # Global Input Labels
     Identifier: Digite seu CPF
+    IdentifierPlaceholder: CPF
     TokenInfo: Insira o identificador fornecido no workshop
     AgeLabel: Insira sua idade
+    AgePlaceholder: Idade
     GenderLabel: Selecione seu gênero
     NationalityLabel: De onde você é?
     NationalityInfo: Selecione as nacionalidades que representam sua identidade cultural, pessoal ou nacional
     PersonalRegionLabel: Qual região?
     isCourseParticipantLabel: Você está fazendo o curso 'Fundamentos de IA para ampliar horizontes culturais'?
-    isEthicaiaParticipantLabel: Você está participando de um workshop da simulação de pacientes médicos (ETHICAIA)?
+    isEthicaiaParticipantLabel: Você está participando de um workshop da simulação de pacientes clínicos (ETHICAIA)?
     ConsentLabel: Li e aceito o consentimento informado ⬇️
     PersonalDataMissingHeading: "# Insira seus dados pessoais e confirme seu consentimento para continuar."
     SchoolLabel: Selecione sua escola (Veja ⬇️)
@@ -688,7 +694,7 @@ pt:
     ClinicalChatbotSamplePatientButton: 🔔 Chamar o próximo paciente
     ClinicalChatbotNewPatientToast: "🔔 {patient} entrou no consultório. Cumprimente-o no chat para começar a consulta!"
     ClinicalChatbotTitle: Chatbot Clínico via EDIA
-    ClinicalChatbotDescription: "Nesta aba, chamada <b>Chatbot Clínico</b>, você poderá interagir com diversos pacientes simulados por inteligência artificial. Seu papel é ser o médico desses pacientes, praticando suas habilidades conversacionais e clínicas. Tenha em mente que os pacientes podem ter realizado estudos anteriores, que você pode solicitar explicitamente durante a consulta."
+    ClinicalChatbotDescription: "Nesta aba, chamada <b>Chatbot Clínico</b>, você poderá interagir com diversos pacientes simulados por inteligência artificial. Seu papel é atender esses pacientes como profissional de saúde (médico/a ou psicólogo/a), praticando suas habilidades conversacionais e clínicas. Ao final da consulta, você deverá clicar em «Encerrar conversa» e preencher uma série de perguntas de fechamento de acordo com sua disciplina (como diagnósticos presuntivos ou hipótese diagnóstica, plano terapêutico ou de tratamento, e exames complementares a solicitar)."
     ClinicalChatbotChatPlaceholder: "<h3>1️⃣ 🚪 O consultório está vazio</h3>Chame um paciente da sala de espera para começar."
     ClinicalChatbotChatPlaceholderPatientReady: "<h3>2️⃣ 🩺 Seu paciente está esperando</h3>Diga olá para iniciar a consulta.<div style='margin-top: 8px;'><span class='clinical-bounce-arrow' style='display: inline-block;'>👇</span></div>"
     ClinicalChatbotSubmitButton: Enviar

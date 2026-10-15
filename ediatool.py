@@ -92,11 +92,13 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
                 with gr.Group():
                     token_id = gr.Textbox(
                         label=i18n("Identifier"),
+                        placeholder=i18n("IdentifierPlaceholder"),
                         lines=1,
                     )
                     age = gr.Number(
-                        value=0,
+                        value=None,
                         label=i18n("AgeLabel"),
+                        placeholder=i18n("AgePlaceholder"),
                         visible=True,
                     )
                     gender = gr.Radio(
@@ -394,18 +396,14 @@ with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA") as iface:
         token_id, age, gender, nationality, region, is_course_participant_checkbox, school, is_ethicaia_participant_checkbox, participant_area, contact_with_real_patients_dropdown, consent_checkbox
     ):
         if any([
-            token_id is None,
-            age is None,
+            token_id is None or len(token_id) == 0,
+            age is None or age < 0 or age > 100,
             gender is None,
             nationality is None or len(nationality) == 0,
             region is None or len(region) == 0,
             is_course_participant_checkbox and school not in SCHOOL_LIST,
             is_ethicaia_participant_checkbox and (participant_area is None or contact_with_real_patients_dropdown is None),
-            consent_checkbox is None,
-            age < 0,
-            age > 100,
-            len(token_id) == 0,
-            not consent_checkbox
+            consent_checkbox is None or not consent_checkbox
         ]):
             return (
                 gr.Tabs(visible=False),

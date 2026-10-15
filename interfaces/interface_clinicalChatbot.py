@@ -593,12 +593,6 @@ def interface(
                         submit_btn=True,
                         stop_btn=None,
                     )
-                end_conversation_button = gr.Button(
-                    i18n("ClinicalChatbotEndConversationButton"),
-                    variant="stop",
-                    elem_id="end-conversation-button",
-                    visible=False,
-                )
             with gr.Column(scale=1, elem_id="complementary-studies-col"):
                 gr.Markdown("## " + i18n("ClinicalChatbotPhysicalExamTitle"))
                 physical_exam_is_open = gr.State(False)
@@ -620,6 +614,13 @@ def interface(
                 complementary_studies_text = gr.Markdown(
                     visible=False,
                     elem_id="complementary-studies-text",
+                )
+
+                end_conversation_button = gr.Button(
+                    i18n("ClinicalChatbotEndConversationButton"),
+                    variant="stop",
+                    elem_id="end-conversation-button",
+                    visible=False,
                 )
 
         ### MODAL
