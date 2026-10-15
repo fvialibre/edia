@@ -255,10 +255,10 @@ es:
 
     # Global Input Labels
     Identifier: Ingresá tu DNI
-    IdentifierPlaceholder: DNI
+    IdentifierPlaceholder: Ej. 42053097
     TokenInfo: Ingresá el identificador proporcionado en el taller
     AgeLabel: Ingresá tu edad
-    AgePlaceholder: Edad
+    AgePlaceholder: Ej. 27
     GenderLabel: Seleccioná tu género
     NationalityLabel: ¿De dónde sos?
     NationalityInfo: Seleccioná las nacionalidades que representen tu identidad cultural, personal o nacional
