@@ -43,6 +43,13 @@ Refiere ingesta de sal mayor a la recomendada y no realiza control diario de pes
 
 7. Antecedentes familiares
 Padres fallecieron desconoce los motivos. Antecedentes familiares dos hermanos con diabetes mellitus tipo 2 e hipertensión arterial. Hijos con sobrepeso e hipertensión arterial.
+
+8. Estudios Complementarios
+Electrocardiograma: Fibrilacion Auricular a 88 lpm. Ondas Q patológicas en derivaciones inferiores, compatibles con necrosis inferior antigua. Sin signos de isquemia aguda.
+Radiografía de tórax: cardiomegalia, redistribución vascular hacia vértices, aumento de la trama intersticial bibasal y pequeños derrames pleurales bilaterales.
+Laboratorio: hemoglobina 12,1 g/dL; leucocitos 7.600/mm³; plaquetas 228.000/mm³. Glucemia 178 mg/dL; HbA1c 8,2 %. Urea 48 mg/dL; creatinina 1,2 mg/dL; sodio 134 mEq/L; potasio 3,5 mEq/L. 
+Colesterol total 260 mg/Dl, HDL 40 mg/dL, Trigliceridos 190 mg/dL
+LDL: 190 md/dL.
 """
 
 physical_exam = """TA: 110/70 mmHg

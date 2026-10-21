@@ -428,11 +428,11 @@ es:
 
     # Clinical Chatbot Tab
     ClinicalChatbotParticipantAreaLabel: Seleccioná tu área de participación
-    ClinicalChatbotRealPatientContactLabel: "¿Tuviste contacto con pacientes reales (últimos 6 meses)?"
+    ClinicalChatbotRealPatientContactLabel: "¿Tuviste contacto regular con pacientes reales / guardias en los últimos 6 meses?"
     ClinicalChatbotMedicalStudent: Estudiante de medicina
-    ClinicalChatbotMedicalInTraining: Médico en formación / Residente
+    ClinicalChatbotMedicalInTraining: Médico / Residente
     ClinicalChatbotPsychologyStudent: Estudiante de psicología
-    ClinicalChatbotPsychologyInTraining: Lic. en psicología en formación
+    ClinicalChatbotPsychologyInTraining: Lic. en psicología
     ClinicalChatbotOther: Otro
     ClinicalChatbotPatientLabel: Tu paciente
     ClinicalChatbotNoPatientAssigned: Ningún paciente en la sala de consulta

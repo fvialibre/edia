@@ -38,6 +38,13 @@ No fuma. Consume alcohol ocasionalmente, principalmente fines de semana: aproxim
 
 7. Antecedentes familiares
 Madre con diabetes mellitus tipo 2 e hipertensión arterial. Padre con obesidad, fallecido a los 72 años por infarto agudo de miocardio. Tres hermanos; uno presenta obesidad severa y fue sometido a cirugía bariátrica. Niega antecedentes familiares conocidos de enfermedad tiroidea autoinmune.
+
+8. Estudios Complementarios
+Hemograma: Hb 13,7 g/dL; Hto 41 %; leucocitos 7.200/mm³; plaquetas 278.000/mm³.
+Glucemia en ayunas 116 mg/dL; HbA1c 6,1 %.
+Colesterol total 226 mg/dL; triglicéridos 238 mg/dL; HDL-c 38 mg/dL; LDL-c 140 mg/dL.
+Urea 31 mg/dL; creatinina 0,78 mg/dL. Orina completa sin proteinuria ni glucosuria. Relación albúmina/creatinina urinaria dentro de límites normales.
+ECG: ritmo sinusal, FC 72 lpm, sin alteraciones significativas del segmento ST-T.
 """
 
 physical_exam = """TA: 145/80 mmHg

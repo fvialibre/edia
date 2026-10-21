@@ -36,6 +36,12 @@ Actividad física previamente regular; suspendió las clases de aerobic por disn
 7. Antecedentes familiares
 Madre viva, con hipotiroidismo en tratamiento. Padre vivo, hipertenso en tratamiento. Dos hermanos sanos.
 Niega antecedentes familiares conocidos de anemia hereditaria, hemoglobinopatías o enfermedades hematológicas.
+
+8. Estudios Complementarios
+Hemograma: leucocitos 3,4 × 10⁹/L; neutrófilos 61 %, eosinófilos 1 %, linfocitos 32 %, monocitos 6 %.
+Eritrocitos 1,95 × 10¹²/L; hematocrito 21,5 %; hemoglobina 7,1 g/dL; VCM 110 fL; HCM 36,4 pg; CHCM 33,0 g/dL; ADE/RDW 19 %. Plaquetas 144 × 10⁹/L.
+Reticulocitos: 0,8 %
+Valor absolute: 16.000/mm³
 """
 
 physical_exam = """TA: 100/60 mmHg
@@ -67,5 +73,5 @@ Eritrocitos 1,95 × 10¹²/L; hematocrito 21,5 %; hemoglobina 7,1 g/dL; VCM 110 
 
 Reticulocitos: 0,8 % 
 
-Valor absolute: 16.000/mm³.
+Valor absolute: 16.000/mm³
 """

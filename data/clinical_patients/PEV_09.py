@@ -41,6 +41,14 @@ Actualmente no realiza actividad física programada. Antes del fallecimiento de 
 
 7. Antecedentes familiares
 No refiere antecedentes familiares conocidos de insuficiencia cardíaca precoz, cardiopatía isquémica prematura, muerte súbita ni enfermedad pulmonar crónica. Antecedentes metabólicos familiares no precisados.
+
+8. Estudios Complementarios
+Hemograma: hemoglobina 13,4 g/dL; hematocrito 40 %; leucocitos 6.700/mm³; plaquetas 248.000/mm³.
+Glucemia en ayunas: 119 mg/dL. HbA1c: 6,0 %.
+Perfil lipídico: colesterol total 244 mg/dL; LDL-colesterol 158 mg/dL; HDL-colesterol 43 mg/dL; triglicéridos 216 mg/dL.
+Función renal e ionograma: urea 30 mg/dL; creatinina 0,78 mg/dL; sodio 140 mEq/L; potasio 4,3 mEq/L.
+ECG: ritmo sinusal, 82 lpm, sin signos de hipertrofia, isquemia ni trastornos de conducción.
+Radiografía de tórax: índice cardiotorácico normal, campos pulmonares sin infiltrados ni signos de congestión.
 """
 
 physical_exam = """TA: 130/80 mmHg

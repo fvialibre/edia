@@ -38,6 +38,11 @@ Consumo de alcohol, predominantemente durante fines de semana un litro de vino t
 
 7. Antecedentes familiares
 Antecedentes familiares. Ambos padres fallecidos desconoce el motivo. Un hermano menor sano, lo frecuenta poco.
+
+8. Estudios Complementarios
+Hemograma: hemoglobina 13,5 g/dL; hematocrito 40 %; leucocitos y fórmula leucocitaria dentro de límites normales; plaquetas normales. VSG: 50 mm en la primera hora.
+Función renal, glucemia, ionograma y hepatograma: sin alteraciones relevantes. Proteinograma y pruebas de coagulación: normales.
+Espirometría: FVC 70% del valor teórico; FEV1 1,50 L (45% del teórico); relación FEV1/FVC 60%
 """
 
 physical_exam = """TA: 128/78 mmHg

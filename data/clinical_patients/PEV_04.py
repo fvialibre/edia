@@ -42,6 +42,10 @@ Sedentarismo. Alimentación con elevado contenido de sodio, carbohidratos refina
 
 7. Antecedentes familiares
 Madre fallecida por complicaciones de enfermedad renal crónica. Padre fallecido por accidente cerebrovascular. Dos hermanas con HTA y diabetes tipo 2.
+
+8. Estudios Complementarios
+Laboratorio: Hemoglobina 11,0 g/dL; hematocrito 36 %; leucocitos 7.800/mm³; plaquetas 245.000/mm³. Glucemia 160 mg/dL; HbA1c 8,5 %. Urea 75 mg/dL. Creatinina sérica: 2,8 mg/dL. Sodio 138 mEq/L; potasio 5,1 mEq/L; 
+Perfil lipídico: LDL 160 mg/dL; HDL 35 mg/dL; triglicéridos 200 mg/dL. Colesterol 260 mg/dL
 """
 
 physical_exam = """TA: 180/115 mmHg

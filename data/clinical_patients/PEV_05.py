@@ -38,6 +38,12 @@ No fuma. Consumo ocasional de alcohol: aproximadamente 1-2 unidades por semana. 
 
 7. Antecedentes familiares
 Niega antecedentes médicos conocidos.
+
+8. Estudios Complementarios
+Hemoglobina 13,2 g/dL; leucocitos 6.800/mm³; plaquetas 265.000/mm³.
+Urea 28 mg/dL; creatinina 0,72 mg/dL.
+VSG 8 mm/h; PCR 1,2 mg/L.
+Orina completa: sin alteraciones.
 """
 
 physical_exam = """TA: 112/72 mmHg

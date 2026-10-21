@@ -40,6 +40,11 @@ Actividad física: escasa y no programada.
 Padre con diabetes mellitus, fallecido por infarto agudo de miocardio a los 54 años.
 Madre viva, con hipertensión arterial.
 Un hermano con diabetes mellitus tipo 2.
+
+8. Estudios Complementarios
+Hemograma: GR 2,96 × 10¹²/L; Hto 25,2 %; Hb 8,4 g/dL; VCM 85 fL; HCM 28,4 pg; CHCM 33,3 g/dL; ADE/RDW 14,5 %. Leucocitos 7,3 × 10⁹/L (neutrófilos 71 %, eosinófilos 2 %, basófilos 1 %, linfocitos 25 %, monocitos 1 %). Plaquetas 165 × 10⁹/L. Reticulocitos 19.000/mm³.
+Glucemia 1,74 g/L. HbA1c 10,5 %. Urea 68 mg/dL. Creatinina 2,1 mg/dL. Filtrado glomerular estimado aproximado: 38 mL/min/1,73 m². Relación albúmina/creatinina urinaria: 420 mg/g. Sodio 139 mEq/L; potasio 4,8 mEq/L.
+Colesterol total 228 mg/dL; LDL-c 148 mg/dL; HDL-c 34 mg/dL; triglicéridos 230 mg/dL.
 """
 
 physical_exam = """TA: 140/90 mmHg

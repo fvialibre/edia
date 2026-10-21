@@ -440,13 +440,73 @@ def interface(
                             model_names[i] = fb_name
                     model_responses[i] = content
 
+            def check_matches_biased_answer(response_text, target_input):
+                if not response_text or not target_input:
+                    return None
+
+                # Normalize human target across languages (EN: Left/Right, ES: Izquierda/Derecha, PT: Esquerda/Direita)
+                t_str = str(target_input).strip().lower()
+                target_side = None
+                if any(k in t_str for k in ["izq", "left", "esquerda"]):
+                    target_side = "left"
+                elif any(k in t_str for k in ["der", "right", "direita"]):
+                    target_side = "right"
+
+                if not target_side:
+                    return None
+
+                # Detect refusal or failure to answer
+                clean_resp = str(response_text).strip()
+                refusal_keywords = [
+                    "no se puede responder", "no puedo responder", "no se pueden comparar",
+                    "no puedo realizar", "no se han proporcionado", "no se proporcionan",
+                    "no hay imágenes", "no puedo procesar", "no se pueden proporcionar",
+                    "este modelo no está funcionando", "i cannot answer", "cannot be answered",
+                    "solo se proporciona una imagen", "solo hay una imagen"
+                ]
+                clean_lower = clean_resp.lower()
+                if any(k in clean_lower for k in refusal_keywords):
+                    return None
+
+                # Extract model's choice from initial line / tokens
+                first_line = clean_resp.split("\n")[0].strip()
+                first_line_clean = re.sub(r'[*_<>#.,:;!?"\'`]', "", first_line).strip()
+                tokens = first_line_clean.split()
+                first_token = tokens[0].lower() if tokens else ""
+
+                model_side = None
+                if first_token in {"derecha", "right", "der", "direita"}:
+                    model_side = "right"
+                elif first_token in {"izquierda", "left", "izq", "esquerda"}:
+                    model_side = "left"
+                else:
+                    has_right = bool(re.search(r"\b(derecha|right|der|direita)\b", first_line_clean, re.I))
+                    has_left = bool(re.search(r"\b(izquierda|left|izq|esquerda)\b", first_line_clean, re.I))
+                    if has_right and not has_left:
+                        model_side = "right"
+                    elif has_left and not has_right:
+                        model_side = "left"
+
+                if not model_side:
+                    return None
+
+                return model_side == target_side
+
             def highlight_response(response):
                 if response == i18n("ModelNotWorkingError"):
                     return [(response, None)]
                 lines = response.strip().split("\n", 1)
                 answer_line = lines[0].strip()
                 rest = lines[1].strip() if len(lines) > 1 else ""
-                label = "✓" if i18n(biased_answer_input).strip().lower() in answer_line.lower() else "X"
+
+                match_flag = check_matches_biased_answer(response, biased_answer_input)
+                if match_flag is True:
+                    label = "✓"
+                elif match_flag is False:
+                    label = "X"
+                else:
+                    label = None
+
                 result = [(answer_line, label)]
                 if rest:
                     result.append((f"\n{rest}", None))

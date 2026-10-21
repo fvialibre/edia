@@ -41,7 +41,11 @@ Actividad física: sedentario en los últimos 3 años.
 7. Antecedentes familiares
 Dos hijos varones cree que sanos. No viven en Córdoba.
 Padres fallecieron y desconoce la causa.
-Hermanos dos. Un varón y una mujer. Cree que tienen diabetes. 
+Hermanos dos. Un varón y una mujer. Cree que tienen diabetes.
+
+8. Estudios Complementarios
+Electrocardiograma de reposo: Ritmo sinusal a 82 lpm, extrasístoles supraventriculares aisladas. Sin alteraciones isquémicas agudas del segmento ST-T.
+Laboratorio: Hemoglobina 14,7 g/dL; leucocitos 7.800/mm³; plaquetas 248.000/mm³. Glucemia en ayunas 156 mg/dL; HbA1c 8,8 %. Creatinina 0,96 mg/dL. AST 31 U/L, ALT 38 U/L. Colesterol total 247 mg/dL; LDL-c 164 mg/dL; HDL-c 36 mg/dL; triglicéridos 236 mg/dL.
 """
 
 physical_exam = """TA: 150/100 mmHg

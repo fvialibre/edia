@@ -38,6 +38,11 @@ Consume aproximadamente medio vaso de vino tinto con el almuerzo y medio vaso co
 
 7. Antecedentes familiares
 Un hermano con antecedente de cáncer de recto, tratado quirúrgicamente, portador de colostomía permanente.
+
+8. Estudios Complementarios
+Hemograma: eritrocitos 3,60 × 10¹²/L; hemoglobina 5,9 g/dL; hematocrito 22,6 %; VCM 62,7 fL; HCM 16,4 pg; CHCM 26,1 g/dL; ADE/RDW 20,2 %. Frotis: microcitosis, hipocromía marcada, anisocitosis y poiquilocitosis. Leucocitos 6,4 × 10⁹/L (neutrófilos segmentados 62 %, cayados 4 %, eosinófilos 1 %, linfocitos 30 %, monocitos 3 %). Plaquetas 542 × 10⁹/L.
+Reticulocitos: 80.000/mm³; respuesta reticulocitaria inapropiadamente baja para el grado de anemia.
+Metabolismo del hierro: ferremia 23 µg/dL (disminuida); transferrina 468 mg/dL (elevada); saturación de transferrina 6 % (disminuida); ferritina 6 ng/mL (disminuida).
 """
 
 physical_exam = """TA: 110/70 mmHg
