@@ -10,6 +10,8 @@ import json
 from datetime import datetime
 import os
 from dotenv import dotenv_values
+from google import genai
+from google.genai.types import GenerateContentConfig, Content, Part
 from data.clinical_patients.clinical_prompts import clinical_patients
 from html_constants import (
     HTML_FEEDBACK_TITLE,
@@ -145,6 +147,43 @@ def interface(
         model="vllm/gemma4-26b",
     )
 
+    gcp_client = None
+    gcp_model = "gemini-3.8-flash"
+    if genai is not None:
+        try:
+            gcp_client = genai.Client(
+                vertexai=True,
+                project=secrets.get("GCP_PROJECT_ID", "shruti-credits"),
+            )
+        except Exception as e:
+            print(f"Error initializing GCP fallback client: {e}")
+
+    def invoke_gcp_fallback(system_prompt, messages, temperature=1.0):
+        if gcp_client is None:
+            raise RuntimeError("GCP fallback client is not available.")
+        contents = []
+        for msg in messages:
+            role = msg.get("role")
+            if role == "system":
+                continue
+            gcp_role = "model" if role in ("assistant", "ai", "model") else "user"
+            contents.append(
+                Content(
+                    role=gcp_role,
+                    parts=[Part.from_text(text=str(msg.get("content", "")))],
+                )
+            )
+        config = GenerateContentConfig(
+            system_instruction=system_prompt or None,
+            temperature=temperature,
+        )
+        response = gcp_client.models.generate_content(
+            model=gcp_model,
+            contents=contents,
+            config=config,
+        )
+        return {"content": response.text or ""}, gcp_model
+
     def log_clinical_action(action, conversation_id, token_id, patient_id):
         try:
             with open("./logs/logs_clinical_chatbot_actions.jsonl", "a+", encoding="utf-8") as f:
@@ -195,7 +234,13 @@ def interface(
                     messages.append({"role": "assistant", "content": ai})
         messages.append({"role": "user", "content": message})
 
-        model_response = llm.invoke(messages, temperature=temperature)
+        try:
+            # raise RuntimeError("Simulated LLM failure for testing fallback.")
+            model_response = llm.invoke(messages, temperature=temperature)
+            used_model = llm.model
+        except Exception as e:
+            print(f"Primary LLM ({llm.model}) failed: {e}. Falling back to GCP ({gcp_model}).")
+            model_response, used_model = invoke_gcp_fallback(prompt, messages, temperature=temperature)
         response_content = model_response["content"]
 
         conv_id = str(conversation_id) if conversation_id else str(uuid.uuid4())
@@ -219,7 +264,8 @@ def interface(
                 "response": response_content,
                 "history": history,
                 "current_prompt": prompt,
-                "temperature": temperature
+                "temperature": temperature,
+                "model": used_model,
             }, ensure_ascii=False) + "\n")
         return response_content
     

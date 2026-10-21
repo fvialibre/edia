@@ -48,7 +48,7 @@ class ModelWrapper:
             "messages": messages,
             "temperature": temperature
         }
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=45)
         response.raise_for_status()
         resp_json = response.json()
         if "choices" in resp_json and len(resp_json["choices"]) > 0:
