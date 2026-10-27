@@ -1,6 +1,5 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import CrowsPairsExplorerConnector
 
 
@@ -8,7 +7,8 @@ from modules.module_connection import CrowsPairsExplorerConnector
 def interface(
     language_model: str, 
     available_logs: bool, 
-    lang: str="es"
+    lang: str="es",
+    user_email: str="",
 ) -> gr.Blocks:
 
     # -- Load examples --
@@ -36,6 +36,10 @@ def interface(
     )
 
     with iface:
+        token_id = gr.Textbox(
+            value=user_email,
+            visible=False
+        )
         with gr.Row():
             gr.Markdown(
                 value=labels["title"]
@@ -73,11 +77,16 @@ def interface(
                     )
 
         with gr.Row():  
-            btn = gr.Button(
-                value=labels["compareButton"]
-            )
+            with gr.Group():
+                btn = gr.Button(
+                    value=labels["compareButton"]
+                )
+                highlight_query = gr.Checkbox(
+                    label=labels['highlight_query'],
+                    value=False
+                )
         with gr.Row():  
-            out_msj = gr.Markdown(
+            out_msj = gr.HTML(
                 value=""
             )
         
@@ -99,18 +108,15 @@ def interface(
             examples = gr.Examples(
                 inputs=[sent0, sent1, sent2, sent3, sent4, sent5],
                 examples=examples_crows_pairs,
-                label=labels["examples"]
-            )
-
-        with gr.Row(): 
-            gr.Markdown(
-                value=TOOL_INFO
+                label=labels["examples"],
+                elem_id="examples",
             )
 
         btn.click(  
             fn=connector.compare_sentences,
-            inputs=[sent0, sent1, sent2, sent3, sent4, sent5],
-            outputs=[out_msj, out, dummy]
+            inputs=[sent0, sent1, sent2, sent3, sent4, sent5, token_id, highlight_query],
+            outputs=[out_msj, out, dummy],
+            api_name="crows_pairs"
         )
-    
+
     return iface

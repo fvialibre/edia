@@ -1,8 +1,11 @@
 import copy
+import cohere
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+from dotenv import dotenv_values
 from sklearn.decomposition import PCA
 from typing import List, Dict, Tuple, Optional, Any, Callable
 from modules.utils import normalize, cosine_similarity, project_params, take_two_sides_extreme_sorted, axes_labels_format
@@ -89,6 +92,21 @@ class WordBiasExplorer:
         pca.fit(matrix)
         return pca
 
+    def _get_cohere_embeddings(
+        self,
+        words: List[str],
+        model_name: str,
+    ):
+        COHERE_API_KEY = dotenv_values("./.env")['COHERE_API_KEY']
+        co = cohere.Client(COHERE_API_KEY)
+        model_dict = {
+            "Cohere Multilingual": "embed-multilingual-v3.0",
+        }
+
+        response = co.embed(
+            texts=words, model=model_dict[model_name], input_type="clustering"
+        )
+        return response.embeddings
 
     def _identify_direction(
         self, 
@@ -96,6 +114,7 @@ class WordBiasExplorer:
         negative_end: str,
         definitional: Tuple[List[str], List[str]], 
         method: str='pca',
+        model_name: str='BETO',
         first_pca_threshold: float=0.5
     ) -> None:
 
@@ -123,10 +142,14 @@ class WordBiasExplorer:
                                   - normalize(self[right_word_definitional]))
 
         elif method == 'sum':
-            group1_sum_vector = np.sum([self[word]
-                                        for word in definitional[0]], axis=0)
-            group2_sum_vector = np.sum([self[word]
-                                        for word in definitional[1]], axis=0)
+            if model_name == 'BETO':
+                group1_sum_vector = np.sum([self[word]
+                                            for word in definitional[0]], axis=0)
+                group2_sum_vector = np.sum([self[word]
+                                            for word in definitional[1]], axis=0)
+            else:
+                group1_sum_vector = np.sum(self._get_cohere_embeddings(definitional[0], model_name), axis=0)
+                group2_sum_vector = np.sum(self._get_cohere_embeddings(definitional[1], model_name), axis=0)
 
             diff_vector = (normalize(group1_sum_vector)
                            - normalize(group2_sum_vector))
@@ -160,6 +183,7 @@ class WordBiasExplorer:
     def project_on_direction(
         self, 
         word: str,
+        model_name: str,
     ) -> float:
 
         """Project the normalized vector of the word on the direction.
@@ -168,8 +192,11 @@ class WordBiasExplorer:
         """
 
         self._is_direction_identified()
-
-        vector = self[word]
+        if model_name == 'BETO':
+            vector = self[word]
+        else:
+            vector = self._get_cohere_embeddings([word], model_name)[0]
+        
         projection_score = self.embedding.cosineSimilarities(self.direction,
                                                           [vector])[0]
         return projection_score
@@ -177,7 +204,8 @@ class WordBiasExplorer:
     def _calc_projection_scores(
         self, 
         words: List[str],
-        projection_func: Callable[[str, np.ndarray], float]=None
+        projection_func: Callable[[str, np.ndarray], float]=None,
+        model_name: str='BETO'
     ) -> pd.DataFrame:
 
         self._is_direction_identified()
@@ -185,7 +213,7 @@ class WordBiasExplorer:
         df = pd.DataFrame({'word': words})
 
         if projection_func is None:
-            df['projection'] = df['word'].apply(self.project_on_direction)
+            df['projection'] = df['word'].apply(self.project_on_direction, model_name=model_name)
         else:
             df['projection'] = df['word'].apply(lambda word: projection_func(word, self.direction))
         
@@ -298,6 +326,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         wordlist_to_diagnose: List[str],
         wordlist_right: List[str],
         wordlist_left: List[str],
+        model_name: str,
         method: str='sum',
         projection_func: Callable[[str, np.ndarray], float]=None
     ) -> plt.Figure:
@@ -317,7 +346,8 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
                 definitional=(wordlist_right, wordlist_left),
                 method=method,
                 n_extreme=10,
-                projection_func=projection_func
+                projection_func=projection_func,
+                model_name=model_name
             )
 
     def get_bias_plot(
@@ -327,6 +357,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         method: str='sum',
         n_extreme: int=10,
         projection_func: Callable[[str, np.ndarray], float]=None,
+        model_name: str='BETO',
         figsize: Tuple[int, int]=(10, 10)
     ) -> plt.Figure:
 
@@ -338,7 +369,9 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
             n_extreme, 
             ax=ax,
             method=method,
-            projection_func=projection_func)
+            projection_func=projection_func,
+            model_name=model_name
+        )
 
         fig.tight_layout()
         fig.canvas.draw()
@@ -353,7 +386,8 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         ax: plt.Axes=None, 
         axis_projection_step: float=None,
         method: str='sum',
-        projection_func: Callable[[str, np.ndarray], float]=None
+        projection_func: Callable[[str, np.ndarray], float]=None,
+        model_name: str='BETO'
     ) -> plt.Axes:
 
         """Plot the projection scalar of words on the direction.
@@ -366,11 +400,10 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
 
         self._identify_direction(name_left, name_right,
                                  definitional=definitional,
-                                 method=method)
-
+                                 method=method, model_name=model_name)
         self._is_direction_identified()
 
-        projections_df = self._calc_projection_scores(words, projection_func)
+        projections_df = self._calc_projection_scores(words, projection_func, model_name)
         projections_df['projection'] = projections_df['projection'].round(2)
 
         if n_extreme is not None:
@@ -383,7 +416,12 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
         if axis_projection_step is None:
             axis_projection_step = 0.1
 
-        cmap = plt.get_cmap('RdBu')
+        # Define the colors
+        colors = ['#A79E3F','#FAFAFA','#4B3887']
+
+        # Create the colormap
+        cmap_name = 'custom_cmap'
+        cmap = LinearSegmentedColormap.from_list(cmap_name, colors)
         projections_df['color'] = ((projections_df['projection'] + 0.5)
                                    .apply(cmap))
 
@@ -393,13 +431,18 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
             .max(),
             decimals=1)
 
-        sns.barplot(x='projection', y='word', data=projections_df,
-                    palette=projections_df['color'])
+        sns.barplot(
+            x='projection', 
+            y='word', 
+            data=projections_df,
+            palette=projections_df['color'].tolist(),
+            hue='word',
+            legend=False
+        )
 
         plt.xticks(np.arange(-most_extream_projection,
                              most_extream_projection + axis_projection_step,
                              axis_projection_step))
-
 
         xlabel = axes_labels_format(
             left=self.negative_end,
@@ -408,7 +451,7 @@ class WEBiasExplorer2Spaces(WordBiasExplorer):
             word_wrap=3
         )
 
-        plt.xlabel(xlabel)
+        plt.xlabel(xlabel, fontweight='bold', fontstyle='italic')
         plt.ylabel('Words')
 
         return ax

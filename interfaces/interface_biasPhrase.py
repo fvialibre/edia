@@ -1,13 +1,18 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import PhraseBiasExplorerConnector
 
 
 def interface(
-    language_model: str, 
+    token_id,
+    school,
+    age,
+    gender,
+    consent_checkbox,
+    spanish_language_model: str,
+    english_language_model: str,
     available_logs: bool, 
-    lang: str="es"
+    lang: str="es",
 ) -> gr.Blocks:
 
     # -- Load examples --
@@ -19,7 +24,8 @@ def interface(
 
     # --- Init vars ---
     connector = PhraseBiasExplorerConnector(
-        language_model=language_model,
+        spanish_language_model=spanish_language_model,
+        english_language_model=english_language_model,
         lang=lang,
         logs_file_name=f"logs_edia_lmodels_biasphrase_{lang}" if available_logs else None
     )
@@ -37,90 +43,116 @@ def interface(
     with iface:
         with gr.Row():
             with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step1"]
-                    )
+                model_name = gr.Radio(
+                    labels["language_options"],
+                    value=labels["language_options"][0],
+                    info=labels["languagemodel"],
+                    container=False,
+                    interactive=True,
+                )
+                with gr.Row():
                     sent = gr.Textbox(
-                        label=labels["sent"]["title"],
-                        placeholder=labels["sent"]["placeholder"],
-                        show_label=False
+                        lines=2,
+                        label=labels["step1"],
+                        info=labels["step1_info"],
+                        placeholder=labels["step1_placeholder"],
                     )
-                    
-                    gr.Markdown(
-                        value=labels["step2"]
-                    )
+                with gr.Row():
                     word_list = gr.Textbox( 
-                        label=labels["wordList"]["title"], 
-                        placeholder=labels["wordList"]["placeholder"],
-                        show_label=False
+                        lines=2,
+                        label=labels["step2"],
+                        info=labels["step2_info"],
+                        placeholder=labels["step2_placeholder"],
                     )
-                    
-                    with gr.Group():
-                        gr.Markdown(
-                            value=labels["step3"]
-                        )
-                        banned_word_list = gr.Textbox( 
-                            label=labels["bannedWordList"]["title"], 
-                            placeholder=labels["bannedWordList"]["placeholder"]
-                        )
-                        with gr.Row():
-                            with gr.Row(): 
-                                articles = gr.Checkbox(
-                                    label=labels["excludeArticles"], 
-                                    value=False
-                                )
-                            with gr.Row(): 
-                                prepositions = gr.Checkbox(
-                                    label=labels["excludePrepositions"], 
-                                    value=False
-                                )
-                            with gr.Row(): 
-                                conjunctions = gr.Checkbox(
-                                    label=labels["excludeConjunctions"], 
-                                    value=False
-                                )
 
-                with gr.Row(): 
-                    btn = gr.Button(
-                        value=labels["resultsButton"]
+                highlight_query = gr.Checkbox(
+                    label=labels['highlight_query'],
+                    value=False,
+                    visible=False
+                )
+                with gr.Row():
+                    type_of_bias_explored = gr.Dropdown(
+                        choices=labels["choices"],
+                        label=labels["type_of_bias_explored_label"],
+                        info=labels["type_of_bias_explored_info"],
+                        multiselect=True,
+                        allow_custom_value=True
                     )
+                
+                gr.Markdown(
+                    value=labels["step3"],
+                    visible=False,
+                )
+                banned_word_list = gr.Textbox( 
+                    label=labels["bannedWordList"]["title"], 
+                    placeholder=labels["bannedWordList"]["placeholder"],
+                    visible=False,
+                )
+                with gr.Row():
+                    with gr.Row(): 
+                        articles = gr.Checkbox(
+                            label=labels["excludeArticles"], 
+                            value=False,
+                            visible=False,
+                        )
+                    with gr.Row(): 
+                        prepositions = gr.Checkbox(
+                            label=labels["excludePrepositions"], 
+                            value=False,
+                            visible=False,
+                        )
+                    with gr.Row(): 
+                        conjunctions = gr.Checkbox(
+                            label=labels["excludeConjunctions"], 
+                            value=False,
+                            visible=False,
+                        )
+
+                with gr.Row():
+                    with gr.Group():
+                        btn = gr.Button(
+                            value=labels["resultsButton"]
+                        )
 
             with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["plot"]
-                    )
-                    dummy = gr.CheckboxGroup(
-                        value="", 
-                        show_label=False, 
-                        choices=[]
-                    )
-                    out = gr.HTML(
-                        label=""
-                    )
-                    out_msj = gr.Markdown(
-                        value=""
-                    )
-        
+                gr.Markdown(
+                    value=labels["plot"]
+                )
+                out = gr.HTML(
+                    label="",
+                )
+                out_msj = gr.HTML(
+                    value="",
+                )
+
         with gr.Row():
-            examples = gr.Examples(
-                fn=connector.rank_sentence_options,
+            _ = gr.Examples(
                 inputs=[sent, word_list],
-                outputs=[out, out_msj],
                 examples=examples_sesgos_frases,
-                label=labels["examples"]
+                label=labels["examples"],
+                elem_id="examples"
             )
 
-        with gr.Row(): 
-            gr.Markdown(
-                value=TOOL_INFO
-            )
-
-        btn.click(  
+        btn.click(
             fn=connector.rank_sentence_options,
-            inputs=[sent, word_list, banned_word_list, articles, prepositions, conjunctions], 
-            outputs=[out_msj, out, dummy]
+            inputs=[
+                sent, 
+                word_list, 
+                banned_word_list, 
+                articles, 
+                prepositions, 
+                conjunctions,
+                token_id,
+                school,
+                age,
+                gender,
+                consent_checkbox,
+                highlight_query,
+                type_of_bias_explored,
+                model_name,
+            ], 
+            outputs=[out_msj, out],
+            api_name="bias_phrase"
         )
-    
+
     return iface

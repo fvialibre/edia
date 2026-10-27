@@ -1,15 +1,14 @@
 import gradio as gr
 import pandas as pd
-from tool_info import TOOL_INFO
 from modules.module_connection import Word2ContextExplorerConnector
-
+from auth import school_list
 
 def interface(
     vocabulary, # Vocabulary class instance
     contexts: str,
     available_logs: bool,
     available_wordcloud: bool,
-    lang: str="es"
+    lang: str="es",
 ) -> gr.Blocks:
 
     # --- Init Class ---
@@ -32,84 +31,104 @@ def interface(
 
     with iface:
         with gr.Row():
+            with gr.Column(scale=30):
+                token_id = gr.Textbox(
+                    label="Escriba su correo electrónico",
+                    lines=1,
+                )
+            with gr.Column(scale=70):
+                with gr.Row():
+                    with gr.Column():
+                        school = gr.Number(
+                            value=0,
+                            label="Seleccione el identificador de su escuela (Ver ➡️)",
+                        )
+                        school_name = gr.HTML(
+                            value=f"<p>No seleccionaste ningún colegio</p>",
+                        )
+                    with gr.Column():
+                        _ = gr.HTML(
+                            value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                        )
+        with gr.Row():
             with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step1"]
+                age = gr.Number(
+                    value=0,
+                    label="Seleccione su edad",
+                )
+            with gr.Column():
+                gender = gr.Radio(
+                    ["M", "F", "X"],
+                    label="Seleccione su género",
+                    elem_classes=["notranslate"],
+                )
+            with gr.Column():
+                with gr.Row():
+                    consent_checkbox = gr.Checkbox(
+                        label='He leído y acepto el consentimiento informado ➡️',
+                        value=False
                     )
-                    with gr.Row(): 
-                        input_word = gr.Textbox(
-                            label=labels["inputWord"]["title"], 
-                            show_label=False, 
-                            placeholder=labels["inputWord"]["placeholder"]
-                        )
-                    with gr.Row(): 
-                        btn_get_w_info = gr.Button(
-                            value=labels["wordInfoButton"]
-                        )
-
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step2"]
+                    _ = gr.HTML(
+                        value="<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
                     )
+        with gr.Row():
+            with gr.Column():
+                model_name = gr.Radio(
+                    ["Modelo en español"],
+                    value="Modelo en español",
+                    info="Elegí un modelo de lenguaje.",
+                    container=False,
+                    interactive=True,
+                )
+                with gr.Row(): 
+                    input_word = gr.Textbox(
+                        label=labels["step1"], 
+                        info=labels["step1_info"],
+                        placeholder=labels["inputWord"]["placeholder"],
+                    )
+                with gr.Row(): 
+                    btn_get_w_info = gr.Button(
+                        value=labels["wordInfoButton"]
+                    )
+                with gr.Row():
                     n_context = gr.Slider(
-                        label="", 
+                        label=labels["step2"], 
+                        info=labels["step2_info"],
                         step=1, minimum=1, maximum=30, value=5, 
                         visible=True, 
-                        interactive=True
+                        interactive=True,
                     )
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["step3"]
-                    )
+                with gr.Row():
                     subsets_choice = gr.CheckboxGroup(
-                        label="Conjuntos",
-                        show_label=False,
+                        label=labels["step3"],
+                        info=labels["step3_info"],
                         interactive=True, 
                         visible=True
                     )
-                    with gr.Row(): 
+                with gr.Group():
+                    with gr.Row():
                         btn_get_contexts = gr.Button(
                             value=labels["wordContextButton"], 
                             visible=True
                         )
-                
+                    with gr.Row():
+                        highlight_query = gr.Checkbox(
+                            label=labels['highlight_query'],
+                            value=False,
+                            visible=False
+                        )
+
                 with gr.Row(): 
-                    out_msj = gr.Markdown(
+                    out_msj = gr.HTML(
                         label="", 
                         visible=True
                     )
 
-            with gr.Column():
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["wordDistributionTitle"]
-                    )
-                    dist_plot = gr.Plot(
-                        label="", 
-                        show_label=False
-                    )
-                    wc_plot = gr.Plot(
-                        label="", 
-                        show_label=False, 
-                        visible=available_wordcloud
-                    )
-
-                with gr.Group():
-                    gr.Markdown(
-                        value=labels["frequencyPerSetTitle"]
-                    )
-                    subsets_freq = gr.HTML(
-                        label=""
-                    )
-    
-        with gr.Row():
-            with gr.Group():
-                with gr.Row(): 
+                with gr.Row():
                     gr.Markdown(
                         value=labels["contextList"]
                     )
-                with gr.Row(): 
+                with gr.Row():
                     out_context = gr.Dataframe(
                         label="", 
                         interactive=False, 
@@ -118,10 +137,64 @@ def interface(
                         datatype=['str','markdown','str','markdown']
                     )
 
+            with gr.Column():
+                gr.Markdown(
+                    value=labels["wordDistributionTitle"]
+                )
+                dist_plot = gr.Plot(
+                    label="", 
+                    show_label=False
+                )
+                wc_plot = gr.Plot(
+                    label="", 
+                    show_label=False, 
+                    visible=available_wordcloud
+                )
+
+                gr.Markdown(
+                    value=labels["frequencyPerSetTitle"]
+                )
+                subsets_freq = gr.HTML(
+                    label=""
+                )
+        
         with gr.Group():
-            gr.Markdown(
-                value=TOOL_INFO
-            )
+            with gr.Row():
+                btn_get_logs = gr.Button(
+                    value=labels["see_queries_made"]
+                )
+            with gr.Row():
+                df_get_logs = gr.DataFrame(
+                    value=pd.DataFrame([], columns=['']),
+                    label=None
+                )
+
+        def update_school_name(school):
+            if school is None or school == 0:
+                return (
+                    gr.HTML(
+                        value=f"<p>No seleccionaste ningún colegio</p>",
+                    )
+                )
+            elif school not in school_list:
+                return (
+                    gr.HTML(
+                        value=f"<p>El colegio seleccionado no existe</p>",
+                    )
+                )
+            else:
+                return (
+                    gr.HTML(
+                        value=f"<p>Seleccionaste: {school_list[school]}</p>",
+                    )
+                )
+        school.change(
+            fn=update_school_name,
+            inputs=[
+                school
+            ],
+            outputs=[school_name])
+
 
         btn_get_w_info.click( 
             fn=connector.get_word_info, 
@@ -132,13 +205,38 @@ def interface(
                     dist_plot,
                     wc_plot,
                     subsets_choice
-            ]
+            ],
+            api_name='word_info'
         )
         
         btn_get_contexts.click(
             fn=connector.get_word_context, 
-            inputs=[input_word, n_context, subsets_choice], 
-            outputs=[out_msj, out_context]
+            inputs=[
+                input_word,
+                n_context,
+                subsets_choice,
+                token_id,
+                school,
+                age,
+                gender,
+                consent_checkbox,
+                highlight_query,
+                model_name
+            ], 
+            outputs=[out_msj, out_context],
+            api_name='word_contexts'
         )
-    
+
+        btn_get_logs.click(
+            fn=connector.get_logs,
+            inputs=[
+                token_id,
+                gr.Textbox(
+                    value=f"logs_edia_datos_{lang}" if available_logs else None,
+                    visible=False
+                )
+            ],
+            outputs=[out_msj, df_get_logs],
+        )
+
     return iface

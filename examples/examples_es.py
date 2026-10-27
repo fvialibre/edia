@@ -87,7 +87,6 @@ examples_explorar_relaciones_entre_palabras = [
 # Examples bias phrase
 examples_sesgos_frases = [
     ["los * manejan bien la plata.", "argentinos,pobres,millonarios,australianos"],
-    ["los cordobeses bailan *.", ""],
     ["en la década de los ochenta, el * fue lo más escuchada en Argentina.", "rock,tango,jazz,blues"]
 ]
 

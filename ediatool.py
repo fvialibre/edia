@@ -1,0 +1,458 @@
+# --- Imports libs ---
+import configparser
+import json
+import os
+import warnings
+from datetime import datetime
+
+# Filter premature Gradio 6.0 deprecation warnings for theme/css in Blocks constructor
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*parameter in the Blocks constructor will be removed in Gradio 6.0.*")
+
+import gradio as gr
+import yaml
+from gradio_i18n import Translate, gettext as i18n
+import pandas as pd
+
+# --- Imports Constants ---
+from auth import SCHOOL_LIST
+from html_constants import FOOTER_HTML, NAVBAR_HTML, css, HEAD_TAGS
+from data.nationalities import nationalities, CVQA_SUPPORTED_NATIONALITIES
+
+# --- Imports interfaces ---
+from interfaces.interface_chatbot import interface as interface_chatbot
+from interfaces.interface_validator import interface as interface_validator
+from interfaces.interface_cvqa import interface as interface_cvqa
+from interfaces.interface_typicalPhrases import interface as interface_typicalPhrases
+from interfaces.interface_typicalPhrasesValidator import interface as interface_typicalPhrasesValidator
+from interfaces.interface_ambiguousReferences import interface as interface_ambiguousReferences
+from interfaces.interface_logsData import interface as interface_logsData
+from interfaces.interface_clinicalChatbot import interface as interface_clinicalChatbot
+from modules.utils import parse_cmd_line_args
+
+# --- Tool config ---
+cmd_line_args = parse_cmd_line_args()
+cfg = configparser.ConfigParser()
+cfg.read('tool.cfg')
+
+LANGUAGE                = cfg['INTERFACE']['language']
+EMBEDDINGS_PATH         = cfg['WORD_EXPLORER']['embeddings_path']
+NN_METHOD               = cfg['WORD_EXPLORER']['nn_method']
+MAX_NEIGHBORS           = int(cfg['WORD_EXPLORER']['max_neighbors'])
+CONTEXTS_DATASET        = cfg['DATA']['contexts_dataset']
+VOCABULARY_SUBSET       = cfg['DATA']['vocabulary_subset']
+AVAILABLE_WORDCLOUD     = cfg['DATA'].getboolean('available_wordcloud')
+SPANISH_LANGUAGE_MODEL  = cfg['LMODEL']['spanish_language_model']
+ENGLISH_LANGUAGE_MODEL  = cfg['LMODEL']['english_language_model']
+AVAILABLE_LOGS          = cfg['LOGS'].getboolean('available_logs')
+EDIA_THEME              = gr.themes.Base.from_hub('guidoivetta/edia-theme')
+
+# Server
+QUEUE_MAX_SIZE       = int(cfg['SERVER']['queue_max_size']) if cfg['SERVER']['queue_max_size'] != 'None' else None
+DEFAULT_CONCURRENCY_LIMIT = int(cfg['SERVER']['default_concurrency_limit']) if cfg['SERVER']['default_concurrency_limit'] != 'None' else None
+MAX_THREADS          = int(cfg['SERVER']['max_threads'])
+
+# # --- Main App ---
+with gr.Blocks(theme=EDIA_THEME, css=css, title="EDIA", head=HEAD_TAGS) as iface:
+    _ = gr.HTML(NAVBAR_HTML)
+    lang = gr.Radio(
+        choices=[
+            ("English", "en"),
+            ("Español", "es"),
+            ("Português", "pt"),
+        ],
+        value="es",
+        label="Interface Language / Idioma de Interfaz / Idioma da Interface",
+    )
+    lang.change(
+        None,
+        inputs=[lang],
+        outputs=None,
+        js="""(selected_lang) => {
+            if (selected_lang && typeof document !== 'undefined') {
+                document.documentElement.lang = selected_lang;
+                document.documentElement.setAttribute('translate', 'no');
+                document.documentElement.classList.add('notranslate');
+            }
+            const trigger = () => window.dispatchEvent(new Event('resize'));
+            [50, 150, 300, 600, 1000].forEach(d => setTimeout(trigger, d));
+        }""",
+    )
+    with open("language/i18n.yaml", "r", encoding="utf-8") as _f:
+        _i18n_dict = yaml.safe_load(_f)
+    from gradio_i18n.i18n import TranslateContext
+    TranslateContext.set_available_languages(["en", "pt", "es"])
+    TranslateContext.add_translation(_i18n_dict)
+    with Translate(
+        _i18n_dict,
+        lang,
+        placeholder_langs=["en", "pt", "es"],
+    ):
+        _ = gr.Markdown(
+            "# " + i18n("AppTitle") + "\n\n" +
+            i18n("AppDescription"),
+            elem_id="app-title"
+        )
+        with gr.Row(equal_height=False, variant="panel"):
+            with gr.Column(scale=1, min_width=200):
+                with gr.Group():
+                    token_id = gr.Textbox(
+                        label=i18n("Identifier"),
+                        placeholder=i18n("IdentifierPlaceholder"),
+                        lines=1,
+                    )
+                    age = gr.Number(
+                        value=None,
+                        label=i18n("AgeLabel"),
+                        placeholder=i18n("AgePlaceholder"),
+                        visible=True,
+                    )
+                    gender = gr.Radio(
+                        ["M", "F", "X"],
+                        label=i18n("GenderLabel"),
+                        value=None,
+                        visible=True,
+                        elem_classes=["notranslate"],
+                    )
+            with gr.Column(scale=2):
+                with gr.Group():
+                    nationality = gr.Dropdown(
+                        label=i18n("NationalityLabel"),
+                        info=i18n("NationalityInfo"),
+                        choices=nationalities,
+                        value=None,
+                        multiselect=False,
+                        allow_custom_value=False,
+                    )
+                    region = gr.Dropdown(
+                        label=i18n("PersonalRegionLabel"),
+                        choices=[],
+                        value=None,
+                        allow_custom_value=True,
+                        multiselect=False,
+                        interactive=False,
+                    )
+                    is_course_participant_checkbox = gr.Checkbox(
+                        label=i18n("isCourseParticipantLabel"),
+                        value=False,
+                        interactive=True,
+                    )
+                    with gr.Row():
+                        with gr.Column(scale=1):
+                            school = gr.Number(
+                                label=i18n("SchoolLabel"),
+                                visible=False,
+                            )
+                            school_list_link = gr.HTML(
+                                value="<a href='https://docs.google.com/spreadsheets/d/1SQaQqXh46_J_VrcHo3YJUfPSfKIjbKi73EEtaImzk9c/edit'>Lista de escuelas 🔗</a>",
+                                visible=False,
+                            )
+                            school_name = gr.HTML(
+                                value=i18n("SchoolNamePlaceholder"),
+                                visible=False,
+                            )
+                    is_ethicaia_participant_checkbox = gr.Checkbox(
+                        label=i18n("isEthicaiaParticipantLabel"),
+                        value=False,
+                        interactive=True,
+                    )
+                    with gr.Row():
+                        participant_area = gr.Dropdown(
+                            choices=[
+                                i18n("ClinicalChatbotMedicalStudent"),
+                                i18n("ClinicalChatbotMedicalInTraining"),
+                                i18n("ClinicalChatbotPsychologyStudent"),
+                                i18n("ClinicalChatbotPsychologyInTraining"),
+                                i18n("ClinicalChatbotOther"),
+                            ],
+                            value=None,
+                            label=i18n("ClinicalChatbotParticipantAreaLabel"),
+                            interactive=True,
+                            visible=False,
+                        )
+                        contact_with_real_patients_dropdown = gr.Dropdown(
+                            choices=[
+                                (i18n("TypicalPhrasesValidatorAwarenessYes"), True),
+                                (i18n("TypicalPhrasesValidatorAwarenessNo"), False),
+                            ],
+                            value=None,
+                            label=i18n("ClinicalChatbotRealPatientContactLabel"),
+                            interactive=True,
+                            visible=False,
+                        )
+            with gr.Column(scale=1, min_width=200):
+                consent_checkbox = gr.Checkbox(
+                    label=i18n("ConsentLabel"),
+                    value=False,
+                )
+                _ = gr.HTML(
+                    value=f"<a href='https://docs.google.com/document/d/17Feum83dTqjcicgJxuWdZ3qLuL3emmVY2idGym_usLU/edit?usp=sharing'>Link 🔗</a>",
+                )
+        _ = gr.HTML(
+            value="<hr>",
+        )
+
+        with gr.Tabs(visible=False, selected="typical_phrases_tab") as annotation_tabs:
+            with gr.Tab(i18n("ClinicalChatbotTab"), id="clinical_chatbot_tab", visible=False, render_children=True) as clinical_chatbot_tab:
+                interface_clinicalChatbot(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                    participant_area=participant_area,
+                    contact_with_real_patients=contact_with_real_patients_dropdown,
+                )
+            with gr.Tab(i18n("TypicalPhrasesTab"), id="typical_phrases_tab", render_children=True) as typical_phrases_tab:
+                interface_typicalPhrases(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("ChatbotTab"), id="chatbot_tab", render_children=True) as chatbot_tab:
+                interface_chatbot(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("AmbiguousReferencesTab"), id="ambiguous_references_tab", render_children=True) as ambiguous_references_tab:
+                interface_ambiguousReferences(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("CVQATab"), id="cvqa_tab", visible=False, render_children=True) as cvqa_tab:
+                interface_cvqa(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("ValidatorTab"), id="validator_tab", render_children=True) as validator_tab:
+                interface_validator(
+                    lang=lang,
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("TypicalPhrasesValidatorTab"), id="typical_phrases_validator_tab", render_children=True) as typical_phrases_validator_tab:
+                interface_typicalPhrasesValidator(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+            with gr.Tab(i18n("LogsDataTab"), id="logs_data_tab", render_children=True) as logs_data_tab:
+                interface_logsData(
+                    token_id=token_id,
+                    age=age,
+                    gender=gender,
+                    nationality=nationality,
+                    region=region,
+                    school=school,
+                    consent_checkbox=consent_checkbox,
+                )
+
+        with gr.Row(visible=True) as personal_data_missing:
+            gr.Markdown(
+                i18n("PersonalDataMissingHeading"),
+                elem_id="app-personal-data-missing-heading"
+            )
+        _ = gr.HTML(FOOTER_HTML)
+
+    
+    def get_administrative_divisions(selected_country):
+        """Fetches administrative divisions for a selected country (string)."""
+        if not selected_country:
+            return []
+
+        try:
+            df = pd.read_json("data/global_administrative_division.json")
+            filtered_df = df[df["name"] == selected_country]
+
+            # Format as "Division Name (Country Name)"
+            divisions = [
+                f"{division['name']} ({row['name']})"
+                for _, row in filtered_df.iterrows()
+                for division in row["AD"]
+            ]
+            return sorted(list(set(divisions)))  # Sort and remove duplicates
+        except FileNotFoundError:
+            print("Error: data/global_administrative_division.json not found.")
+            return []
+        except Exception as e:
+            print(f"Error reading or processing administrative divisions: {e}")
+            return []
+
+    # Function to update the PERSONAL region dropdown based on selected PERSONAL nationalities
+    def update_personal_regions(selected_personal_nationalities):
+        if not selected_personal_nationalities:
+            # Disable and clear if no nationalities are selected
+            return gr.update(choices=[], value=None, interactive=False)
+        else:
+            # Get divisions using the helper function
+            region_choices = get_administrative_divisions(selected_personal_nationalities)
+            # Enable and update choices, keep existing selection if possible (Gradio handles this)
+            return gr.update(choices=region_choices, value=None, interactive=True)
+
+    # Connect the personal nationality dropdown to update the personal region dropdown
+    nationality.change(
+        fn=update_personal_regions,
+        inputs=[nationality],
+        outputs=[region]
+    )
+
+    def cvqa_tab_toggle(nationality):
+        if not nationality or nationality not in CVQA_SUPPORTED_NATIONALITIES:
+            return gr.Tab(visible=False)
+        else:
+            return gr.Tab(visible=True)
+
+    nationality.change(
+        fn=cvqa_tab_toggle,
+        inputs=[nationality],
+        outputs=[cvqa_tab]
+    )
+
+    def toggle_school(is_course_participant):
+        if is_course_participant:
+            return gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        else:
+            return gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+
+    is_course_participant_checkbox.change(
+        fn=toggle_school,
+        inputs=[is_course_participant_checkbox],
+        outputs=[school, school_list_link, school_name]
+    )
+
+    def toggle_clinical_inputs(is_ethicaia_participant):
+        if is_ethicaia_participant:
+            return gr.update(visible=True), gr.update(visible=True)
+        return gr.update(visible=False, value=None), gr.update(visible=False, value=None)
+
+    is_ethicaia_participant_checkbox.change(
+        fn=toggle_clinical_inputs,
+        inputs=[is_ethicaia_participant_checkbox],
+        outputs=[participant_area, contact_with_real_patients_dropdown]
+    )
+
+    def clinical_chatbot_tab_toggle(is_ethicaia_participant):
+        if is_ethicaia_participant:
+            return gr.Tab(visible=True), gr.Tabs(selected="clinical_chatbot_tab")
+        else:
+            return gr.Tab(visible=False), gr.Tabs(selected="typical_phrases_tab")
+
+    is_ethicaia_participant_checkbox.change(
+        fn=clinical_chatbot_tab_toggle,
+        inputs=[is_ethicaia_participant_checkbox],
+        outputs=[clinical_chatbot_tab, annotation_tabs]
+    )
+
+    def update_school_name(school):
+        if school is None or school == 0:
+            return (
+                gr.HTML(
+                    value=f"<p>No seleccionaste ningún colegio</p>",
+                )
+            )
+        elif school not in SCHOOL_LIST:
+            return (
+                gr.HTML(
+                    value=f"<p>El colegio seleccionado no existe</p>",
+                )
+            )
+        else:
+            return (
+                gr.HTML(
+                    value=f"<p>Seleccionaste: {SCHOOL_LIST[school]}</p>",
+                )
+            )
+    
+    school.change(
+        fn=update_school_name,
+        inputs=[school],
+        outputs=[school_name]
+    )
+
+    def toggle_annotation(
+        token_id, age, gender, nationality, region, is_course_participant_checkbox, school, is_ethicaia_participant_checkbox, participant_area, contact_with_real_patients_dropdown, consent_checkbox
+    ):
+        if any([
+            token_id is None or len(token_id) == 0,
+            age is None or age < 0 or age > 100,
+            gender is None,
+            nationality is None or len(nationality) == 0,
+            region is None or len(region) == 0,
+            is_course_participant_checkbox and school not in SCHOOL_LIST,
+            is_ethicaia_participant_checkbox and (participant_area is None or contact_with_real_patients_dropdown is None),
+            consent_checkbox is None or not consent_checkbox
+        ]):
+            return (
+                gr.Tabs(visible=False),
+                gr.Row(visible=True)
+            )
+        else:
+            selected_tab = "clinical_chatbot_tab" if is_ethicaia_participant_checkbox else "typical_phrases_tab"
+            return (
+                gr.Tabs(visible=True, selected=selected_tab),
+                gr.Row(visible=False)
+            )
+
+    toggle_annotation_inputs = [
+        token_id,
+        age,
+        gender,
+        nationality,
+        region,
+        is_course_participant_checkbox,
+        school,
+        is_ethicaia_participant_checkbox,
+        participant_area,
+        contact_with_real_patients_dropdown,
+        consent_checkbox
+    ]
+    toggle_annotation_outputs = [
+        annotation_tabs,
+        personal_data_missing
+    ]
+
+    for component in toggle_annotation_inputs:
+        component.change(
+            fn=toggle_annotation,
+            inputs=toggle_annotation_inputs,
+            outputs=toggle_annotation_outputs
+        )
+
+iface.queue(
+    max_size=QUEUE_MAX_SIZE,
+    default_concurrency_limit=DEFAULT_CONCURRENCY_LIMIT
+)
+
+iface.launch(
+    server_port=cmd_line_args['port'],
+    max_threads = MAX_THREADS
+)
